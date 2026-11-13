@@ -2174,379 +2174,29 @@ function pr(x, y, z) {
     const k = 1000 / (z + 1000);
     return [W/2 + CX + x * k, H/2 + CY - y * k, k];
 }
-function fade(a){g.globalCompositeOperation='destination-out';g.fillStyle=`rgba(0,0,0,${a})`;g.fillRect(0,0,W,H);g.globalCompositeOperation='source-over'}
 
 // 1. Túnel Hexagonal Neón (3D)
-function tunelHex(){
- fade(0.3); g.globalCompositeOperation='lighter';
- off=(off+dt*(1+bass*4))%1; const N=20;
- for(let k=0;k<N;k++){
-  const d=(k+off)/N, z = 1000 - d*2000, cx = Math.sin(t*0.5+d)*200, cy = Math.cos(t*0.4+d)*200, r = 800;
-  const p = pr(cx, cy, z);
-  if(p[2] < 0) continue; // Detrás de la cámara
-  g.strokeStyle=`hsla(${(t*50+d*100)%360}, 100%, 60%, ${Math.min(1, d*3)})`;
-  g.lineWidth = 3 * p[2] * (1+hi*2);
-  g.beginPath();
-  for(let i=0; i<=6; i++){
-      const a = (i/6)*Math.PI*2 + t;
-      const vx = cx + Math.cos(a)*r, vy = cy + Math.sin(a)*r;
-      const pt = pr(vx, vy, z);
-      if(i===0) g.moveTo(pt[0], pt[1]); else g.lineTo(pt[0], pt[1]);
-  }
-  g.stroke();
- }
- g.globalCompositeOperation='source-over';
-}
 
 // 2. Aros Cyberpunk
-function tunelCyber(){
- fade(0.3); g.globalCompositeOperation='lighter';
- off=(off+dt*(0.8+bass*3))%1; const N=24;
- for(let k=0;k<N;k++){
-  const d=(k+off)/N, z = 1000 - d*2000, cx = Math.sin(t*0.8)*300, cy = Math.cos(t*0.7)*300, r = 700;
-  const p = pr(cx, cy, z);
-  if(p[2] < 0) continue;
-  g.strokeStyle=`hsla(180, 100%, ${50+beat*50}%, ${Math.min(1,d*4)})`;
-  g.lineWidth = 5 * p[2] * (1+bass);
-  g.beginPath();
-  g.arc(p[0], p[1], r*p[2], 0, Math.PI*2);
-  g.stroke();
- }
- if(beat>.4){g.fillStyle=`rgba(255,255,255,${beat*.15})`;g.fillRect(0,0,W,H)}
- g.globalCompositeOperation='source-over';
-}
 
 // 3. Hipervelocidad (Warp Drive)
-let wz=0,lz=0;function warpDrive(){
- fade(0.2); g.globalCompositeOperation='lighter';
- wz=(wz+dt*(2000+bass*3000))%2000;const speed=wz;
- for(let i=0; i<80; i++){
-     const a = (i/80)*Math.PI*2;
-     const r = 300 + (i%5)*100;
-     const z1 = (speed + i*50) % 2000 - 1000;
-     const z2 = z1 + 300 + bass*400;
-     const p1 = pr(Math.cos(a)*r, Math.sin(a)*r, z1);
-     const p2 = pr(Math.cos(a)*r, Math.sin(a)*r, z2);
-     if(p1[2]<0 || p2[2]<0) continue;
-     g.strokeStyle=`hsla(${(t*80+i*10)%360}, 100%, 70%, 0.8)`;
-     g.lineWidth = 3 * p1[2];
-     g.beginPath(); g.moveTo(p1[0], p1[1]); g.lineTo(p2[0], p2[1]); g.stroke();
- }
- g.globalCompositeOperation='source-over';
-}
 
 // 4. Grid Láser Estroboscópico
-function laserGrid(){
- fade(0.25); g.globalCompositeOperation='lighter';
- const zOff = (t*1500)%400;
- for(let i=-5; i<=5; i++){
-     const x = i*300;
-     g.strokeStyle=`hsla(300, 100%, 60%, 0.6)`; g.lineWidth=2;
-     g.beginPath();
-     const p1 = pr(x, -800, 1000), p2 = pr(x, -800, -800);
-     if(p1[2]>0 && p2[2]>0){ g.moveTo(p1[0], p1[1]); g.lineTo(p2[0], p2[1]); }
-     g.stroke();
- }
- for(let i=0; i<6; i++){
-     const z = 1000 - (i*400 + zOff);
-     g.strokeStyle=`hsla(300, 100%, 60%, ${0.2+beat*0.5})`;
-     const p1 = pr(-1500, -800, z), p2 = pr(1500, -800, z);
-     if(p1[2]>0 && p2[2]>0){
-         g.lineWidth = 4 * p1[2] * (1+bass);
-         g.beginPath(); g.moveTo(p1[0], p1[1]); g.lineTo(p2[0], p2[1]); g.stroke();
-     }
- }
- if(beat>0.6){g.fillStyle=`rgba(255,45,149,${beat*.2})`;g.fillRect(0,0,W,H)}
- g.globalCompositeOperation='source-over';
-}
 
 // 5. Lluvia Binaria Matrix
-function lluviaBinaria(){
- fade(0.2); g.globalCompositeOperation='lighter';
- g.font = "bold 24px monospace"; g.textAlign="center";
- lz=(lz+dt*(800+bass*1000))%H;const speed=lz;
- for(let i=0; i<60; i++){
-     const x = (i*40)%W;
-     const y = (speed + i*70)%H;
-     const bit = Math.random()>0.5?"1":"0";
-     g.fillStyle=`hsla(120, 100%, ${50+beat*50}%, ${0.4+beat*0.6})`;
-     g.fillText(bit, x, y);
- }
- g.globalCompositeOperation='source-over';
-}
 
 // 6. Núcleo de Energía
-function nucleoEnergia(){
- fade(0.2); g.globalCompositeOperation='lighter';
- const a = t*2;
- for(let i=0; i<16; i++){
-     const angle = (i/16)*Math.PI*2 + t*0.5;
-     const x = W/2 + CX + Math.cos(angle)*300*(1+bass*0.5);
-     const y = H/2 + CY + Math.sin(angle)*300*(1+bass*0.5);
-     g.strokeStyle = `hsl(${(t*60+i*20)%360},100%,60%)`;
-     g.lineWidth = 4 + mid*12;
-     g.beginPath(); g.moveTo(W/2+CX, H/2+CY); g.lineTo(x + Math.cos(a)*W, y + Math.sin(a)*W); g.stroke();
- }
- g.globalCompositeOperation='source-over';
-}
 
 // 7. Túnel Delta (Triángulos)
-function tunelDelta(){
- fade(0.35); g.globalCompositeOperation='lighter';
- off=(off+dt*(1+bass*3))%1; const N=18;
- for(let k=0;k<N;k++){
-  const d=(k+off)/N, z = 1000 - d*2000, cx = 0, cy = 0, r = 900;
-  const p = pr(cx, cy, z);
-  if(p[2] < 0) continue; 
-  g.strokeStyle=`hsla(${(200+d*100)%360}, 100%, 60%, ${Math.min(1, d*4)})`;
-  g.lineWidth = 4 * p[2] * (1+hi*1.5);
-  g.beginPath();
-  for(let i=0; i<=3; i++){
-      const a = (i/3)*Math.PI*2 + t*1.5;
-      const vx = cx + Math.cos(a)*r, vy = cy + Math.sin(a)*r;
-      const pt = pr(vx, vy, z);
-      if(i===0) g.moveTo(pt[0], pt[1]); else g.lineTo(pt[0], pt[1]);
-  }
-  g.stroke();
- }
- g.globalCompositeOperation='source-over';
-}
 
 // 8. Ecualizador TOP
-function eq(){
- const bg=g.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#0b0020');bg.addColorStop(1,`hsl(${270+beat*40},80%,${14+beat*10}%)`);
- g.clearRect(0,0,W,H);
- const cx=W/2+CX,cy=H*.3+CY,R=180+bass*100;
- for(let i=0;i<64;i++){const a=i/64*Math.PI*2+t*.2,l=fd[2+i]/255*250+10;
-  g.strokeStyle=`hsl(${i*5.6+t*40},100%,60%)`;g.lineWidth=10;g.beginPath();
-  g.moveTo(cx+Math.cos(a)*R,cy+Math.sin(a)*R);g.lineTo(cx+Math.cos(a)*(R+l),cy+Math.sin(a)*(R+l));g.stroke()}
- const n=32,bw=W/n;
- for(let i=0;i<n;i++){const v=Math.pow(fd[2+i*3]/255,1.4),h=v*H*.34+4,x=i*bw+3,y=H*.82;
-  g.fillStyle=`hsl(${i/n*300+t*30},100%,58%)`;g.fillRect(x,y-h,bw-6,h);
-  peaks[i]=Math.max(h,peaks[i]-dt*160);g.fillStyle='#fff';g.fillRect(x,y-peaks[i]-8,bw-6,4)}}
 
-function polyTun(N,sides,r,rot,hue,lw,star){fade(.3);g.globalCompositeOperation='lighter';off=(off+dt*(1+bass*3.5))%1;
- for(let k=0;k<N;k++){const d=(k+off)/N,z=1000-d*2000,p=pr(0,0,z);if(p[2]<0||p[2]>3)continue;
-  g.strokeStyle=`hsla(${(hue+d*120+t*30)%360},100%,${55+beat*25}%,${Math.min(1,d*4)})`;g.lineWidth=lw*p[2]*(1+hi*2);g.beginPath();
-  const m=star?sides*2:sides;
-  for(let i=0;i<=m;i++){const a=i/m*Math.PI*2+rot*(t+d*2)*(k%2?1:-1),rr=r*(star&&i%2?.45:1)*(1+bass*.15),q=pr(Math.cos(a)*rr,Math.sin(a)*rr,z);i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1])}
-  g.stroke()}
- g.globalCompositeOperation='source-over'}
-const tunelOcto=()=>polyTun(22,8,850,.5,160,3),tunelCuad=()=>polyTun(20,4,900,.8,30,5),tunelEstrella=()=>polyTun(18,5,950,.4,300,4,true);
-function tunelEspectro(){fade(.3);g.globalCompositeOperation='lighter';off=(off+dt*(1+bass*3))%1;
- for(let k=0;k<16;k++){const d=(k+off)/16,z=1000-d*2000,p=pr(0,0,z);if(p[2]<0||p[2]>3)continue;
-  g.strokeStyle=`hsla(${(d*300+t*40)%360},100%,60%,${Math.min(1,d*4)})`;g.lineWidth=3*p[2]*(1+bass);g.beginPath();
-  for(let i=0;i<=64;i++){const a=i/64*Math.PI*2,rr=550+fd[2+(i%32)*3]*1.6,q=pr(Math.cos(a)*rr,Math.sin(a)*rr,z);i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1])}
-  g.stroke()}
- g.globalCompositeOperation='source-over'}
-function helice(){fade(.22);g.globalCompositeOperation='lighter';
- for(let s=0;s<3;s++)for(let i=0;i<70;i++){const d=(i/70+t*.25*(1+bass))%1,z=1000-d*2000,a=d*14+t*2+s*2.094,r=450+bass*200,p=pr(Math.cos(a)*r,Math.sin(a)*r,z);if(p[2]<0||p[2]>3)continue;
-  g.fillStyle=`hsla(${(s*120+d*200+t*60)%360},100%,65%,${Math.min(1,d*4)})`;g.beginPath();g.arc(p[0],p[1],(10+beat*14)*p[2],0,6.283);g.fill()}
- g.globalCompositeOperation='source-over'}
 const hs=n=>{const x=Math.sin(n*12.9898)*43758.5453;return x-Math.floor(x)};
-function estrellas(){fade(.25);g.globalCompositeOperation='lighter';
- for(let i=0;i<160;i++){const d=(hs(i)+t*.2*(1+bass*2))%1,z=1000-d*1900,a=hs(i+99)*6.283,r=100+hs(i+7)*1400,x=Math.cos(a)*r,y=Math.sin(a)*r,p=pr(x,y,z),q=pr(x,y,z-120-bass*200);
-  if(p[2]<0||q[2]<0||p[2]>3)continue;g.strokeStyle=`hsla(${200+hs(i+3)*160},100%,${70+beat*25}%,${Math.min(1,d*5)})`;g.lineWidth=3*p[2];g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(q[0],q[1]);g.stroke()}
- g.globalCompositeOperation='source-over'}
-function vortice(){fade(.2);g.globalCompositeOperation='lighter';const cx=W/2+CX,cy=H/2+CY;
- for(let arm=0;arm<4;arm++)for(let i=0;i<60;i++){const u=i/60,a=arm*1.571+u*7+t*(.8+bass),r=30+u*u*900*(1+bass*.2);
-  g.fillStyle=`hsla(${(u*240+arm*60+t*50)%360},100%,${55+beat*30}%,${1-u*.7})`;g.beginPath();g.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r,4+u*16+mid*10,0,6.283);g.fill()}
- g.globalCompositeOperation='source-over'}
-function cubos(){fade(.3);g.globalCompositeOperation='lighter';const E=[[0,1],[1,3],[3,2],[2,0],[4,5],[5,7],[7,6],[6,4],[0,4],[1,5],[2,6],[3,7]];
- for(let c=0;c<5;c++){const s=(130+c*80)*(1+bass*.2),ax=t*.6+c*.3,ay=t*.8-c*.25,P=[];
-  for(let v=0;v<8;v++){let x=(v&1?1:-1)*s,y=(v&2?1:-1)*s,z=(v&4?1:-1)*s;
-   let y2=y*Math.cos(ax)-z*Math.sin(ax),z2=y*Math.sin(ax)+z*Math.cos(ax);y=y2;z=z2;
-   const x2=x*Math.cos(ay)+z*Math.sin(ay);z2=-x*Math.sin(ay)+z*Math.cos(ay);x=x2;z=z2;P.push(pr(x,y,z))}
-  g.strokeStyle=`hsl(${(c*50+t*50)%360},100%,${55+beat*30}%)`;g.lineWidth=4+beat*6;g.beginPath();
-  for(const [a,b] of E){g.moveTo(P[a][0],P[a][1]);g.lineTo(P[b][0],P[b][1])}g.stroke()}
- g.globalCompositeOperation='source-over'}
 
-function agujeroNegro(){fade(.25);g.globalCompositeOperation='lighter';const cx=W/2+CX,cy=H/2+CY,R=170+bass*60;
- for(let i=0;i<90;i++){const u=hs(i),a=hs(i+5)*6.283+t*(1.2+2.5/(u+.2)),r=R*1.4+u*u*750;
-  g.fillStyle=`hsla(${(30+u*60+t*20)%360},100%,${60+beat*30}%,${.9-u*.6})`;g.beginPath();g.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r*.32,3+(1-u)*8,0,6.283);g.fill()}
- for(let k=0;k<4;k++){g.strokeStyle=`hsla(${30+k*12},100%,${60+beat*30}%,${.8-k*.15})`;g.lineWidth=6+k*5+beat*10;g.beginPath();g.ellipse(cx,cy,R*(1.5+k*.5),R*(.5+k*.17),0,0,6.283);g.stroke()}
- g.globalCompositeOperation='source-over';g.fillStyle='#000';g.beginPath();g.arc(cx,cy,R,0,6.283);g.fill();
- g.strokeStyle=`rgba(255,220,160,${.6+beat*.4})`;g.lineWidth=5+beat*12;g.beginPath();g.arc(cx,cy,R,0,6.283);g.stroke()}
-function rayos(){fade(.28);g.globalCompositeOperation='lighter';const cx=W/2+CX,cy=H/2+CY,n=12+Math.floor(mid*14);
- for(let i=0;i<n;i++){const a=i/n*6.283+t*.5*(i%2?1:-1)+beat*.3;g.strokeStyle=`hsla(${(i*30+t*60)%360},100%,${55+beat*35}%,${.35+beat*.5})`;g.lineWidth=6+bass*30;g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+Math.cos(a)*2200,cy+Math.sin(a)*2200);g.stroke()}
- const q=g.createRadialGradient(cx,cy,0,cx,cy,260+bass*200);q.addColorStop(0,`rgba(255,255,255,${.5+beat*.5})`);q.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=q;g.fillRect(0,0,W,H);
- g.globalCompositeOperation='source-over'}
-let tz=0;
-function terreno(){fade(.35);g.globalCompositeOperation='lighter';
- const sy=H*.36+CY,sr=240+bass*60,sg=g.createLinearGradient(0,sy-sr,0,sy+sr);sg.addColorStop(0,'#ffe14d');sg.addColorStop(1,'#ff2d95');g.fillStyle=sg;g.beginPath();g.arc(W/2+CX,sy,sr,0,6.283);g.fill();
- tz=(tz+dt*(400+bass*900))%130;
- for(let r=0;r<16;r++){const z=1100-r*130-tz;g.strokeStyle=`hsla(${290-r*6},100%,${55+beat*25}%,${Math.min(1,.2+r/10)})`;g.lineWidth=3+r*.3;g.beginPath();
-  for(let i=0;i<=28;i++){const p=pr((i-14)*110,-650+fd[2+Math.abs(i-14)*2]*(1.1-r/20)*1.2,z);if(p[2]<0||p[2]>4)continue;i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1])}g.stroke()}
- g.strokeStyle='rgba(0,229,255,.55)';g.lineWidth=2;
- for(let i=-7;i<=7;i++){const a=pr(i*220,-650,1100),b=pr(i*220,-650,-500);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke()}
- g.globalCompositeOperation='source-over'}
-function glitch(){fade(.4);g.globalCompositeOperation='lighter';off=(off+dt*(1+bass*4))%1;const sh=beat*45+bass*14;
- for(let c=0;c<3;c++)for(let k=0;k<20;k++){const d=(k+off)/20,z=1000-d*2000,p=pr(0,0,z);if(p[2]<0||p[2]>3)continue;
-  g.strokeStyle=['rgba(255,30,60,','rgba(30,255,120,','rgba(40,120,255,'][c]+Math.min(1,d*4)+')';g.lineWidth=5*p[2]*(1+bass);g.beginPath();
-  for(let i=0;i<=4;i++){const a=i*1.5708+.785+t*.4*(k%2?1:-1),q=pr(Math.cos(a)*850,Math.sin(a)*850,z);i?g.lineTo(q[0]+(c-1)*sh,q[1]):g.moveTo(q[0]+(c-1)*sh,q[1])}g.stroke()}
- if(beat>.5){const s=Math.floor(t*30);g.fillStyle=`rgba(255,255,255,${beat*.35})`;for(let i=0;i<3;i++)g.fillRect(0,hs(s+i)*H,W,6+hs(s+i+9)*40)}
- g.globalCompositeOperation='source-over'}
-function rayo(){fade(.35);g.globalCompositeOperation='lighter';const cx=W/2+CX,cy=H/2+CY,sd=Math.floor(t*24);
- for(let b=0;b<7;b++){const a=hs(sd+b*13)*6.283;g.strokeStyle=`hsla(${190+b*20},100%,${70+beat*25}%,${.5+bass*.5})`;g.lineWidth=3+bass*8+beat*8;g.beginPath();g.moveTo(cx,cy);
-  for(let s=1;s<=14;s++){const L=s*(90+bass*80);g.lineTo(cx+Math.cos(a)*L+(hs(sd*7+b*31+s)-.5)*110,cy+Math.sin(a)*L+(hs(sd*5+b*17+s)-.5)*110)}g.stroke()}
- const q=g.createRadialGradient(cx,cy,0,cx,cy,200+bass*160);q.addColorStop(0,`rgba(180,240,255,${.6+beat*.4})`);q.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=q;g.fillRect(0,0,W,H);
- g.globalCompositeOperation='source-over'}
-function torsion(){fade(.3);g.globalCompositeOperation='lighter';off=(off+dt*(1+bass*3))%1;
- for(let k=0;k<26;k++){const d=(k+off)/26,z=1000-d*2000,p=pr(0,0,z);if(p[2]<0||p[2]>3)continue;
-  g.strokeStyle=`hsla(${(d*260+t*50)%360},100%,${55+beat*30}%,${Math.min(1,d*4)})`;g.lineWidth=4*p[2]*(1+hi*2);g.beginPath();
-  for(let i=0;i<=12;i++){const a=i/12*6.283+d*4+t*.8,r=800*(1+bass*.2)*(i%2?1:.55),q=pr(Math.cos(a)*r,Math.sin(a)*r,z);i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1])}g.stroke()}
- g.globalCompositeOperation='source-over'}
-function kaleido(){fade(.2);g.globalCompositeOperation='lighter';const cx=W/2+CX,cy=H/2+CY;
- for(let m=0;m<8;m++){g.save();g.translate(cx,cy);g.rotate(m*.785+t*.2);
-  for(let i=0;i<14;i++){const u=i/14,r=80+u*700+bass*60,v=fd[2+i*4]/255,a=Math.sin(t*1.5+i*.7)*.5+v*1.2;
-   g.fillStyle=`hsla(${(u*300+t*50+m*10)%360},100%,${55+beat*30}%,${.8-u*.5})`;g.beginPath();g.arc(Math.cos(a)*r,Math.sin(a)*r,6+v*30,0,6.283);g.fill()}
-  g.restore()}
- g.globalCompositeOperation='source-over'}
 
 // ============ TÚNELES SHADER (WebGL): profundidad infinita, alpha real y centro abierto ============
 // Cada túnel es un shader procedural; el centro queda transparente para que tu imagen/video sea el protagonista.
 let TW=null,ph=0,HO=.5,PQ=.4,fEma=.017,fC=0;
-const SH_HDR=`precision highp float;
-uniform vec2 uRes;uniform float uT,uPh,uBass,uMid,uHi,uBeat,uHole,uI;uniform sampler2D uSp;
-#define PI 3.14159265
-#define TAU 6.28318531
-mat2 rot(float a){float c=cos(a),s=sin(a);return mat2(c,-s,s,c);}
-float h11(float p){p=fract(p*.1031);p*=p+33.33;p*=p+p;return fract(p);}
-float h21(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
-float h31(vec3 p){p=fract(p*.1031);p+=dot(p,p.yzx+33.33);return fract((p.x+p.y)*p.z);}
-float vn3(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
- return mix(mix(mix(h31(i),h31(i+vec3(1,0,0)),f.x),mix(h31(i+vec3(0,1,0)),h31(i+vec3(1,1,0)),f.x),f.y),
-            mix(mix(h31(i+vec3(0,0,1)),h31(i+vec3(1,0,1)),f.x),mix(h31(i+vec3(0,1,1)),h31(i+vec3(1,1,1)),f.x),f.y),f.z);}
-float sp(float x){return texture2D(uSp,vec2(clamp(x,0.,1.),.5)).r;}
-vec3 thin(float x){return .5+.5*cos(TAU*(x+vec3(0.,.33,.67)));}
-vec2 path(float z){return vec2(sin(z*.11)*1.2+sin(z*.047+1.)*1.4,cos(z*.083)*.9+sin(z*.061)*.8);}
-vec2 pmod(vec2 p,float n){float a=atan(p.y,p.x),r=length(p);a=mod(a+PI/n,TAU/n)-PI/n;return r*vec2(cos(a),sin(a));}
-vec3 envm(vec3 d){vec3 c=mix(vec3(.015,.018,.03),vec3(.5,.6,.8),smoothstep(-.4,1.,d.y));
- c+=vec3(1.8,1.45,1.1)*smoothstep(.7,.93,dot(d,normalize(vec3(-.5,.7,.5))))*2.4;
- c+=vec3(.5,.85,1.8)*smoothstep(.78,.96,dot(d,normalize(vec3(.6,.3,.7))))*2.2;
- c+=vec3(1.,.45,.25)*smoothstep(.8,.98,dot(d,normalize(vec3(0.,-.5,-.85))))*1.6;return c;}
-vec2 map(vec3 p);vec3 glw(vec3 p);vec4 shd(vec3 p,vec3 n,vec3 rd,float m,float ao,float t);
-`;
-const SH_FTR=`void main(){
- vec2 uv=(gl_FragCoord.xy-.5*uRes)/uRes.x*2.;
- uv=rot(sin(uT*.27)*.18+uBeat*.04)*uv;
- float z0=-uPh*4.;vec2 c0=path(z0);vec3 ro=vec3(c0+vec2(sin(uT*.7),cos(uT*.53))*.12,z0);
- vec2 c1=path(z0-2.);vec3 fw=normalize(vec3(c1-c0,-2.)),rt=normalize(cross(fw,vec3(0.,1.,0.))),up=cross(rt,fw);
- vec3 rd=normalize(fw+(rt*uv.x+up*uv.y)*.62);
- float dens=mix(.5,.1,uHole);float t=.05;vec2 h=vec2(1e3,0.);vec3 gl=vec3(0.);bool hit=false;
- for(int i=0;i<80;i++){vec3 p=ro+rd*t;h=map(p);gl+=glw(p)*max(h.x,.04);if(h.x<.0012*t+.0006){hit=true;break;}t+=h.x*.85;if(t>45.)break;}
- if(!hit&&t<40.&&h.x<.012*t+.01)hit=true;   // rayos rasantes que agotan los pasos: se tratan como impacto
- vec3 col=vec3(0.);float a=0.;
- if(hit){vec3 p=ro+rd*t;vec2 e=vec2(.006*t+.004,0.);
-  vec3 n=normalize(vec3(map(p+e.xyy).x-map(p-e.xyy).x,map(p+e.yxy).x-map(p-e.yxy).x,map(p+e.yyx).x-map(p-e.yyx).x));
-  float o=0.,s=1.;for(int i=1;i<=4;i++){float d=.14*float(i);o+=(d-map(p+n*d).x)*s;s*=.6;}
-  float ao=clamp(1.-1.3*o,0.,1.);vec4 s4=shd(p,n,rd,h.y,ao,t);col=s4.rgb;a=s4.a*exp(-max(0.,t-3.)*dens);}
- vec3 c=col*a+gl;c=1.-exp(-c*1.15);float al=clamp(max(a,max(c.r,max(c.g,c.b))),0.,1.);
- gl_FragColor=vec4(c,al)*uI;}
-`;
-const SHB=[
-`// REACTOR: acero cepillado, costillas de latón y bandas de luz
-const float R0=2.6;
-vec2 map(vec3 p){vec3 q=p;q.xy-=path(p.z);float r=length(q.xy);float wall=R0-r;float zc=mod(q.z+2.,4.)-2.;
- float rib=length(vec2(r-(R0-.1),zc))-(.32+uBass*.1);vec2 pr=pmod(q.xy,8.);float strip=length(vec2(pr.x-(R0-.05),pr.y))-.07;
- float d=min(wall,rib);float m=rib<wall?1.:0.;if(strip<d){d=strip;m=2.;}return vec2(d,m);}
-vec3 glw(vec3 p){vec3 q=p;q.xy-=path(p.z);vec2 pr=pmod(q.xy,8.);float d=length(vec2(pr.x-(R0-.05),pr.y));
- float pls=.5+.5*sin(q.z*.8-uT*3.+sp(.1)*4.);return vec3(1.,.55,.2)*(.006/(d*d+.012))*(.4+pls*(.6+uBass*1.5))*.5;}
-vec4 shd(vec3 p,vec3 n,vec3 rd,float m,float ao,float t){vec3 q=p;q.xy-=path(p.z);float a=atan(q.y,q.x);
- if(m>1.5)return vec4(vec3(1.,.6,.25)*(1.8+uBass*3.),1.);
- vec3 alb=m>.5?vec3(.92,.72,.42):vec3(.62,.66,.72);float br=.9+.1*vn3(vec3(a*30.,q.z*.15,0.));
- vec3 V=-rd,rf=reflect(rd,n);float F=.04+.96*pow(1.-max(dot(n,V),0.),5.);float dif=max(dot(n,V),0.)*.6,spc=pow(max(dot(rf,V),0.),24.)*1.2;
- vec3 e=envm(rf)*mix(alb,vec3(1.),F)*.9;float strips=pow(.5+.5*cos(a*8.),8.);vec3 amb=vec3(1.,.55,.2)*strips*(.8+uBass*2.);
- return vec4((alb*dif*br+e+spc*vec3(1.,.95,.9))*ao+amb*alb*ao*.6,1.);}
-`,
-`// CATEDRAL DE CRISTAL: paneles de vidrio hexagonales, puntales pulidos, dispersión iridiscente
-const float R0=2.7;
-float hexn(vec2 p){return max(abs(p.x),max(abs(dot(p,vec2(.5,.8660254))),abs(dot(p,vec2(-.5,.8660254)))));}
-vec2 map(vec3 p){vec3 q=p;q.xy-=path(p.z);q.xy=rot(q.z*.05+uT*.05)*q.xy;float wall=R0-hexn(q.xy);float zc=mod(q.z+3.,6.)-3.;
- float beam=max(abs(zc)-.1-uBass*.03,-(wall-.22));beam=max(beam,wall-.02)*1.;vec2 pr=pmod(rot(PI/6.)*q.xy,6.);float strut=length(vec2(pr.x-R0*1.1547,pr.y))-.09;
- float d=wall;float m=0.;if(beam<d){d=beam;m=1.;}if(strut<d){d=strut;m=1.;}return vec2(d,m);}
-vec3 glw(vec3 p){vec3 q=p;q.xy-=path(p.z);q.xy=rot(q.z*.05+uT*.05)*q.xy;vec2 pr=pmod(rot(PI/6.)*q.xy,6.);float d=length(vec2(pr.x-R0*1.1547+.2,pr.y));
- return mix(vec3(.75,.88,1.),thin(q.z*.04+uT*.05),.25)*(.012/(d*d+.03))*(.5+sp(.12)*1.6+uBeat*.8);}
-vec4 shd(vec3 p,vec3 n,vec3 rd,float m,float ao,float t){vec3 V=-rd,rf=reflect(rd,n);float ndv=max(dot(n,V),0.);float F=.04+.96*pow(1.-ndv,4.);
- vec3 ir=thin(ndv*1.6+p.z*.03+uT*.04);
- if(m>.5){vec3 c=envm(rf)*(.75+ir*.25)+ir*.06+pow(max(dot(rf,V),0.),30.)*1.3;return vec4(c*ao,1.);}
- vec3 c=envm(rf)*F*1.8+mix(vec3(.6,.8,1.),ir,.5)*pow(1.-ndv,3.)*.9+vec3(.02,.05,.08);return vec4(c,.2+.7*F+.35*pow(1.-ndv,3.));}
-`,
-`// TÚNEL NÁCAR: pliegues orgánicos con iridiscencia de perla
-const float R0=2.7;
-float rad(vec3 q){float a=atan(q.y,q.x);return R0+.38*sin(a*5.+q.z*.7+uT*.5)*sin(q.z*.45)+.18*sin(a*9.-q.z*1.3-uT*.8)+.14*sp(.1+.5*abs(sin(a*2.)))*sin(q.z*.9);}
-vec2 map(vec3 p){vec3 q=p;q.xy-=path(p.z);return vec2((rad(q)-length(q.xy))*.6,0.);}
-vec3 glw(vec3 p){return vec3(0.);}
-vec4 shd(vec3 p,vec3 n,vec3 rd,float m,float ao,float t){vec3 V=-rd,rf=reflect(rd,n);float ndv=max(dot(n,V),0.);
- vec3 q=p;q.xy-=path(p.z);float a=atan(q.y,q.x);float F=.05+.95*pow(1.-ndv,3.);
- vec3 ir=thin(ndv*1.7+q.z*.035+a*.15+vn3(q*.8)*.5+uT*.03);vec3 base=mix(vec3(.92,.9,.95),ir,.4);
- float wrap=clamp(dot(n,normalize(vec3(.3,.5,.8)))*.5+.5,0.,1.);vec3 sss=vec3(1.,.5,.6)*pow(1.-ndv,2.)*.35;
- vec3 c=base*(.25+.55*wrap)+envm(rf)*(.25+F*.9)*mix(vec3(1.),ir,.5)+sss+pow(max(dot(rf,V),0.),40.)*vec3(1.,.95,.9);
- c*=.55+.45*ao;c*=1.+uBeat*.35+uBass*.3;return vec4(c,1.);}
-`,
-`// ANILLOS COLOSALES: portales de cromo con halos volumétricos; entre anillos todo es transparente
-vec2 map(vec3 p){vec3 q=p;q.xy-=path(p.z);float zc=mod(q.z+2.1,4.2)-2.1,r=length(q.xy);
- float id=floor((q.z+2.1)/4.2);float r1=length(vec2(r-2.9-.35*sin(id*1.7),zc))-(.13+.07*sp(fract(id*.173)));
- float zc2=mod(q.z+4.2,8.4)-4.2;float r2=length(vec2(r-4.6,zc2))-.09;
- float d=min(r1,r2);return vec2(d,r1<r2?0.:1.);}
-vec3 glw(vec3 p){vec3 q=p;q.xy-=path(p.z);float zc=mod(q.z+2.1,4.2)-2.1,r=length(q.xy);float id=floor((q.z+2.1)/4.2);
- float d=length(vec2(r-2.9-.35*sin(id*1.7),zc));float k=.6+sp(fract(id*.173))*2.4+uBeat*1.4;
- return thin(id*.13+uT*.06)*(.03/(d*d+.04))*k;}
-vec4 shd(vec3 p,vec3 n,vec3 rd,float m,float ao,float t){vec3 V=-rd,rf=reflect(rd,n);float ndv=max(dot(n,V),0.);float F=.05+.95*pow(1.-ndv,4.);
- vec3 q=p;q.xy-=path(p.z);float id=floor((q.z+2.1)/4.2);vec3 ir=thin(id*.13+ndv*.8+uT*.06);
- vec3 c=envm(rf)*(.7+ir*.6)*(.4+F)+ir*.35+pow(max(dot(rf,V),0.),36.)*1.3;return vec4(c,1.);}
-`,
-`// HÉLICE DE TITANIO: aletas que giran en espiral, titanio oscuro con filo dorado anodizado
-const float R0=2.7;
-vec2 map(vec3 p){vec3 q=p;q.xy-=path(p.z);float r=length(q.xy);vec2 tw=rot(q.z*.32+uT*.15)*q.xy;vec2 pr=pmod(tw,3.);
- float wall=R0-r;float fin=max(abs(pr.y)-.11-uBass*.04,max(r-R0,(R0-1.25-uBass*.2)-r));
- float d=wall;float m=0.;if(fin<d){d=fin;m=1.;}return vec2(d*.8,m);}
-vec3 glw(vec3 p){vec3 q=p;q.xy-=path(p.z);float r=length(q.xy);vec2 tw=rot(q.z*.32+uT*.15)*q.xy;vec2 pr=pmod(tw,3.);
- float d=length(vec2(pr.y,r-(R0-1.25)));return vec3(1.,.7,.3)*(.004/(d*d+.02))*(.4+uBass*1.5+sp(.2));}
-vec4 shd(vec3 p,vec3 n,vec3 rd,float m,float ao,float t){vec3 q=p;q.xy-=path(p.z);vec2 tw=rot(q.z*.32+uT*.15)*q.xy;vec2 pr=pmod(tw,3.);
- vec3 V=-rd,rf=reflect(rd,n);float ndv=max(dot(n,V),0.);float F=.04+.96*pow(1.-ndv,5.);vec3 alb=vec3(.12,.13,.16);
- vec3 c=alb*(.25+ndv*.4)+envm(rf)*mix(vec3(.30,.32,.38),vec3(.8),F)*.5+pow(max(dot(rf,V),0.),40.)*.8;
- float edge=smoothstep(.16,.02,abs(length(q.xy)-(R0-1.25)))*(m>.5?1.:0.);vec3 gold=vec3(1.,.7,.28);c=mix(c,gold*(1.2+uBass*2.5+uBeat),edge*.9);return vec4(c*ao,1.);}
-`,
-`// OBSIDIANA: cristal negro octogonal con barras de luz que se reflejan en las paredes pulidas
-const float R0=2.7;
-float octn(vec2 p){p=abs(p);return max(max(p.x,p.y),(p.x+p.y)*.7071068);}
-vec2 map(vec3 p){vec3 q=p;q.xy-=path(p.z);float wall=R0-octn(q.xy);vec2 pr=pmod(rot(PI/8.)*q.xy,8.);
- float bar=max(length(vec2(pr.x-R0*1.082,pr.y))-.07,abs(mod(q.z+2.,4.)-2.)-1.5);
- float d=wall;float m=0.;if(bar<d){d=bar;m=2.;}return vec2(d,m);}
-vec3 barc(float k){return mix(vec3(1.,.5,.2),vec3(.3,.6,1.),mod(k,2.));}
-vec3 glw(vec3 p){vec3 q=p;q.xy-=path(p.z);vec2 pr=pmod(rot(PI/8.)*q.xy,8.);float k=floor((atan(q.y,q.x)+PI)/(TAU/8.));float d=length(vec2(pr.x-R0*1.082,pr.y));
- return barc(k)*(.02/(d*d+.02))*(.5+uBass*1.6+sp(.15)*.8);}
-vec4 shd(vec3 p,vec3 n,vec3 rd,float m,float ao,float t){vec3 q=p;q.xy-=path(p.z);float k=floor((atan(q.y,q.x)+PI)/(TAU/8.));
- if(m>1.5)return vec4(barc(k)*(2.2+uBass*3.),1.);
- vec3 V=-rd,rf=reflect(rd,n);float ndv=max(dot(n,V),0.);float F=.04+.96*pow(1.-ndv,3.);
- vec3 rc=vec3(0.);float tt=.08;for(int i=0;i<22;i++){vec3 pp=p+n*.02+rf*tt;vec2 hh=map(pp);if(hh.x<.01){if(hh.y>1.5){vec3 qq=pp;qq.xy-=path(pp.z);float kk=floor((atan(qq.y,qq.x)+PI)/(TAU/8.));rc=barc(kk)*(2.4+uBass*2.)/(1.+tt*.12);}break;}tt+=hh.x;if(tt>30.)break;}
- vec3 c=(rc+envm(rf)*.12)*F*2.4+vec3(.02,.024,.034)+pow(max(dot(rf,V),0.),60.)*.5;return vec4(c*(.6+.4*ao),1.);}
-`,
-`// NEBULOSA: nube volumétrica iluminada, sin superficies (todo lo vacío queda transparente)
-vec2 map(vec3 p){return vec2(.34,0.);}
-vec3 glw(vec3 p){vec3 q=p;q.xy-=path(p.z);float r=length(q.xy);vec3 w=q*.32+vec3(0.,0.,uT*.18);
- float n=vn3(w)*.55+vn3(w*2.1+4.)*.3+vn3(w*4.3+9.)*.15;float shell=smoothstep(.4,2.2,r)*(1.-smoothstep(3.4,5.5,r));
- float d=smoothstep(.55,.74,n)*shell;vec3 warm=vec3(1.,.38,.2),cool=vec3(.25,.45,1.),vio=vec3(.8,.3,.9);
- vec3 c=mix(mix(warm,vio,smoothstep(.3,.7,n)),cool,smoothstep(.45,.9,sin(q.z*.12+r*.5+uT*.1)*.5+.5));c=mix(c,thin(q.z*.04+n*1.2+atan(q.y,q.x)*.2),.35);
- float lit=.45+1.2*pow(max(0.,1.-r/3.6),2.)+sp(.1+.3*n)*1.4+uBeat*.5;return c*d*lit*1.6;}
-vec4 shd(vec3 p,vec3 n,vec3 rd,float m,float ao,float t){return vec4(0.);}
-`,
-`// PANAL DE COBRE: celdas hexagonales extruidas por el espectro; brillo ámbar en las rendijas
-const float R0=2.7;
-vec4 hexc(vec2 uv){vec2 r=vec2(1.,1.7320508),h=r*.5;vec2 a=mod(uv,r)-h,b=mod(uv-h,r)-h;vec2 gv=dot(a,a)<dot(b,b)?a:b;return vec4(gv,uv-gv);}
-float hexd(vec2 p){p=abs(p);return max(dot(p,vec2(.5,.8660254)),p.x);}
-float ext(vec2 id){return .1+.42*sp(fract(h21(id)*.97)*.8)+.1*sin(id.y*.7+uT*1.2)+uBass*.12;}
-vec2 map(vec3 p){vec3 q=p;q.xy-=path(p.z);float r=length(q.xy);float a=atan(q.y,q.x);vec4 hc=hexc(vec2(a/TAU*12.,q.z/1.36));
- float e=ext(hc.zw);float dh=(hexd(hc.xy)-.4)*1.36;e=mix(e,.35,smoothstep(.30,.44,hexd(hc.xy))*.0);float prism=max(dh,(R0-e)-r);float base=(R0-.02)-r;
- float d=min(prism,base);return vec2(d*.33,prism<base?0.:1.);}
-vec3 glw(vec3 p){return vec3(0.);}
-vec4 shd(vec3 p,vec3 n,vec3 rd,float m,float ao,float t){vec3 q=p;q.xy-=path(p.z);float a=atan(q.y,q.x);vec4 hc=hexc(vec2(a/TAU*12.,q.z/1.36));
- float e=ext(hc.zw);vec3 V=-rd,rf=reflect(rd,n);float ndv=max(dot(n,V),0.);float F=.04+.96*pow(1.-ndv,5.);
- vec3 cu=mix(vec3(.85,.42,.24),vec3(.95,.7,.4),clamp(e,0.,1.));
- if(m>.5){float g=exp(-hexd(hc.xy)*5.);vec3 amb=vec3(1.,.5,.15)*(1.2+uBass*3.+sp(.12)*2.)*(.3+.7*h21(hc.zw));return vec4(vec3(.05)+amb*(1.-ndv*.4)*.9+envm(rf)*.1,1.);}
- vec3 c=cu*(.25+.6*ndv)+envm(rf)*mix(cu,vec3(1.),F)*.95+pow(max(dot(rf,V),0.),26.)*vec3(1.,.9,.8);return vec4(c*ao,1.);}
-`];
 $('ho').oninput=e=>{HO=e.target.value/100;$('hol').textContent=e.target.value};
 function initGL(){
  if(TW||TW===false)return TW;
@@ -2563,30 +2213,6 @@ function initGL(){
   TW={c,gl,v2,buf,tx,pr:{},sp:new Uint8Array(64),m1,x1,m2,x2,m3,x3};
  }catch(e){TW=false;msg('WebGL no disponible, uso escenas 2D ('+(e.message||e)+')')}
  return TW}
-function shProg(T,i){
- if(T.pr[i]!==undefined)return T.pr[i];const gl=T.gl;let p=null;
- try{const mk=(ty,s)=>{const h=gl.createShader(ty);gl.shaderSource(h,s);gl.compileShader(h);if(!gl.getShaderParameter(h,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(h));return h};
-  const pre=T.v2?'#version 300 es\n#define texture2D texture\nout highp vec4 pc_fragColor;\n#define gl_FragColor pc_fragColor\n':'';
-  const vs=(T.v2?'#version 300 es\nin':'attribute')+' vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
-  p=gl.createProgram();gl.attachShader(p,mk(gl.VERTEX_SHADER,vs));gl.attachShader(p,mk(gl.FRAGMENT_SHADER,pre+SH_HDR+SHB[i]+SH_FTR));gl.bindAttribLocation(p,0,'p');gl.linkProgram(p);
-  if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(p));
-  p.u={};for(const n of ['uRes','uT','uPh','uBass','uMid','uHi','uBeat','uHole','uI','uSp'])p.u[n]=gl.getUniformLocation(p,n);
- }catch(e){console.error(e);p=null;msg('El shader '+(i+1)+' falló; uso la versión 2D')}
- return T.pr[i]=p}
-function runSh(i){const T=initGL();if(!T)return false;const P=shProg(T,i);if(!P)return false;
- const gl=T.gl,q=busy?1:PQ,w=Math.round(W*q),h=Math.round(H*q);       // vista previa ligera; exportación a 1080x1920
- if(T.c.width!==w||T.c.height!==h){T.c.width=w;T.c.height=h}
- ph+=dt*(1+bass*2.5);for(let k=0;k<64;k++)T.sp[k]=fd[2+k*2];
- gl.viewport(0,0,w,h);gl.useProgram(P);gl.bindBuffer(gl.ARRAY_BUFFER,T.buf);gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
- gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,T.tx);gl.texImage2D(gl.TEXTURE_2D,0,gl.LUMINANCE,64,1,0,gl.LUMINANCE,gl.UNSIGNED_BYTE,T.sp);
- const U=P.u;gl.uniform1i(U.uSp,0);gl.uniform2f(U.uRes,w,h);gl.uniform1f(U.uT,t%3600);gl.uniform1f(U.uPh,ph);
- gl.uniform1f(U.uBass,bass);gl.uniform1f(U.uMid,mid);gl.uniform1f(U.uHi,hi);gl.uniform1f(U.uBeat,beat);gl.uniform1f(U.uHole,HO);gl.uniform1f(U.uI,Math.min(1.3,PB/.72));
- gl.disable(gl.BLEND);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.drawArrays(gl.TRIANGLES,0,3);
- T.x1.drawImage(T.c,0,0,540,960);T.x2.drawImage(T.m1,0,0,270,480);T.x3.drawImage(T.m2,0,0,135,240);   // cadena de blur para el brillo
- g.globalCompositeOperation='copy';g.drawImage(T.c,0,0,W,H);
- g.globalCompositeOperation='lighter';g.globalAlpha=.22+beat*.2;g.drawImage(T.m2,0,0,W,H);g.globalAlpha=.25+beat*.2;g.drawImage(T.m3,0,0,W,H);
- g.globalAlpha=1;g.globalCompositeOperation='source-over';return true}
-const SHf=(i,fb)=>()=>{if(!runSh(i))fb()};
 
 let SW=true,wv=[],pLB=-1;
 function shocks(){
@@ -2625,7 +2251,7 @@ $('pb').oninput=e=>{PB=e.target.value/100};$('dl').oninput=e=>{DL=+e.target.valu
 
 $('swb').onclick=e=>{SW=!SW;e.target.classList.toggle('on',SW);e.target.textContent='💥 Ondas de choque: '+(SW?'ON':'OFF')};
 
-const SC=[{n:'1. Agujero de Gusano',f:S3(9,tunelHex,null,0,[3,0,0,0.03,[1, 0.15, 0.5, 0.75, 0.7, 1, 0.1, 0.95, 1]])},{n:'2. Reloj de Teselas',f:S3(11,tunelCyber,null,0,[0,0,0,0,[0, 0.3, 1, 0.1, 0.8, 1, 0.85, 0.97, 1]])},{n:'3. Corredor Aurora',f:S3(7,laserGrid,[[24,5.4,.07,1.4,.05,0,0,2.6]],0,[0,1,7,0.02,[0.55, 0.15, 1, 1, 0.2, 0.7, 1, 0.8, 0.3]])},{n:'4. Lluvia de Láseres',f:S3(8,rayos,[[0,1.25,.1,2.4,0,0,0,3]],0,[3,1,11,0,[1, 0.1, 0.15, 1, 0.5, 0.1, 1, 0.95, 0.8]])},{n:'5. Aros Cyberpunk',f:S3(5,tunelCyber,[[32,4.8,.05,.97,0,0,0,.25]],0,[3,5,9,0.03,[0, 0.9, 0.8, 0.2, 0.4, 1, 1, 0.2, 0.8]])},{n:'6. Seda Espectral',f:S3(6,nucleoEnergia,[[6,4.2,0,0,.05,0,0,0]],0,[1,0,0,0.04,[1, 0.75, 0.85, 0.7, 0.6, 1, 0.6, 1, 0.9]])},{n:'7. Tejido Espaciotiempo',f:S3(10,terreno,null,0,[3,0,0,0,[0.7, 0.8, 1, 0.4, 0.6, 1, 1, 0.9, 0.8]])},{n:'8. Hélice de Cristal',f:S3(5,helice,[[3,4.2,.05,.03,.2,0,0,2.4],[2,3.2,.08,.05,-.3,0,0,.6]],0,[2,3,7,0.03,[0.1, 1, 0.5, 0.7, 1, 0.2, 1, 0.75, 0.2]])},{n:'9. Hexa-Túnel Industrial',f:XS('ind')},{n:'10. Pozo Vórtice',f:XS('poz')},{n:'11. Nave · Catedral de Acero',f:XS('nav')},{n:'12. Reactor · Pozo de Ácido',f:XS('rea')},{n:'13. Subterráneo · Lámparas de Jaula',f:XS('sub')},{n:'14. Ácido · Techno Oscuro',f:XS('aci')},{n:'15. Vórtice de Iones',f:XS('ion')},{n:'16. Prisma Nexus',f:XS('pri')},{n:'17. Cyber-Hex HUD',f:XS('hud')}];
+const SC=[{n:'1. Agujero de Gusano',f:S3(9,NOP,null,0,[3,0,0,0.03,[1, 0.15, 0.5, 0.75, 0.7, 1, 0.1, 0.95, 1]])},{n:'2. Reloj de Teselas',f:S3(11,NOP,null,0,[0,0,0,0,[0, 0.3, 1, 0.1, 0.8, 1, 0.85, 0.97, 1]])},{n:'3. Corredor Aurora',f:S3(7,NOP,[[24,5.4,.07,1.4,.05,0,0,2.6]],0,[0,1,7,0.02,[0.55, 0.15, 1, 1, 0.2, 0.7, 1, 0.8, 0.3]])},{n:'4. Lluvia de Láseres',f:S3(8,NOP,[[0,1.25,.1,2.4,0,0,0,3]],0,[3,1,11,0,[1, 0.1, 0.15, 1, 0.5, 0.1, 1, 0.95, 0.8]])},{n:'5. Aros Cyberpunk',f:S3(5,NOP,[[32,4.8,.05,.97,0,0,0,.25]],0,[3,5,9,0.03,[0, 0.9, 0.8, 0.2, 0.4, 1, 1, 0.2, 0.8]])},{n:'6. Seda Espectral',f:S3(6,NOP,[[6,4.2,0,0,.05,0,0,0]],0,[1,0,0,0.04,[0.9, 0.45, 0.7, 0.55, 0.35, 0.95, 0.3, 0.85, 0.7]])},{n:'7. Tejido Espaciotiempo',f:S3(10,NOP,null,0,[3,0,0,0,[0.7, 0.8, 1, 0.4, 0.6, 1, 1, 0.9, 0.8]])},{n:'8. Hélice de Cristal',f:S3(5,NOP,[[3,4.2,.05,.03,.2,0,0,2.4],[2,3.2,.08,.05,-.3,0,0,.6]],0,[2,3,7,0.03,[0.1, 1, 0.5, 0.7, 1, 0.2, 1, 0.75, 0.2]])},{n:'9. Hexa-Túnel Industrial',f:XS('ind')},{n:'10. Pozo Vórtice',f:XS('poz')},{n:'11. Nave · Catedral de Acero',f:XS('nav')},{n:'12. Reactor · Pozo de Ácido',f:XS('rea')},{n:'13. Subterráneo · Lámparas de Jaula',f:XS('sub')},{n:'14. Ácido · Techno Oscuro',f:XS('aci')},{n:'15. Vórtice de Iones',f:XS('ion')},{n:'16. Prisma Nexus',f:XS('pri')},{n:'17. Cyber-Hex HUD',f:XS('hud')}];
 // ---- Auto inteligente: solo tus favoritas, cambia en el siguiente golpe ----
 const FAV=new Set();let aS=-1,aT=-99,favMode=false,AUS=12,swF=0,tOv0=0;
 function autoPick(tc){const pool=FAV.size?[...FAV].sort((a,b)=>a-b):SC.map((_,i)=>i);
@@ -2969,7 +2595,7 @@ const CON=[{b:1,m:0,c:'e0',n:192},{b:1,m:1,c:'e1',n:288},{b:1,m:2,c:'e2',n:768},
  {b:0,m:3,g:1,c:'w3',st:[3,0,0,.03,null]},{b:0,m:4,g:0,c:'m0',st:[3,0,0,0,null]},{b:1,m:6,c:'e4',n:1152},{b:1,m:7,c:'e3',n:1920},{b:1,m:8,c:'e3',n:256},
  {b:1,m:10,c:'e3',n:640,st:[0,0,0,0,[1,.2,.8,.5,.3,1,.1,.9,1]]},{b:1,m:11,c:'e5',n:384,st:[0,0,0,.05,[.2,.9,1,.9,.9,1,1,.2,.8]]},{b:0,m:5,g:2,c:'m2',st:[3,0,0,0,[.2,1,.6,.2,.7,1,.7,.3,1]]},{b:0,m:6,g:0,c:'m0',st:[3,0,0,0,[1,.6,.2,1,.25,.5,.5,.2,1]]},
  {b:1,m:12,c:'e3',n:896},{b:1,m:13,c:'e3',n:640},{b:1,m:14,c:'e5',n:704},{b:1,m:15,c:'e3',n:64}];
-CON[0].st=[0,0,7,0,[0,0.9,0.8,0.2,0.4,1,0.7,0.3,1]];CON[1].st=[0,0,7,0,[1,0.75,0.2,1,0.4,0.15,1,0.15,0.6]];CON[3].st=[3,0,0,0,[1,0.2,0.7,0.5,0.3,1,0.1,0.8,1]];CON[9].st=[3,0,0,0.03,[1,0.15,0.5,0.75,0.7,1,0.1,0.95,1]];CON[10].st=[3,0,0,0,[0.7,0.8,1,0.4,0.6,1,1,0.9,0.8]];CON[11].st=[0,0,0,0.02,[0,0.3,1,0.1,0.8,1,0.85,0.97,1]];CON[12].st=[0,0,0,0,[0.95,0.2,0.85,0.45,0.3,1,0.1,0.9,1]];CON[13].st=[0,0,0,0,[0.9,0.95,1,0.35,0.55,1,0.6,0.25,1]];
+CON[0].st=[0,0,7,0,[0,0.9,0.8,0.2,0.4,1,0.7,0.3,1]];CON[1].st=[0,0,7,0,[1,0.75,0.2,1,0.4,0.15,1,0.15,0.6]];CON[3].st=[3,0,0,0,[1,0.2,0.7,0.5,0.3,1,0.1,0.8,1]];CON[9].st=[3,0,0,0.03,[1,0.15,0.5,0.75,0.7,1,0.1,0.95,1]];CON[10].st=[3,0,0,0,[0.7,0.8,1,0.4,0.6,1,1,0.9,0.8]];CON[11].st=[0,0,0,0,[0,0.3,1,0.1,0.8,1,0.85,0.97,1]];CON[12].st=[0,0,0,0,[0.95,0.2,0.85,0.45,0.3,1,0.1,0.9,1]];CON[13].st=[0,0,0,0,[0.9,0.95,1,0.35,0.55,1,0.6,0.25,1]];
 CON[18].st=[0,0,0,0,[.1,1,.4,1,.9,.2,1,.2,.2]];CON[19].st=[0,0,0,0,[.2,1,.7,.3,.6,1,.9,.3,1]];CON[20].st=[0,0,0,.04,[1,.7,.2,1,.35,.2,1,.1,.5]];CON[21].st=[0,0,0,0,[.2,.8,1,.4,.4,1,1,.3,.7]];
 const GL3=`precision highp float;
 uniform mat4 uVP,uPj;uniform vec3 uCam,uA,uB,uC;uniform vec4 uBA,uBC;uniform float uT,uBass,uBeat,uDrop,uI,uZ;uniform int uM;uniform vec4 uP,uQ,uR,uK;uniform sampler2D uBd,uHist;
@@ -3048,7 +2674,7 @@ void main(){vec3 n=normalize(vN),V=normalize(uCam-vW),L=normalize(vec3(.4,.8,-.5
  else if(md<2.5){c=mix(uB,vec3(1.),.5)*fr*1.6+col*(.08+vE*.9)+vec3(1.)*ed*(.7+vE)+sp*.6;a*=.28+fr*.6+ed*.5;}
  else if(md<3.5){c=col*ed*(1.4+vE*3.+uBeat)+col*vE*.25;a*=clamp(ed*1.1+vE*.2,0.,1.);}
  else c=mix(vec3(.92),col,.2)*(.15+.8*df)+vec3(1.)*sp+col*ed*(1.2+vE*2.);
- float f=exp(-length(uCam-vW)*.03)*vF;c=1.-exp(-c*1.25);o=clamp(vec4(c*a,a)*f*uI,0.,1.);}`;
+ float f=exp(-length(uCam-vW)*.03)*vF;c=1.-exp(-c*1.05);o=clamp(vec4(c*a,a)*f*uI,0.,1.);}`;
 const VG3=`#version 300 es
 ${GL3}layout(location=0) in vec2 aUV;layout(location=1) in vec3 aB;out vec3 vW,vB;out float vV,vU,vF;
 void main(){float u=aUV.x,w=aUV.y,m=abs(u*2.-1.),v=0.;vec3 p;vF=1.;
@@ -3069,11 +2695,11 @@ void main(){float u=aUV.x,w=aUV.y,m=abs(u*2.-1.),v=0.;vec3 p;vF=1.;
  p.xy=rot(uR.w*uT)*p.xy;vW=p;vB=aB;vV=v;vU=(uM==5?abs(w*2.-1.):w)*.6+v*.4;gl_Position=uVP*vec4(p,1.);}`;
 const FG3=`#version 300 es
 ${GL3}in vec3 vW,vB;in float vV,vU,vF;out vec4 o;
-void main(){vec3 d=fwidth(vB),q=vB/max(d,vec3(1e-5));float dm=min(q.x,min(q.y,q.z)),wire=min(exp(-dm*dm*.6)+.35*exp(-dm*.4),1.6);
+void main(){vec3 d=fwidth(vB),q=vB/max(d,vec3(1e-5));float dm=min(q.x,min(q.y,q.z)),wire=min(exp(-dm*dm*.6)+.35*exp(-dm*.4),1.6)*(1.-smoothstep(.12,.4,max(d.x,max(d.y,d.z))));
  vec3 n=normalize(cross(dFdx(vW),dFdy(vW))),V=normalize(uCam-vW),L=normalize(vec3(.3,.9,-.4));float fr=pow(1.-abs(dot(n,V)),2.5);
  vec3 col=pal(vU+vV*.5);
- float fm=uR.x>2.5&&uR.x<3.5?0.:((uR.x>.5&&uR.x<1.5)||uR.x>3.5?2.5:1.);vec3 c=(col*(.05+.22*abs(dot(n,L))+vV*.9)+mix(uB,vec3(1.),.5)*fr*.35)*fm+col*wire*(1.1+vV*2.2+uBeat*.5)+vec3(1.)*wire*vV*.8+pow(max(dot(reflect(-L,n),V),0.),40.)*.25;
- float al=clamp(wire*.95+(.16+fr*.3+vV*.4)*fm,0.,1.);c=1.-exp(-c*1.3);o=clamp(vec4(c*al,al)*vF*uI,0.,1.);}`;
+ float fm=uR.x>2.5&&uR.x<3.5?0.:((uR.x>.5&&uR.x<1.5)||uR.x>3.5?1.4:1.);vec3 c=(col*(.05+.22*abs(dot(n,L))+vV*.9)+mix(uB,vec3(1.),.5)*fr*.35)*fm+col*wire*(1.1+vV*2.2+uBeat*.5)+vec3(1.)*wire*vV*.8+pow(max(dot(reflect(-L,n),V),0.),40.)*.25;
+ float al=clamp(wire*.95+(.16+fr*.3+vV*.4)*fm,0.,1.);c=1.-exp(-c*1.1);o=clamp(vec4(c*al,al)*vF*uI,0.,1.);}`;
 function mkBox(){const P=[],I=[],F=[[[1,0,0],[0,1,0],[0,0,1]],[[-1,0,0],[0,0,1],[0,1,0]],[[0,1,0],[0,0,1],[1,0,0]],[[0,-1,0],[1,0,0],[0,0,1]],[[0,0,1],[1,0,0],[0,1,0]],[[0,0,-1],[0,1,0],[1,0,0]]];
  F.forEach((f,i)=>{const[n,a,b]=f;for(const[s,t]of[[-1,-1],[1,-1],[1,1],[-1,1]])P.push(...[0,1,2].map(k=>(n[k]+a[k]*s+b[k]*t)*.5),...n);I.push(i*4,i*4+1,i*4+2,i*4,i*4+2,i*4+3)});
  return{P:new Float32Array(P),I:new Uint16Array(I)}}
@@ -3122,242 +2748,8 @@ function feed3(){for(let k=0;k<64;k++){const a=2+Math.floor(Math.pow(k/64,1.6)*1
   const v=Math.min(1,Math.pow(m/255,1.5)*(1+k/64*.7));B3.pk[k]=Math.max(v,B3.pk[k]-dt*.45);B3.bd[k]=v*255;B3.bd[64+k]=B3.pk[k]*255}
  if(t-B3.T>=1/30||t<B3.T){B3.ht.copyWithin(64,0,1984);B3.ht.set(B3.bd.subarray(0,64),0);B3.T=t}
  const tg=layerTargets();for(let i=0;i<6;i++)B3.cc[i]+=(tg[i]-B3.cc[i])*.08}
+function NOP(){}
 function S3(ci,fb,pp,Y,st){return()=>{feed3();if(!draw3(ci,B3.bd,B3.ht,B3.cc,Math.min(1,beat*.8),Math.min(1.3,PB/.72),1,Y||0,true,pp,st))fb()}}
-const LHDR=`precision highp float;
-uniform vec2 uRes;uniform float uT,uPh,uBass,uMid,uHi,uBeat,uDrop,uI,uSz,uY;uniform vec3 uA,uB;uniform sampler2D uBd,uHist;
-#define PI 3.14159265
-#define TAU 6.28318531
-const float NB=64.;
-float bd(float x){return texture2D(uBd,vec2(clamp(x,0.,1.),.25)).r;}
-float pk(float x){return texture2D(uBd,vec2(clamp(x,0.,1.),.75)).r;}
-float hs(float x,float y){return texture2D(uHist,vec2(clamp(x,0.,1.),clamp(y,0.,1.))).r;}
-float bn(float i){return bd((clamp(floor(i),0.,63.)+.5)/NB);}
-mat2 rot(float a){float c=cos(a),s=sin(a);return mat2(c,-s,s,c);}
-float h11(float p){p=fract(p*.1031);p*=p+33.33;p*=p+p;return fract(p);}
-float h21(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
-float sdSeg(vec2 p,vec2 a,vec2 b){vec2 pa=p-a,ba=b-a;float h=clamp(dot(pa,ba)/dot(ba,ba),0.,1.);return length(pa-ba*h);}
-vec3 pal(float x){return mix(uA,uB,clamp(x,0.,1.));}
-vec3 thin(float x){return .5+.5*cos(TAU*(x+vec3(0.,.33,.67)));}
-vec2 P(){vec2 p=(gl_FragCoord.xy-.5*uRes)/uRes.x*2.;p.x+=.05;p.y-=uY;return p/uSz;}
-vec4 hexc(vec2 uv){vec2 r=vec2(1.,1.7320508),h=r*.5;vec2 a=mod(uv,r)-h,b=mod(uv-h,r)-h;vec2 gv=dot(a,a)<dot(b,b)?a:b;return vec4(gv,floor((uv-gv)*2.+.5)*.5);}
-float hexd(vec2 p){p=abs(p);return max(dot(p,vec2(.5,.8660254)),p.x);}
-vec3 hitPlane(vec2 p,float yPl,out float t){vec3 ro=vec3(0.,1.7,-4.),rd=normalize(vec3(p.x*.62,p.y*.62-.32,1.));t=-1.;if(abs(rd.y)<.015)return vec3(0.);float tt=(yPl-ro.y)/rd.y;if(tt<=0.||tt>26.)return vec3(0.);t=tt;return ro+rd*tt;}
-float flFog(float t,vec2 p){return exp(-t*.1)*smoothstep(0.,.35,p.y+.9);}
-float bds(float u){return (bd(u)*2.+bd(u+.05)+bd(max(u-.05,0.)))*.25;}
-float hfp(vec2 x){float k=1.+uBass*1.1+uDrop*.7;float u=clamp(sqrt(x.x*x.x+.12)/3.4,0.,1.);
- return (sin(x.x*1.35+uT*1.1)*.17+sin(x.y*1.15-uT*1.5+x.x*.45)*.15)*k+bds(u)*.34*(.6+uDrop*.6)*(1.-clamp(x.y/14.,0.,1.));}
-vec4 plane(vec2 p,float mode){vec3 ro=vec3(0.,1.55,-4.2);vec3 rd=normalize(vec3(p.x*.62,p.y*.62-.3,1.));float t=.8,hh=1.;vec3 q=ro;bool hit=false;
- for(int i=0;i<72;i++){q=ro+rd*t;hh=q.y-hfp(q.xz);if(hh<.004*t){hit=true;break;}t+=max(.02,hh*.55);if(t>26.)break;}
- if(!hit||abs(q.x)>6.5||q.z<-3.)return vec4(0.);
- float e=.05;vec3 n=normalize(vec3(hfp(q.xz-vec2(e,0.))-hfp(q.xz+vec2(e,0.)),2.*e,hfp(q.xz-vec2(0.,e))-hfp(q.xz+vec2(0.,e))));
- float px=t*.0058,fog=exp(-t*.085)*smoothstep(6.5,5.,abs(q.x));vec2 g=q.xz*.9+vec2(.5,0.);vec2 f=abs(fract(g-.5)-.5)/.9,f2=abs(fract(g*4.-.5)-.5)/3.6;
- float ln=max(smoothstep(px*1.8,px*.4,f.x),smoothstep(px*1.8,px*.4,f.y)),ln2=max(smoothstep(px*1.2,px*.3,f2.x),smoothstep(px*1.2,px*.3,f2.y))*.3;
- float fr=pow(1.-clamp(dot(n,-rd),0.,1.),4.);vec3 col=pal(clamp(q.z/14.,0.,1.)+.15*sin(q.x));vec3 c;float a;
- if(mode<.5){c=col*(ln*1.7+ln2*.6+fr*.35)*fog;a=(ln*.9+ln2*.2+fr*.15)*fog;}
- else{vec3 ir=thin(dot(n,-rd)*1.4+q.z*.05+uT*.04);c=(mix(vec3(.5),ir,.55)*(.12+fr*.55)+mix(uA,uB,.5)*ln*1.3+vec3(.9,.95,1.)*pow(max(dot(reflect(rd,n),normalize(vec3(.4,.8,.3))),0.),30.)*.8)*fog;a=(.14+fr*.5+ln*.85)*fog;}
- return vec4(c,a);}
-vec2 wg(vec2 x,float s){return x+.38*vec2(sin(x.y*.9+uT*.35+s)+.6*sin(x.y*2.1-uT*.5+s),sin(x.x*.8-uT*.3+s*1.7)+.6*sin(x.x*1.9+uT*.45));}
-float hn(vec2 x,float s){float k=1.+uBass*1.2+uDrop*.8;float u=clamp(sqrt(x.x*x.x+.1)/4.,0.,1.);return (sin(x.x*.7+uT*.5+s)*.35+sin(x.y*.6-uT*.7+s)*.3+sin((x.x+x.y)*1.3+uT*.9)*.1)*k+bds(u)*.55*(.6+uDrop*.6);}
-// Red orgánica: tejido de vértices desplazados (suelo o techo) con nodos brillantes que laten por banda
-vec4 netSurf(vec2 p,float sgn,float yb,float s,float mode){vec3 ro=vec3(0.,1.7,-4.),rd=normalize(vec3(p.x*.62,p.y*.62-.32,1.));
- if(sgn>0.?rd.y>-.01:rd.y<.01)return vec4(0.);float t=.8,d=1.;vec3 q=ro;bool hit=false;
- for(int i=0;i<64;i++){q=ro+rd*t;float ys=yb+sgn*.45*hn(q.xz,s);d=sgn>0.?q.y-ys:ys-q.y;if(d<.004*t){hit=true;break;}t+=max(.03,d*.55);if(t>26.)break;}
- if(!hit||abs(q.x)>9.)return vec4(0.);
- float sc=.62;vec2 xz=q.xz*sc;xz.y+=uT*.45*sgn;vec2 g=wg(xz,s);vec2 off=fract(g-.5)-.5,f=abs(off);float px=t*.0058*sc;
- float ln=max(smoothstep(px*1.6,px*.35,f.x),smoothstep(px*1.6,px*.35,f.y));
- vec2 id=floor(g+.5);float hh=h21(id+s),v=bn(hh*63.);float nd=length(off),nr=px*(2.4+v*3.2+uBeat*1.2);float node=smoothstep(nr,nr*.35,nd),halo=exp(-nd/(nr*2.2))*.35;
- float mask=sgn>0.?smoothstep(0.,.3,p.y+1.7):smoothstep(0.,.3,1.7-p.y);float fog=exp(-t*.1)*mask;
- vec3 white=vec3(.9,.95,1.);vec3 col=mix(white,pal(clamp(t/18.,0.,1.)),mode<.5?.28:.8);
- vec3 c=col*ln*(mode<.5?.9:1.1)+white*node*1.2+pal(hh)*halo*(.6+v);float a=ln*.7+node+halo*.4;
- if(mode>.5){float fv=bn(h21(floor(g)+s)*63.);float face=smoothstep(.02,.3,min(f.x,f.y))*pow(fv,1.4);c+=pal(fv)*face*.9;a+=face*.5;}
- return vec4(c*fog,a*fog);}
-float bdw(float u){return (bd(u)*3.+bd(u+.1)*2.+bd(max(u-.1,0.))*2.+bd(u+.22)+bd(max(u-.22,0.)))*.1;}
-float hfn2(vec2 x,float ph,float amp){float k=1.+uBass*1.+uDrop*.7;float u=clamp(sqrt(x.x*x.x+.1)/3.4,0.,1.);
- return ((sin(x.x*.9+uT*.7+ph)*.22+sin(x.y*.7-uT*.9+x.x*.3)*.2+sin(x.x*1.7+x.y*.5+uT*.5)*.08)*k+bdw(u)*.42*(.6+uDrop*.6)*(1.-clamp(x.y/16.,0.,1.)))*amp;}
-// malla de nodos: líneas finas + nodo brillante en cada intersección, red deformada de forma orgánica, pulsos que viajan por las líneas
-vec4 netShade(vec2 g0,float zc,float t,float cs){vec2 g=g0;g+=.2*vec2(sin(g.y*.9+uT*.6)+.25*sin(g.y*1.7-uT*.4),cos(g.x*.8-uT*.5)+.25*cos(g.x*1.6+uT*.3));g/=.8;
- vec2 id=floor(g+.5),f=g-id;float px=t*.0058;float dl=min(abs(f.x),abs(f.y))*.8,dv=length(f)*.8;float v=bn(h21(id)*63.);
- float line=smoothstep(px*1.2,px*.25,dl);float r0=.024+.036*v+.016*uBeat;float node=smoothstep(r0+px,r0-px,dv);float halo=exp(-dv*16.)*(.22+v*.55);
- float wave=exp(-pow((mod(zc-uT*3.,9.)-4.5)*.55,2.))*(.25+uBeat+uDrop);
- vec3 lc=mix(vec3(.9,.95,1.),pal(clamp(cs+.4*sin(zc*.2),0.,1.)),.35),nc=mix(vec3(1.),pal(v),.45);
- return vec4(lc*line*(.8+wave*1.2+v*.5)+nc*node*(1.6+wave*1.5)+pal(v)*halo*.8,line*.8+node*.95+halo*.25);}
-vec4 layer(vec2 p);
-`,LFTR=`void main(){vec4 r=layer(P());vec3 c=1.-exp(-max(r.rgb,0.)*1.2);float al=clamp(max(clamp(r.a,0.,1.),max(c.r,max(c.g,c.b))),0.,1.);gl_FragColor=vec4(c,al)*uI;}
-`;
-const EQSRC=[`// Barras de Cristal: 48 columnas con brillo de vidrio, pico retenido y reflejo
-vec4 layer(vec2 p){const float N=48.;float u=(p.x+.78)/1.56;if(u<0.||u>1.)return vec4(0.);
- float i=floor(u*N),fx=fract(u*N)-.5;float v=bn(i/N*NB),pv=pk((i+.5)/N);float hgt=.03+v*(.72+uDrop*.25),y=p.y,bw=.36;
- float inX=smoothstep(bw,bw-.07,abs(fx));float body=inX*step(0.,y)*smoothstep(hgt+.003,hgt-.003,y);
- float g=clamp(y/max(hgt,.05),0.,1.);vec3 col=mix(uA,uB,g);float shine=smoothstep(.05,0.,abs(fx+.18))*.5;
- vec3 c=col*body*(.7+.5*g)+vec3(1.)*body*shine*.6;
- float cy=.03+pv*.74+.035;float cap=inX*smoothstep(.014,.004,abs(y-cy));c+=vec3(1.)*cap*(.9+uBeat);
- float ry=-y,rh=hgt*.5;float refl=inX*step(0.,ry)*step(ry,rh)*(1.-ry/rh);c+=col*refl*.28;
- float glow=inX*exp(-max(y-hgt,0.)*18.)*step(0.,y)*.28*v;c+=col*glow;return vec4(c,body+refl*.2+cap);}
-`,`// Anillo Solar: barras radiales espejadas con corona y picos
-vec4 layer(vec2 p){float r=length(p),a=atan(p.y,p.x)+uT*.15,u=fract(a/TAU+.5);float R=.40+uBass*.05+uDrop*.06;
- const float N=72.;float id=floor(u*N);float th=abs(mod((id+.5)/N*TAU+PI*.5,TAU)-PI)/PI;float v=bd(th),pv=pk(th);
- float ax=abs(fract(u*N)-.5)*r*TAU/N;float inA=smoothstep(.0135,.0085,ax);float L=.03+v*(.5+uDrop*.25),rad=r-R;
- float body=inA*smoothstep(-.003,.003,rad)*smoothstep(L+.003,L-.003,rad);vec3 col=mix(uA,uB,clamp(rad/(L+.02),0.,1.));
- float ring=smoothstep(.007,0.,abs(r-R)),ring2=smoothstep(.004,0.,abs(r-(R-.03)));
- float cap=inA*smoothstep(.01,.002,abs(rad-(.03+pv*(.5+uDrop*.25))-.02));float core=exp(-r*5.)*(.25+uBeat*.5+uDrop*.5);
- vec3 c=col*body*1.1+uA*ring*(.9+uBeat)+uB*ring2*.5+vec3(1.)*cap+uA*core+uB*exp(-abs(r-R)*14.)*.12;return vec4(c,body+ring*.8+ring2*.4+cap);}
-`,`// Ola Líquida: cuatro capas de onda espejada con borde luminoso
-vec4 layer(vec2 p){float u=(p.x+.8)/1.6;if(u<0.||u>1.)return vec4(0.);vec3 c=vec3(0.);float a=0.;
- for(int k=0;k<4;k++){float fk=float(k);float uu=clamp(u+sin(uT*.6+fk*1.7)*.03*fk,0.,1.);float v=bd(uu)*(1.-fk*.18)*(.55+uBass*.6+uDrop*.4)*.8+.02;
-  float env=smoothstep(0.,.15,u)*smoothstep(1.,.85,u);v*=env;float d=abs(p.y)-v;float fill=smoothstep(.004,-.004,d)*(.22-fk*.04),line=smoothstep(.02,0.,abs(d))*(.9-fk*.15);
-  vec3 col=pal(fk/3.+u*.3);c+=col*(fill+line*1.4);a+=fill*.6+line*.8;}return vec4(c,a);}
-`,`// Matriz LED: panel de 32x22 puntos con pico retenido
-vec4 layer(vec2 p){const float C=32.,Rw=22.;vec2 q=vec2((p.x+.78)/1.56*C,p.y/.9*Rw);if(q.x<0.||q.x>C||q.y<0.||q.y>Rw)return vec4(0.);
- vec2 id=floor(q),f=fract(q)-.5;float v=bn(id.x/C*NB),pv=pk((id.x+.5)/C);float yy=(id.y+.5)/Rw;float lit=step(yy,.04+v*(.95+uDrop*.1)),pkl=step(abs(yy-(.04+pv*.95)),.5/Rw);
- float d=length(f),dt=smoothstep(.40,.30,d),gl=exp(-d*3.5);vec3 col=mix(uA,uB,yy);col=mix(col,vec3(1.),pkl*.8);float on=max(lit,pkl);
- return vec4(col*(dt*(.09+on*1.5)+gl*on*.35),dt*(.06+on*.9));}
-`,`// Cascada 3D: el espectro de los últimos segundos como cordillera en perspectiva
-vec4 layer(vec2 p){float u=(p.x+.8)/1.6;if(u<0.||u>1.)return vec4(0.);vec3 c=vec3(0.);float a=0.;
- for(int s=0;s<26;s++){float fs=float(s)/25.;float y0=-.1+fs*.78,sc=1.-fs*.25,x=(u-.5)*sc+.5;float h=hs(x,fs*.85)*(.42+uDrop*.12)*(1.-fs*.4);
-  float env=smoothstep(0.,.1,u)*smoothstep(1.,.9,u),yy=y0+h*env;float d=abs(p.y-yy),line=smoothstep(.012,0.,d)*(1.-fs*.6);
-  float below=smoothstep(0.,-.02,p.y-yy)*step(y0-.12,p.y);vec3 col=pal(fs);c+=col*line*1.5+col*below*.03;a+=line*.9+below*.05;}return vec4(c,a);}
-`,`// Pétalos: kaleidoscopio de 12 pétalos que crecen con el espectro
-vec4 layer(vec2 p){float r=length(p),a=atan(p.y,p.x)+uT*.12;const float N=12.;float sec=TAU/N,fa=abs(mod(a,sec)-sec*.5)/(sec*.5);
- float v=bd(r*.9),Lm=.15+v*(1.15+uDrop*.25);float w=(1.-r*.65)*(.62+.38*v);float inside=step(r,Lm);
- float petal=smoothstep(w,w-.15,fa)*smoothstep(0.,.03,r)*inside,edge=smoothstep(.05,0.,abs(fa-w))*inside;
- vec3 col=mix(uA,uB,r*1.3);vec3 c=col*petal*(.3+v*.9)+vec3(1.)*edge*.5*v+col*exp(-r*7.)*(.3+uBeat);return vec4(c,petal*.55+edge*.5);}
-`,`// Láseres de concierto: abanico de haces con destello en la punta
-vec4 layer(vec2 p){vec2 o=vec2(0.,-.05),d=p-o;float r=length(d),a=atan(d.x,d.y);const float N=28.;float ang=(a+1.)/2.;if(ang<0.||ang>1.||d.y<0.)return vec4(0.);
- float id=floor(ang*N),fa=fract(ang*N)-.5;float v=bd(abs(((id+.5)/N)*2.-1.));float w=.16+.1*v,beam=smoothstep(w,0.,abs(fa));float L=.2+v*(1.25+uDrop*.35);float len=smoothstep(L,L-.12,r);
- float ac=((id+.5)/N)*2.-1.;vec2 e=o+vec2(sin(ac),cos(ac))*L;float flare=exp(-length(p-e)*14.)*v;vec3 col=pal(id/N);
- vec3 c=col*(beam*len*(.5+v)+flare*1.6)+col*exp(-r*6.)*.25*(1.+uBeat);return vec4(c,beam*len*.8+flare*.5);}
-`,`// Pulso concéntrico: seis anillos cuya deformación viaja hacia afuera con el tiempo
-vec4 layer(vec2 p){float r=length(p),a=atan(p.y,p.x),u=abs(a)/PI;vec3 c=vec3(0.);float al=0.;
- for(int k=0;k<6;k++){float fk=float(k);float v=hs(u,fk*.1);float Rk=.18+fk*.125+v*(.16+uDrop*.06)+uBass*.02;float d=abs(r-Rk);
-  float line=smoothstep(.014,0.,d)*(1.-fk*.08),gl=exp(-d*30.)*.25;vec3 col=pal(fk/5.);c+=col*(line*1.4+gl*(.4+v));al+=line*.8+gl*.1;}return vec4(c,al);}
-`,`// Skyline: ciudad nocturna cuyos edificios suben con el espectro y tienen ventanas encendidas
-vec4 layer(vec2 p){float u=(p.x+.78)/1.56;if(u<0.||u>1.)return vec4(0.);const float N=26.;float id=floor(u*N),fx=fract(u*N);float rk=h21(vec2(id,3.));float v=bn(floor(rk*63.));
- float hgt=.08+v*(.62+uDrop*.2)+rk*.08;float inB=step(.06,fx)*step(fx,.94);float body=inB*step(0.,p.y)*step(p.y,hgt);
- vec2 wq=vec2(fx*5.,p.y*38.),wid=floor(wq),wf=fract(wq)-.5;float win=step(abs(wf.x),.28)*step(abs(wf.y),.3);float on=step(.55,h21(wid+id*13.7+floor(uT*.7+rk*5.)));
- vec3 col=pal(rk);vec3 c=col*body*.12+body*win*(.15+on)*mix(vec3(1.,.85,.5),col,.4)+col*body*smoothstep(hgt-.01,hgt,p.y)*1.5;
- c+=col*inB*exp(-max(p.y-hgt,0.)*20.)*step(0.,p.y)*.15*v;return vec4(c,body*.85);}
-`,`// Hélice de frecuencias: doble hebra con peldaños y nodos que respiran con las bandas
-vec4 layer(vec2 p){float y=p.y;if(abs(y)>.85)return vec4(0.);float v=bd((y+.85)/1.7);float amp=.24+.3*v+uDrop*.06;vec3 c=vec3(0.);float al=0.;float ph=y*7.+uT*2.2;
- for(int s=0;s<2;s++){float off=s==0?0.:PI;float x=sin(ph+off)*amp,z=cos(ph+off);float d=abs(p.x-x);float strand=smoothstep(.034+.012*z,0.,d)*(.6+.4*z);c+=pal(float(s))*strand*1.4;al+=strand;}
- float row=floor(y/.07),rowY=(row+.5)*.07,ry=abs(y-rowY),phr=rowY*7.+uT*2.2,xr=sin(phr)*amp;float rung=smoothstep(.006,0.,ry)*step(abs(p.x),abs(xr))*(.2+.9*v);
- float n1=length(p-vec2(xr,rowY)),n2=length(p-vec2(-xr,rowY));float nodes=exp(-n1*55.)+exp(-n2*55.);c+=mix(uA,uB,.5)*rung+vec3(1.)*nodes*(.5+v);al+=rung*.7+nodes*.5;return vec4(c,al);}
-`,`// Estallido: 96 rayos simétricos que se alargan con cada banda y un núcleo que destella en los drops
-vec4 layer(vec2 p){float r=length(p),a=atan(p.y,p.x),u=a/TAU+.5;const float N=96.;float id=floor(u*N);float th=abs(mod((id+.5)/N*TAU+PI*.5,TAU)-PI)/PI;float v=bd(th);
- float fa=abs(fract(u*N)-.5)*r*TAU/N;float L=.12+v*(.95+uDrop*.3),w=.006+.009*(1.-r/L);float ray=smoothstep(w,0.,fa)*step(.06,r)*smoothstep(L,L-.08,r);
- vec3 col=pal(th);float core=exp(-r*9.)*(.5+uBeat*1.2+uDrop);vec3 c=col*ray*(.7+v)+vec3(1.,.95,.9)*core+col*exp(-r*3.)*.1*v;return vec4(c,ray*.9+core*.5);}
-`,`// Cuerdas: 14 cuerdas que vibran con armónicos distintos según su banda
-vec4 layer(vec2 p){float u=(p.x+.8)/1.6;if(u<0.||u>1.)return vec4(0.);vec3 c=vec3(0.);float a=0.;
- for(int k=0;k<14;k++){float fk=float(k);float v=bn(fk/14.*NB+2.);float yk=-.55+fk*.085,env=sin(u*PI),harm=1.+mod(fk,4.);
-  float yy=yk+sin(u*PI*harm+uT*(3.+fk*.4))*env*(.012+v*.12*(1.+uDrop));float d=abs(p.y-yy);float line=smoothstep(.011,0.,d),gl=exp(-d*40.)*.25;
-  vec3 col=pal(fk/13.);c+=col*(line*(.7+v*1.1)+gl*v);a+=line*.9+gl*.1;}return vec4(c,a);}
-`,`// Matriz Espejo: píxeles cuadrados espejados sobre una línea central luminosa; puntas más pequeñas, píxeles faltantes y destello central
-vec4 layer(vec2 p){const float C=88.;float u=(p.x+1.05)/2.1;if(u<0.||u>1.)return vec4(0.);
- float cid=floor(u*C),fx=fract(u*C)-.5;float th=fract(cid*.381966+.07)*.9;float v=min(1.,pow(bd(th),.8)*(1.+th*.55)),pv=min(1.,pow(pk(th),.8)*(1.+th*.55));
- float dy=2.1/C,y=abs(p.y);float h=.05+v*(.62+uDrop*.2),r=floor(y/dy),fy=fract(y/dy)-.5;
- float keep=step(.12,h21(vec2(cid,r))),lit=step((r+.5)*dy,h),tip=1.-clamp(y/h,0.,1.),s=.24+.1*tip;float sq=max(abs(fx),abs(fy));
- float body=smoothstep(s+.07,s-.07,sq)*lit*keep;float pr=floor((.05+pv*(.62+uDrop*.2))/dy);float cap=smoothstep(s+.07,s-.07,sq)*step(abs(r-pr),.5);
- vec3 col=mix(uA,uB,clamp(y/.7,0.,1.));float mir=p.y<0.?.82:1.;
- float line=exp(-y*170.)*(.9+uBeat*.7),glow=exp(-y*8.)*.16*(.4+v),env=smoothstep(1.05,.85,abs(p.x));
- float fl=exp(-length(vec2(p.x*.5,p.y*2.2))*4.5)*(.35+uBeat*.5+uDrop*.6);
- vec3 c=col*body*(1.1+tip*.6)*mir+vec3(1.)*cap*.9*mir+mix(uA,vec3(1.,.9,.7),.4)*line*env+uA*glow*env+uA*fl;
- return vec4(c,body*mir+cap*.8+line*env*.8+fl*.4);}
-`,`// Matriz Espejo con Woofers: la matriz de píxeles con tres altavoces dorados cuyos conos laten con los graves
-vec4 woofer(vec2 p,vec2 c,float R){vec2 d=(p-c)/R;float r=length(d);if(r>1.04)return vec4(0.);float a=atan(d.y,d.x);
- float rim=smoothstep(1.02,.98,r)*smoothstep(.80,.84,r);vec3 gold=mix(vec3(.55,.35,.08),vec3(1.,.82,.4),.5+.5*sin(a*2.+.8+d.x*2.));
- float sur=smoothstep(.84,.80,r)*smoothstep(.62,.66,r),cone=smoothstep(.66,.62,r),groove=.5+.5*sin(r*46.),cap=smoothstep(.22,.2,r);vec2 dd=d-vec2(-.05,.06);float spec=exp(-dot(dd,dd)*38.);
- vec3 col=gold*rim*1.2+vec3(.06)*sur*(.8+.4*groove)+vec3(.04,.045,.05)*cone*(.6+.5*groove)+vec3(.09)*cap+vec3(.9,.85,.8)*spec*cap*.9+vec3(1.,.8,.4)*exp(-(r-1.)*(r-1.)*500.)*.5;
- return vec4(col,min(1.,rim+sur+cone));}
-vec4 layer(vec2 p){const float C=88.;float u=(p.x+1.05)/2.1;vec3 c=vec3(0.);float al=0.;
- if(u>0.&&u<1.){float cid=floor(u*C),fx=fract(u*C)-.5;float th=abs((cid+.5)/C*2.-1.);float v=bd(th*.92),pv=pk(th*.92);float dy=2.1/C,y=abs(p.y);float h=.05+v*(.62+uDrop*.2),r=floor(y/dy),fy=fract(y/dy)-.5;
-  float keep=step(.14,h21(vec2(cid,r))),lit=step((r+.5)*dy,h),tip=1.-clamp(y/h,0.,1.),s=.24+.1*tip,sq=max(abs(fx),abs(fy));float body=smoothstep(s+.07,s-.07,sq)*lit*keep;
-  float pr=floor((.05+pv*(.62+uDrop*.2))/dy);float cap=smoothstep(s+.07,s-.07,sq)*step(abs(r-pr),.5);vec3 col=mix(uA,uB,clamp(y/.7,0.,1.));float mir=p.y<0.?.82:1.;
-  float line=exp(-y*170.)*(.9+uBeat*.7),env=smoothstep(1.05,.85,abs(p.x));c=col*body*(1.1+tip*.6)*mir+vec3(1.)*cap*.9*mir+mix(uA,vec3(1.,.9,.7),.4)*line*env;al=body*mir+cap*.8+line*env*.8;}
- float k=1.+uBass*.07+uBeat*.04;vec4 w1=woofer(p,vec2(-.44,0.),.25*k),w2=woofer(p,vec2(.44,0.),.25*k),w3=woofer(p,vec2(0.,0.),.34*k);
- c=mix(c,w1.rgb,w1.a);al=max(al,w1.a);c=mix(c,w2.rgb,w2.a);al=max(al,w2.a);c=mix(c,w3.rgb,w3.a);al=max(al,w3.a);
- c+=uA*exp(-length(p)*3.2)*(.18+uBeat*.3+uDrop*.4);return vec4(c,al);}
-`];
-const MHSRC=[`// Plano Ondulado: malla flotante que ondula con graves y espectro
-vec4 layer(vec2 p){return plane(p,0.);}
-`,`// Malla Triangular: red de triángulos flotante; cada triángulo se enciende con su banda
-vec4 layer(vec2 p){float t;vec3 q=hitPlane(p,0.,t);if(t<0.)return vec4(0.);vec2 g=q.xz*.9;g.y+=uT*.4;float a=g.x,b=g.x*.5+g.y*.8660254,c=g.x*.5-g.y*.8660254;float px=t*.0058*.9;
- vec3 fa=abs(fract(vec3(a,b,c)-.5)-.5);float d=min(fa.x,min(fa.y,fa.z));float line=smoothstep(px*2.2,px*.6,d);
- vec3 ci=floor(vec3(a,b,c));float id=h21(vec2(ci.x+ci.y*7.1,ci.z*3.7));float v=bn(id*63.);float fill=(.04+pow(v,1.6)*1.1)*smoothstep(0.,.22,d);
- float fog=flFog(t,p),rip=.5+.5*sin(length(q.xz)*2.2-uT*3.5);vec3 col=pal(id);
- return vec4((col*(line*1.5+fill*1.2)+uA*line*rip*.4*(uBeat+.2))*fog,(line*.85+fill*.9)*fog);}
-`,`// Voronoi Flotante: mosaico celular orgánico cuyas semillas se mueven; aristas luminosas
-vec4 layer(vec2 p){float t;vec3 q=hitPlane(p,0.,t);if(t<0.)return vec4(0.);vec2 g=q.xz*.7;g.y+=uT*.3;vec2 i=floor(g),f=fract(g);float d1=9.,d2=9.;vec2 cid=vec2(0.);
- for(int y=-1;y<=1;y++)for(int x=-1;x<=1;x++){vec2 o=vec2(float(x),float(y)),cell=i+o;vec2 r=vec2(h21(cell),h21(cell+17.3));r=.5+.42*sin(uT*.7+6.2831*r);float d=length(o+r-f);if(d<d1){d2=d1;d1=d;cid=cell;}else if(d<d2){d2=d;}}
- float px=t*.0058*.7,e=d2-d1,line=smoothstep(px*3.,px*.7,e);float id=h21(cid),v=bn(id*63.);float fill=smoothstep(.6,.1,d1)*(.04+pow(v,1.5)*1.1);
- float fog=flFog(t,p);vec3 col=pal(id);return vec4((col*(line*1.5+fill*1.2)+uA*exp(-d1*5.)*.08)*fog,(line*.85+fill*.9)*fog);}
-`,`// Panal Doble: dos paneles hexagonales, suelo y techo, que se desplazan en sentidos opuestos
-vec4 hexPl(vec2 q2,float t,float sc,float spd,vec3 col,float seed){vec2 g=q2*sc;g.y+=uT*spd;vec4 hc=hexc(g);float d=hexd(hc.xy),px=t*.0058*sc;float line=smoothstep(px*2.2,px*.6,.5-d);
- float id=h21(hc.zw+seed),v=bn(id*63.);float fill=smoothstep(.5,.28,d)*(.04+pow(v,1.6)*1.1);float rip=.5+.5*sin(length(q2)*2.2-uT*3.5);
- return vec4(col*(line*1.4+fill*1.2)+mix(col,vec3(1.),.4)*line*rip*.35*(uBeat+.2),line*.85+fill*.9);}
-vec4 layer(vec2 p){vec4 r=vec4(0.);float t;vec3 q=hitPlane(p,0.,t);if(t>0.){vec4 c=hexPl(q.xz,t,.8,.5,uA,0.)*flFog(t,p);r=c;}
- float t2;vec3 q2=hitPlane(p,3.9,t2);if(t2>0.){float m=exp(-t2*.1)*smoothstep(0.,.4,1.25-p.y);vec4 c=hexPl(q2.xz,t2,.6,-.35,uB,31.)*m;r=vec4(r.rgb+c.rgb,max(r.a,c.a));}return r;}
-`,`// Telaraña: red polar (anillos y rayos) que vibra con las bandas y lanza ondas con cada golpe
-vec4 layer(vec2 p){float t;vec3 q=hitPlane(p,0.,t);if(t<0.)return vec4(0.);vec2 c=q.xz-vec2(0.,3.);float r=length(c),a=atan(c.y,c.x);float px=t*.0058;
- float rs=1.25,rr=abs(fract(r*rs-.5)-.5)/rs;float ring=smoothstep(px*2.,px*.5,rr);const float N=22.;float da=abs(fract(a/TAU*N-.5)-.5)*TAU/N*r;float spoke=smoothstep(px*2.,px*.5,da)*smoothstep(.3,.8,r);
- float rid=floor(r*rs),rv=bn(rid*4.+3.);float wave=exp(-pow((r-mod(uT*1.3,9.))*1.1,2.))*(.35+uBeat+uDrop);float lim=smoothstep(8.5,6.5,r);
- float fog=flFog(t,p)*lim;vec3 col=pal(clamp(r/8.,0.,1.));float k=ring*(.6+rv*1.6)+spoke*.8;
- vec3 cc=(col*k*1.4+uA*(ring+spoke)*wave*1.6+uB*exp(-r*.5)*.1)*fog;return vec4(cc,(k*.8+wave*(ring+spoke)*.5)*fog);}
-`,`// Escamas: patrón de escamas superpuestas (seigaiha) con arcos concéntricos que se iluminan por banda
-vec4 layer(vec2 p){float t;vec3 q=hitPlane(p,0.,t);if(t<0.)return vec4(0.);vec2 g=q.xz*.5;g.y+=uT*.3;float px=t*.0058*.5;vec2 g2=g*vec2(1.,2.);float row=floor(g2.y);g2.x+=mod(row,2.)*.5;
- vec2 id=vec2(floor(g2.x),row),f=fract(g2)-.5;float d=length(vec2(f.x,f.y*.5));float h=h21(id),v=bn(h*63.);float k=0.;
- for(int i=0;i<4;i++){float rr=.46-float(i)*.1;k+=smoothstep(px*2.4,px*.6,abs(d-rr))*(1.-float(i)*.15);}
- float fill=smoothstep(.5,.2,d)*(.03+pow(v,1.6)*.9);float arc=step(f.y,.15);float fog=flFog(t,p);vec3 col=pal(h);
- return vec4((col*(k*arc*1.5+fill*1.1))*fog,(k*arc*.85+fill*.9)*fog);}
-`,`// Laberinto Truchet: arcos entrelazados que cambian de orientación con el tiempo y brillan con el espectro
-vec4 layer(vec2 p){float t;vec3 q=hitPlane(p,0.,t);if(t<0.)return vec4(0.);vec2 g=q.xz*.8;g.y+=uT*.4;vec2 id=floor(g),f=fract(g);float h=h21(id),r=h21(id+floor(uT*.18+h*3.));if(r>.5)f.x=1.-f.x;
- float d=min(abs(length(f)-.5),abs(length(f-1.)-.5));float px=t*.0058*.8;float line=smoothstep(.05+px*1.5,.02,d),glow=exp(-d*14.)*.3;
- float v=bn(h*63.);float pul=.5+.5*sin(atan(f.y,f.x)*3.-uT*4.+h*6.);float fog=flFog(t,p);vec3 col=pal(h);
- return vec4(col*(line*(.8+v*1.6+pul*.5)+glow*(.3+v))*fog,(line*.9+glow*.3)*fog);}
-`,`// Panal Flotante: suelo de hexágonos en perspectiva; cada celda se enciende con su banda
-vec4 layer(vec2 p){vec3 ro=vec3(0.,1.7,-4.),rd=normalize(vec3(p.x*.62,p.y*.62-.32,1.));if(rd.y>-.02)return vec4(0.);float t=-ro.y/rd.y;if(t>24.)return vec4(0.);vec3 q=ro+rd*t;
- vec2 g=q.xz*.8;g.y+=uT*.5;vec4 hc=hexc(g);float d=hexd(hc.xy),px=t*.0058*.8;float line=smoothstep(px*2.2,px*.6,.5-d);float id=h21(hc.zw);float v=bn(id*63.);
- float fill=smoothstep(.5,.28,d)*(.04+pow(v,1.6)*1.1);float fog=exp(-t*.1)*smoothstep(.0,.35,p.y+.9);float rip=.5+.5*sin(length(q.xz)*2.2-uT*3.5);
- vec3 col=pal(id);vec3 c=(col*(line*1.4+fill*1.2)+uA*line*rip*.4*(uBeat+.2))*fog;return vec4(c,(line*.85+fill*.9)*fog);}
-`,`// Cortina de Seda: malla vertical que ondea como tela con brillo de cristal
-float hz(vec2 x){float k=1.+uBass*.9+uDrop*.6;return (sin(x.x*2.2+uT*1.6+x.y*1.1)*.2+sin(x.y*2.6-uT*1.3)*.14)*k+bds(clamp(sqrt(x.x*x.x+.1)/1.5,0.,1.))*.22*(.6+uDrop*.5);}
-vec4 layer(vec2 p){vec3 ro=vec3(0.,0.,-4.),rd=normalize(vec3(p*.62,1.));float t=2.4,hh=1.;vec3 q=ro;bool hit=false;
- for(int i=0;i<56;i++){q=ro+rd*t;hh=q.z-hz(q.xy);if(hh<.004){hit=true;break;}t+=max(.02,hh*.6);if(t>8.)break;}
- if(!hit)return vec4(0.);float m=smoothstep(1.12,.98,abs(q.x))*smoothstep(1.42,1.28,abs(q.y));if(m<.001)return vec4(0.);
- float e=.04;vec3 n=normalize(vec3(hz(q.xy+vec2(e,0.))-hz(q.xy-vec2(e,0.)),hz(q.xy+vec2(0.,e))-hz(q.xy-vec2(0.,e)),-2.*e));
- float px=t*.0058;vec2 g=q.xy*4.;vec2 f=abs(fract(g-.5)-.5)/4.;float ln=max(smoothstep(px*1.8,px*.4,f.x),smoothstep(px*1.8,px*.4,f.y));
- float fr=pow(1.-clamp(dot(n,-rd),0.,1.),2.5);vec3 ir=thin(dot(n,-rd)*1.3+q.x*.2+uT*.05);vec3 L=normalize(vec3(.4,.6,-.7));float sp=pow(max(dot(reflect(rd,n),L),0.),24.);
- vec3 c=(mix(vec3(.5),ir,.5)*(.07+fr*.5)+pal(.5)*ln*1.5+vec3(1.)*sp*.8)*m;return vec4(c,(.1+fr*.4+ln*.85+sp*.3)*m);}
-`,`// Embudo Gravitacional: malla polar que se hunde como un pozo y vibra con el espectro
-float hfn(vec2 x){float r=length(x);return -.85/(r+.3)+sin(r*5.-uT*2.5)*.05*(1.+uBass*2.)+bd(clamp(r/3.5,0.,1.))*.35*(1.+uDrop*.6)*exp(-r*.3);}
-vec4 layer(vec2 p){vec3 ro=vec3(0.,2.7,-4.4),rd=normalize(vec3(p.x*.62,p.y*.62-.5,1.));float t=.6,hh=1.;vec3 q=ro;bool hit=false;
- for(int i=0;i<80;i++){q=ro+rd*t;hh=q.y-hfn(q.xz);if(hh<.004*t){hit=true;break;}t+=max(.02,hh*.5);if(t>22.)break;}
- if(!hit)return vec4(0.);float r=length(q.xz);if(r>5.2)return vec4(0.);float px=t*.0046,fog=exp(-t*.06)*smoothstep(5.2,4.2,r);
- float ang=atan(q.z,q.x)+uT*.1;vec2 d=vec2(abs(fract(r*2.5-.5)-.5)/2.5,abs(fract(ang/TAU*28.)-.5)*TAU/28.*r);
- float ln=max(smoothstep(px*1.8,px*.4,d.x),smoothstep(px*1.8,px*.4,d.y)),depth=clamp(-hfn(q.xz)*.7,0.,1.);vec3 col=mix(pal(.2),pal(.9),depth);
- float glow=exp(-r*1.4)*(.3+uBeat*.8);vec3 c=(col*ln*1.7+uB*glow)*fog;return vec4(c,(ln*.9+glow*.4)*fog);}
-`,`// Mosaico de Pulsos: baldosas cuadradas que crecen con su banda y se propagan en ondas desde el centro
-vec4 layer(vec2 p){float t;vec3 q=hitPlane(p,0.,t);if(t<0.)return vec4(0.);vec2 g=q.xz*.9;g.y+=uT*.45;vec2 id=floor(g),f=fract(g)-.5;float h=h21(id),v=bn(h*63.);float px=t*.0058*.9;
- float rip=.5+.5*sin(length(q.xz)*1.6-uT*3.6);float size=.1+.36*(v*.85+uBeat*.2*rip+uDrop*.2);float sq=max(abs(f.x),abs(f.y));float body=smoothstep(size+px,size-px,sq);float edge=smoothstep(px*2.5,px*.6,abs(sq-size));
- float grid=smoothstep(px*1.8,px*.4,.5-sq)*.25;float fog=flFog(t,p);vec3 col=pal(h);
- return vec4((col*(body*(.25+v*1.2)+edge*1.3)+uA*grid*rip)*fog,(body*.6+edge*.9+grid*.5)*fog);}
-`,`// Sábana de Cristal: plano de vidrio iridiscente con reflejos y malla fina
-vec4 layer(vec2 p){return plane(p,1.);}
-`,`// Corredor de Nodos: suelo y techo de red con nodos brillantes en cada intersección, deformados por el espectro
-vec4 layer(vec2 p){vec3 ro=vec3(0.,1.7,-4.2),rd=normalize(vec3(p.x*.62,p.y*.62,1.));if(abs(rd.y)<.01)return vec4(0.);float sg=rd.y<0.?-1.:1.,ph=sg<0.?0.:2.5,t=.8,hh=1.;vec3 q=ro;bool hit=false;
- for(int i=0;i<128;i++){q=ro+rd*t;float sy=sg<0.?hfn2(q.xz,ph,1.):3.4-hfn2(q.xz,ph,1.);hh=sg<0.?q.y-sy:sy-q.y;if(hh<.002*t){hit=true;break;}t+=max(.008,hh*.4);if(t>26.)break;}
- if(!hit)return vec4(0.);for(int k=0;k<6;k++){q=ro+rd*t;float sy=sg<0.?hfn2(q.xz,ph,1.):3.4-hfn2(q.xz,ph,1.);float hm=sg<0.?q.y-sy:sy-q.y;t+=hm/max(abs(rd.y),.08)*.6;}q=ro+rd*t;if(abs(q.x)>7.||q.z<-3.)return vec4(0.);float fog=exp(-t*.1)*smoothstep(.03,.4,abs(p.y))*smoothstep(7.,5.5,abs(q.x));
- vec4 n=netShade(q.xz,q.z,t,.3);return vec4(n.rgb*fog,n.a*fog);}
-`,`// Terreno de Nodos: un solo suelo de red con relieve alto; los nodos más altos brillan con otro color
-vec4 layer(vec2 p){vec3 ro=vec3(0.,2.3,-4.2),rd=normalize(vec3(p.x*.62,p.y*.62-.36,1.));float t=.8,hh=1.;vec3 q=ro;bool hit=false;
- for(int i=0;i<128;i++){q=ro+rd*t;hh=q.y-hfn2(q.xz,0.,1.5);if(hh<.002*t){hit=true;break;}t+=max(.008,hh*.4);if(t>28.)break;}
- if(!hit)return vec4(0.);for(int k=0;k<6;k++){q=ro+rd*t;float hm=q.y-hfn2(q.xz,0.,1.5);t+=hm/max(abs(rd.y),.08)*.6;}q=ro+rd*t;if(abs(q.x)>8.||q.z<-3.)return vec4(0.);float fog=exp(-t*.085)*smoothstep(8.,6.,abs(q.x))*smoothstep(0.,.3,p.y+.95);
- vec4 n=netShade(q.xz,q.z+q.y*3.,t,.2+clamp(hfn2(q.xz,0.,1.5)*.5,0.,.6));return vec4(n.rgb*fog,n.a*fog);}
-`,`// Muro de Nodos: panel vertical de red con nodos que ondea como una cortina de luz
-float hw(vec2 x){float k=1.+uBass*.9+uDrop*.6;return (sin(x.x*2.2+uT*1.6+x.y*1.1)*.2+sin(x.y*2.6-uT*1.3)*.14)*k+bds(clamp(sqrt(x.x*x.x+.1)/1.6,0.,1.))*.22*(.6+uDrop*.5);}
-vec4 layer(vec2 p){vec3 ro=vec3(0.,0.,-4.),rd=normalize(vec3(p*.62,1.));float t=2.4,hh=1.;vec3 q=ro;bool hit=false;
- for(int i=0;i<56;i++){q=ro+rd*t;hh=q.z-hw(q.xy);if(hh<.004){hit=true;break;}t+=max(.02,hh*.6);if(t>8.)break;}
- if(!hit)return vec4(0.);float m=smoothstep(1.3,1.1,abs(q.x))*smoothstep(1.5,1.3,abs(q.y));if(m<.001)return vec4(0.);
- vec4 n=netShade(q.xy*3.2+vec2(0.,uT*.4),q.x*3.+q.y*2.,t*1.35,.5);return vec4(n.rgb*m,n.a*m);}
-`];
 let an2=null;
 const EQ={b:new Float32Array(64),p:new Float32Array(64),raw:new Float32Array(64),agc:-30,es:0,el:0,n:0,init:false,drop:0,dropU:0,m:0,sm:new Float32Array(2048),db:new Float32Array(2048),
  hist:[],ht:new Uint8Array(64*32),bd:new Uint8Array(128),hT:-1e9,msr:0,lo:null,hi:null,fc:null,cc:[.3,.8,1,.9,.3,.9],cci:false};
@@ -3404,23 +2796,7 @@ function autoIdx(s){const grid=GRIDM&&GRIDOK,K=+$('lau').value;let sw=s.i<0||t<s
 function eqTex(T){const gl=T.gl;if(!T.tb){const mk=()=>{const x=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,x);for(const [k,v] of [[gl.TEXTURE_MIN_FILTER,gl.LINEAR],[gl.TEXTURE_MAG_FILTER,gl.LINEAR],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE]])gl.texParameteri(gl.TEXTURE_2D,k,v);return x};T.tb=mk();T.th=mk()}
  gl.pixelStorei(gl.UNPACK_ALIGNMENT,1);gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,T.tb);gl.texImage2D(gl.TEXTURE_2D,0,gl.LUMINANCE,64,2,0,gl.LUMINANCE,gl.UNSIGNED_BYTE,EQ.bd);
  gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,T.th);gl.texImage2D(gl.TEXTURE_2D,0,gl.LUMINANCE,64,32,0,gl.LUMINANCE,gl.UNSIGNED_BYTE,EQ.ht);gl.activeTexture(gl.TEXTURE0)}
-function layerProg(T,key,body){if(T.pr[key]!==undefined)return T.pr[key];const gl=T.gl;let p=null;
- try{const mk=(ty,s)=>{const h=gl.createShader(ty);gl.shaderSource(h,s);gl.compileShader(h);if(!gl.getShaderParameter(h,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(h));return h};
-  const pre='#version 300 es\n#define texture2D texture\nout highp vec4 pc_fragColor;\n#define gl_FragColor pc_fragColor\n';
-  p=gl.createProgram();gl.attachShader(p,mk(gl.VERTEX_SHADER,'#version 300 es\nin vec2 p;void main(){gl_Position=vec4(p,0.,1.);}'));gl.attachShader(p,mk(gl.FRAGMENT_SHADER,pre+LHDR+body+LFTR));gl.bindAttribLocation(p,0,'p');gl.linkProgram(p);
-  if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(p));
-  p.u={};for(const n of ['uRes','uT','uPh','uBass','uMid','uHi','uBeat','uDrop','uI','uSz','uY','uA','uB','uBd','uHist'])p.u[n]=gl.getUniformLocation(p,n)}
- catch(e){console.error(e);p=null;msg('Una capa falló al compilar y se omitió')}
- return T.pr[key]=p}
-function runLayer(T,kind,idx,I,Sz,Y,drop){if(idx>=(kind==='e'?E3B:M3B))return runL3(kind==='e'?EM3[idx-E3B]:MM3[idx-M3B],I,Sz,Y,drop);const P=layerProg(T,kind+idx,kind==='e'?EQSRC[idx]:MHSRC[idx]);if(!P)return;
- const gl=T.gl,q=busy?1:PQ,w=Math.round(W*q),h=Math.round(H*q);if(T.c.width!==w||T.c.height!==h){T.c.width=w;T.c.height=h}
- gl.viewport(0,0,w,h);gl.useProgram(P);gl.bindBuffer(gl.ARRAY_BUFFER,T.buf);gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
- const U=P.u,c=EQ.cc;gl.uniform2f(U.uRes,w,h);gl.uniform1f(U.uT,t%3600);gl.uniform1f(U.uPh,ph);gl.uniform1f(U.uBass,bass);gl.uniform1f(U.uMid,mid);gl.uniform1f(U.uHi,hi);gl.uniform1f(U.uBeat,beat);
- gl.uniform1f(U.uDrop,drop);gl.uniform1f(U.uI,I);gl.uniform1f(U.uSz,Sz);gl.uniform1f(U.uY,Y);gl.uniform3f(U.uA,c[0],c[1],c[2]);gl.uniform3f(U.uB,c[3],c[4],c[5]);gl.uniform1i(U.uBd,1);gl.uniform1i(U.uHist,2);
- gl.disable(gl.BLEND);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.drawArrays(gl.TRIANGLES,0,3);
- g.globalCompositeOperation='source-over';g.drawImage(T.c,0,0,W,H);
- T.x1.drawImage(T.c,0,0,540,960);T.x2.drawImage(T.m1,0,0,270,480);T.x3.drawImage(T.m2,0,0,135,240);                      // brillo de cine
- g.globalCompositeOperation='lighter';g.globalAlpha=.2+drop*.22;g.drawImage(T.m2,0,0,W,H);g.globalAlpha=.22+drop*.2;g.drawImage(T.m3,0,0,W,H);g.globalAlpha=1;g.globalCompositeOperation='source-over'}
+function runLayer(T,kind,idx,I,Sz,Y,drop){const ci=kind==='e'?EM3[idx-E3B]:MM3[idx-M3B];if(ci!==undefined)runL3(ci,I,Sz,Y,drop)}
 function layersDraw(){if(!layersActive())return;const T=initGL();if(!T||!T.v2)return;
  // espectro con retraso de audio, picos retenidos, espectrograma y colores suavizados
  const want=t-(busy?0:DL/1000);let pk=EQ.hist[0];for(const e of EQ.hist){if(e.t<=want)pk=e;else break}
