@@ -2252,7 +2252,7 @@ $('pb').oninput=e=>{PB=e.target.value/100};$('dl').oninput=e=>{DL=+e.target.valu
 
 $('swb').onclick=e=>{SW=!SW;e.target.classList.toggle('on',SW);e.target.textContent='💥 Ondas de choque: '+(SW?'ON':'OFF')};
 
-const SC=[{n:'1. Agujero de Gusano',f:S3(9,NOP,null,0,[3,0,0,0.03,[1, 0.15, 0.5, 0.75, 0.7, 1, 0.1, 0.95, 1]])},{n:'2. Reloj de Teselas',f:S3(11,NOP,null,0,[0,0,0,0,[0, 0.3, 1, 0.1, 0.8, 1, 0.85, 0.97, 1]])},{n:'3. Corredor Aurora',f:S3(7,NOP,[[24,5.4,.07,1.4,.05,0,0,2.6]],0,[0,1,7,0.02,[0.55, 0.15, 1, 1, 0.2, 0.7, 1, 0.8, 0.3]])},{n:'4. Lluvia de Láseres',f:S3(8,NOP,[[0,1.25,.1,2.4,0,0,0,3]],0,[3,1,11,0,[1, 0.1, 0.15, 1, 0.5, 0.1, 1, 0.95, 0.8]])},{n:'5. Aros Cyberpunk',f:S3(5,NOP,[[32,4.8,.05,.97,0,0,0,.25]],0,[3,5,9,0.03,[0, 0.9, 0.8, 0.2, 0.4, 1, 1, 0.2, 0.8]])},{n:'6. Seda Espectral',f:S3(6,NOP,[[6,4.2,0,0,.05,0,0,0]],0,[1,0,0,0.04,[0.9, 0.45, 0.7, 0.55, 0.35, 0.95, 0.3, 0.85, 0.7]])},{n:'7. Tejido Espaciotiempo',f:S3(10,NOP,null,0,[3,0,0,0,[0.7, 0.8, 1, 0.4, 0.6, 1, 1, 0.9, 0.8]])},{n:'8. Hélice de Cristal',f:S3(5,NOP,[[3,4.2,.05,.03,.2,0,0,2.4],[2,3.2,.08,.05,-.3,0,0,.6]],0,[2,3,7,0.03,[0.1, 1, 0.5, 0.7, 1, 0.2, 1, 0.75, 0.2]])},{n:'9. Hexa-Túnel Industrial',f:XS('ind')},{n:'10. Pozo Vórtice',f:XS('poz')},{n:'11. Nave · Catedral de Acero',f:XS('nav')},{n:'12. Reactor · Pozo de Ácido',f:XS('rea')},{n:'13. Subterráneo · Lámparas de Jaula',f:XS('sub')},{n:'14. Ácido · Techno Oscuro',f:XS('aci')},{n:'15. Vórtice de Iones',f:XS('ion')},{n:'16. Prisma Nexus',f:XS('pri')},{n:'17. Cyber-Hex HUD',f:XS('hud')},{n:'18. Cañón de Cristal',f:S3(7,NOP,[[24,6.4,.05,1.6,.03,0,0,3.4]],0,[2,0,6,0,[1,.85,.4,1,.95,.8,.6,.8,1]])},{n:'19. Campo de Cubos',f:S3(8,NOP,[[0,1.15,.5,.6,0,0,0,.9]],0,[1,0,8,0,[.2,.9,.8,.3,.5,1,.9,.95,1]])},{n:'20. Túnel de Escamas',f:S3(6,NOP,[[12,4,0,0,.08,0,0,0]],0,[1,0,0,.03,[.1,1,.6,.1,.8,1,.7,.3,1]])},{n:'21. Terreno Synthwave',f:S3(3,NOP,null,0,[3,0,0,0,[1,.2,.7,.5,.3,1,.1,.8,1]])},{n:'22. Ondas Concéntricas',f:S3(17,NOP,null,0,[3,0,0,0,[1,.6,.2,1,.25,.5,.5,.2,1]])},{n:'23. Toroide Cuántico',f:S3(16,NOP,null,0,[3,0,0,0,[.2,1,.6,.2,.7,1,.7,.3,1]])},{n:'24. Esfera Geodésica',f:S3(4,NOP,null,0,[3,0,0,0,[.3,1,.8,.3,.6,1,.8,.4,1]])}];
+const SC=[{n:'1. Agujero de Gusano',f:S3(9,NOP,null,0,[3,0,0,0.03,[1, 0.15, 0.5, 0.75, 0.7, 1, 0.1, 0.95, 1]])},{n:'2. Reloj de Teselas',f:S3(11,NOP,null,0,[0,0,0,0,[0, 0.3, 1, 0.1, 0.8, 1, 0.85, 0.97, 1]])},{n:'3. Corredor Aurora',f:S3(7,NOP,[[24,5.4,.07,1.4,.05,0,0,2.6]],0,[0,1,7,0.02,[0.55, 0.15, 1, 1, 0.2, 0.7, 1, 0.8, 0.3]])},{n:'4. Lluvia de Láseres',f:S3(8,NOP,[[0,1.25,.1,2.4,0,0,0,3]],0,[3,1,11,0,[1, 0.1, 0.15, 1, 0.5, 0.1, 1, 0.95, 0.8]])},{n:'5. Aros Cyberpunk',f:S3(5,NOP,[[32,4.8,.05,.97,0,0,0,.25]],0,[3,5,9,0.03,[0, 0.9, 0.8, 0.2, 0.4, 1, 1, 0.2, 0.8]])},{n:'6. Seda Espectral',f:S3(6,NOP,[[6,4.2,0,0,.05,0,0,0]],0,[1,0,0,0.04,[0.9, 0.45, 0.7, 0.55, 0.35, 0.95, 0.3, 0.85, 0.7]])},{n:'7. Hélice de Luz',f:S3(5,NOP,[[16,4.4,.07,.03,.22,0,0,3.1],[10,3,.05,.03,-.3,0,0,3.1]],0,[0,3,7,.03,[0.1,1,0.5,0.7,1,0.2,1,0.75,0.2]])},{n:'8. Hexa-Túnel Industrial',f:XS('ind')},{n:'9. Pozo Vórtice',f:XS('poz')},{n:'10. Nave · Catedral de Acero',f:XS('nav')},{n:'11. Reactor · Pozo de Ácido',f:XS('rea')},{n:'12. Subterráneo · Lámparas de Jaula',f:XS('sub')},{n:'13. Ácido · Techno Oscuro',f:XS('aci')},{n:'14. Vórtice de Iones',f:XS('ion')},{n:'15. Prisma Nexus',f:XS('pri')},{n:'16. Cyber-Hex HUD',f:XS('hud')},{n:'17. Cañón de Cristal',f:S3(7,NOP,[[24,6.4,.06,1.6,.03,0,0,3.4]],0,[0,0,6,0,[1,.55,.15,1,.3,.45,.6,.3,1]])},{n:'18. Campo de Cubos',f:S3(8,NOP,[[0,1.15,.5,.6,0,0,0,.9]],0,[1,0,8,0,[.2,.9,.8,.3,.5,1,.9,.95,1]])},{n:'19. Túnel de Escamas',f:S3(6,NOP,[[12,4,0,0,.08,0,0,0]],0,[1,0,0,.03,[.1,1,.6,.1,.8,1,.7,.3,1]])},{n:'20. Túnel Pulso',f:S3(5,NOP,[[32,4.6,.06,1,0,0,0,.25]],0,[0,6,9,.02,[.1,.3,1,.1,.9,1,.9,.97,1]])},{n:'21. Hex Neón Pulso',f:S3(5,NOP,[[6,4.5,.16,.98,.03,0,0,.45]],0,[0,6,8,0,[1,.15,.7,.6,.3,1,.1,.9,1]])},{n:'22. Aro Solar',f:S3(5,NOP,[[48,5.2,.12,1,0,.15,0,.35]],0,[1,6,7,0,[1,.8,.2,1,.45,.1,1,.15,.3]])},{n:'23. Fibra Óptica',f:S3(5,NOP,[[48,4.8,.02,.01,.06,0,.25,3]],0,[0,6,14,0,[.9,.97,1,.1,.9,1,.6,.3,1]])}];
 // ---- Auto inteligente: solo tus favoritas, cambia en el siguiente golpe ----
 const FAV=new Set();let aS=-1,aT=-99,favMode=false,AUS=12,swF=0,tOv0=0;
 function autoPick(tc){const pool=FAV.size?[...FAV].sort((a,b)=>a-b):SC.map((_,i)=>i);
@@ -2478,10 +2478,10 @@ const PRESETS=[
  {k:'referencia',n:'🎛️ Tu referencia (teselas + tejido)',scene:'none',fxm:1,eq1:'Hourglass',mh1:'Tejido'},
  {k:'woofers',n:'🔊 Woofers + Agujero de Gusano',scene:'none',fxm:2,eq1:'Puntos',eq2:'Choque',mh1:'Gusano'},
  {k:'hype',n:'🔥 Hype Trap',fav:['Láseres','Aros','Corredor'],fxm:3,eq1:'Anillo',mh1:'Terreno',aus:8,eb:1},
- {k:'chill',n:'🌙 Chill Lo-fi',fav:['Seda','Tejido','Hélice'],fxm:1,eq1:'Ondas',mh1:'Concéntricas',aus:16,eb:4},
+ {k:'chill',n:'🌙 Chill Lo-fi',fav:['Seda','Pulso','Hélice'],fxm:1,eq1:'Ondas',mh1:'Concéntricas',aus:16,eb:4},
  {k:'club',n:'🎧 Club Techno',fav:['Láseres','Aros','Teselas'],fxm:4,eq1:'Secuenciador',eq2:'Choque',mh1:'Terreno',aus:10,eb:2,lau:4},
- {k:'elegante',n:'💎 Elegante',fav:['Seda','Hélice','Tejido'],fxm:0,eq1:'Ondas',mh1:'Gusano',aus:20,eb:8},
- {k:'cosmico',n:'🌌 Cósmico',fav:['Gusano','Tejido','Seda'],fxm:1,eq1:'Anillo',mh1:'Toroide',aus:14,eb:4},
+ {k:'elegante',n:'💎 Elegante',fav:['Seda','Hélice','Pulso'],fxm:0,eq1:'Ondas',mh1:'Gusano',aus:20,eb:8},
+ {k:'cosmico',n:'🌌 Cósmico',fav:['Gusano','Pulso','Seda'],fxm:1,eq1:'Anillo',mh1:'Toroide',aus:14,eb:4},
  {k:'urbano',n:'🏙️ Noche Urbana',fav:['Corredor','Teselas','Aros'],fxm:2,eq1:'Puntos',mh1:'Terreno',aus:12,eb:2},
  {k:'festival',n:'🌈 Festival',fxm:3,eq1:'auto',mh1:'auto',aus:8,lau:4,eb:1},
  {k:'solocapas',n:'🎬 Solo capas (tu foto o video protagonista)',scene:'none',fxm:1,eq1:'Hourglass',mh1:'Tejido',eqi:90,mhi:80},
@@ -2614,7 +2614,7 @@ uniform mat4 uVP,uPj;uniform vec3 uCam,uA,uB,uC;uniform vec4 uBA,uBC;uniform flo
 float bd(float x){return texture(uBd,vec2(clamp(x,0.,1.),.25)).r;}
 float pk(float x){return texture(uBd,vec2(clamp(x,0.,1.),.75)).r;}
 float hs(float x,float y){return texture(uHist,vec2(clamp(x,0.,1.),clamp(y,0.,1.))).r;}
-mat2 rot(float a){float c=cos(a),s=sin(a);return mat2(c,-s,s,c);}
+mat2 rot(float a){float c=cos(a),s=sin(a);return mat2(c,s,-s,c);}
 vec3 pal(float x){x=clamp(x+.08*sin(uT*.13),0.,1.);return x<.5?mix(uA,uC,x*2.):mix(uC,uB,x*2.-1.);}
 `;
 const VB3=`#version 300 es
@@ -2681,9 +2681,10 @@ void main(){int id=gl_InstanceID;
  float zr=mod(float(r)*3.-uZ+h1*3.*step(.01,uQ.z),66.),b=float(sd)/S,m=abs(b*2.-1.),v=hs(m,1.-zr/66.);
  float sh=am>3.5&&am<4.5?uK.y*h1:0.,tw=am>2.5&&am<3.5?1.+uK.x*4.:1.,rs=am>1.5&&am<2.5?uK.z:0.;
  float cx=sin(zr*.07+uT*.35)*1.6*smoothstep(0.,40.,zr),a=b*6.2831853+zr*uQ.x*tw+uT*.12+rs+float(r)*uQ.y+(h2-.5)*uQ.z*3.;
- float Rt=(uP.y-v*1.3*(am<.5?1.:.4)-uBass*.3)*(1.+uQ.z*(h1-.5)*.8);
- if(am>.5&&am<1.5)Rt*=1.-.3*uBeat;if(am>4.5)Rt*=1.+.12*sin(zr*.6-uT*5.)*(.4+uBass*2.);
- c=vec3(cx+cos(a)*Rt,sin(a)*Rt,-zr-1.5);s=vec3(uP.w*2.*Rt*sin(3.14159265/S),uP.z*(1.+v*2.+sh*4.),uQ.w);an=a+1.5707963;u=zr/66.+b*.2;e=v+uBeat*.3+sh*4.;vF=smoothstep(1.,6.,zr)*(1.-smoothstep(40.,66.,zr));}
+ float Rt=(uP.y-v*1.3*(am<.5?1.:(am>5.5?.08:.4))-uBass*.3)*(1.+uQ.z*(h1-.5)*.8);
+ float bw=0.;if(am>5.5){float d0=(zr-(66.-uBA.x*38.))/3.5,d1=(zr-(66.-uBA.y*38.))/3.5;bw=exp(-d0*d0)*uBC.x+exp(-d1*d1)*uBC.y*.7;Rt*=1.-.28*bw;}
+ if(am>.5&&am<1.5)Rt*=1.-.3*uBeat;if(am>4.5&&am<5.5)Rt*=1.+.12*sin(zr*.6-uT*5.)*(.4+uBass*2.);
+ c=vec3(cx+cos(a)*Rt,sin(a)*Rt,-zr-1.5);s=vec3(uP.w*2.*Rt*sin(3.14159265/S),uP.z*(1.+v*2.+sh*4.),uQ.w);an=a+1.5707963;u=zr/66.+b*.2;e=v+uBeat*.3+sh*4.+bw*2.5;vF=smoothstep(1.,6.,zr)*(1.-smoothstep(40.,66.,zr));}
  vec3 q=aP*s,nn=aN;if(uM==3||uM==4||uM==10||uM==11||uM==14||uM==16||uM==17||uM==18){q.xy=rot(an)*q.xy;nn.xy=rot(an)*nn.xy;}else{q.xz=rot(an)*q.xz;nn.xz=rot(an)*nn.xz;}
  vW=c+q;{float rr=uR.w*uT;vW.xy=rot(rr)*vW.xy;nn.xy=rot(rr)*nn.xy;}vN=nn;vL=aP;vE=e;vU=u;vG=aP.y+.5;gl_Position=uVP*vec4(vW,1.);}`.replace('vvR:;','vR=1.;');
 const FB3=`#version 300 es
@@ -2846,7 +2847,7 @@ $('rst').onclick=()=>{try{localStorage.removeItem('sp_cfg_v1')}catch(_){}locatio
 const NEQ=['3D · Barras de Cristal','3D · Corona Radial','3D · Espectro de Líneas','3D · Matriz de Puntos','3D · Hourglass de Teselas'],NMH=['3D · Terreno Wireframe','3D · Agujero de Gusano','3D · Tejido Espaciotiempo'],
  EQLEG=[0,1,2,3,2,3,1,2,0,4,0,3,4,4],MHLEG=[2,0,2,1,0,2,1,0,2,1,0,2,1,2,0],
  OLDSC=['Hex Neón','Aros Cyberpunk','Hipervelocidad','Reactor de Acero','Catedral de Cristal','Nácar','Túnel Delta','Ecualizador','Anillos Colosales','Hélice de Titanio','Túnel Estrella','Túnel Espectro','Hélice 3D','Campo Estelar','Vórtice','Obsidiana','Nebulosa','Rayos Láser','Panal de Cobre','Glitch RGB','Rayo Eléctrico','Torsión Estelar','Caleidoscopio','Túnel de Vigas','Túnel Geodésico','Agujero de Gusano','Túnel de Teselas'],
- SCLEG=[[/n[áa]car|seda|geod/i,'Seda Espectral'],[/h[ée]lice|delta|tors|caleid/i,'Hélice de Cristal'],[/reactor|panal|corredor|vigas/i,'Corredor Aurora'],[/obsidiana|rayo|l[áa]ser|pilar/i,'Lluvia de Láseres'],[/aros|anillo|glitch|cyber|hex|hiper|portal/i,'Aros Cyberpunk'],[/nebulosa|tejido|espacio/i,'Tejido Espaciotiempo'],[/catedral|teselas|espectr|cascada|ecualiz/i,'Reloj de Teselas'],[/gusano|v[óo]rtice|estrell|estelar|agujero|polvo|campo/i,'Agujero de Gusano']];
+ SCLEG=[[/n[áa]car|seda|geod/i,'Seda Espectral'],[/h[ée]lice|delta|tors|caleid/i,'Hélice de Luz'],[/reactor|panal|corredor|vigas/i,'Corredor Aurora'],[/obsidiana|rayo|l[áa]ser|pilar/i,'Lluvia de Láseres'],[/aros|anillo|glitch|cyber|hex|hiper|portal/i,'Aros Cyberpunk'],[/nebulosa|tejido|espacio/i,'Túnel Pulso'],[/catedral|teselas|espectr|cascada|ecualiz/i,'Reloj de Teselas'],[/gusano|v[óo]rtice|estrell|estelar|agujero|polvo|campo/i,'Agujero de Gusano']];
 const legN=n=>{n=stripN(n);const r=SCLEG.find(x=>x[0].test(n));return r?r[1]:null};
 function mapEq(v){if(v===''||v==null||v==='auto')return v;const i=+v;if(!isFinite(i))return '';if(EK.has(i))return String(i);return String(EQN.indexOf(i===E3B+2?NEQ[4]:i<E3B?NEQ[EQLEG[i%14]]:NEQ[0]))}
 function mapMh(v){if(v===''||v==null||v==='auto')return v;const i=+v;if(!isFinite(i))return '';if(MK.has(i))return String(i);return String(MHN.indexOf(i<M3B?NMH[MHLEG[i%15]]:NMH[0]))}
