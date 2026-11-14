@@ -137,7 +137,7 @@ select.live{border-color:var(--ac2);box-shadow:0 0 0 1px rgba(0,229,255,.25),0 0
     <label>Tamaño: <span id="mhsl">130</span>%</label><input id="mhs" type="range" min="60" max="220" value="130">
     <label>Altura: <span id="mhyl">centro</span> <span style="color:var(--mu)">(0 = centro)</span></label><input id="mhy" type="range" min="-100" max="100" value="0">
     <div style="margin:16px 0 4px;font-weight:700">🎨 Color y dinámica de las capas</div>
-    <div class="row"><select id="pal"><option value="0">Color inteligente (contrasta con tu fondo)</option><option value="1">Arcoíris suave</option><option value="2">Blanco hielo</option><option value="3">Fuego</option><option value="4">Océano</option><option value="6">Naranja → Rosa (como tu ejemplo)</option><option value="5">Color personalizado →</option></select><input id="pcol" type="color" value="#00e5ff" style="flex:0 0 52px;height:42px;padding:2px"></div>
+    <div class="row"><select id="pal"><option value="0">Color inteligente (contrasta con tu fondo)</option><option value="1">Arcoíris suave</option><option value="2">Blanco hielo</option><option value="3">Fuego</option><option value="4">Océano</option><option value="6">Naranja → Rosa (como tu ejemplo)</option><option value="7">Synthwave (rosa → cian)</option><option value="8">Aurora (verde → violeta)</option><option value="9">Oro y carmesí</option><option value="10">Eléctrico (azul → magenta)</option><option value="11">Esmeralda y hielo</option><option value="5">Color personalizado →</option></select><input id="pcol" type="color" value="#00e5ff" style="flex:0 0 52px;height:42px;padding:2px"></div>
     <label>Auto: cambia de estilo cada <span id="laul">8</span> compases</label><input id="lau" type="range" min="2" max="32" value="8">
     <div class="row"><label style="flex:1;display:flex;gap:8px;align-items:center"><input type="checkbox" id="dyn" checked> ⚡ Dinámica inteligente (crecen y brillan en los drops)</label></div>
     
@@ -2475,26 +2475,28 @@ $('bshift').onclick=()=>{BOFF+=60/BPMV;lastBI=null;binfo();msg('El "1" del comp�
 // ---- Presets: 12 looks completos + tus propios presets ----
 const PRE_DEF={eq1:'',eq2:'',mh1:'',mh2:'',eqi:100,eqs:125,eqy:0,mhi:100,mhs:130,mhy:0,pal:'0',lau:8,fxm:0,fxi:100,ovl:0,aus:12,eb:1};
 const PRESETS=[
- {k:'referencia',n:'🎛️ Tu referencia (teselas + tejido)',scene:'none',fxm:1,eq1:'Hourglass',mh1:'Tejido'},
- {k:'woofers',n:'🔊 Woofers + Agujero de Gusano',scene:'none',fxm:2,eq1:'Puntos',eq2:'Choque',mh1:'Gusano'},
- {k:'hype',n:'🔥 Hype Trap',fav:['Láseres','Aros','Corredor'],fxm:3,eq1:'Anillo',mh1:'Terreno',aus:8,eb:1},
- {k:'chill',n:'🌙 Chill Lo-fi',fav:['Seda','Pulso','Hélice'],fxm:1,eq1:'Ondas',mh1:'Concéntricas',aus:16,eb:4},
- {k:'club',n:'🎧 Club Techno',fav:['Láseres','Aros','Teselas'],fxm:4,eq1:'Secuenciador',eq2:'Choque',mh1:'Terreno',aus:10,eb:2,lau:4},
- {k:'elegante',n:'💎 Elegante',fav:['Seda','Hélice','Pulso'],fxm:0,eq1:'Ondas',mh1:'Gusano',aus:20,eb:8},
- {k:'cosmico',n:'🌌 Cósmico',fav:['Gusano','Pulso','Seda'],fxm:1,eq1:'Anillo',mh1:'Toroide',aus:14,eb:4},
- {k:'urbano',n:'🏙️ Noche Urbana',fav:['Corredor','Teselas','Aros'],fxm:2,eq1:'Puntos',mh1:'Terreno',aus:12,eb:2},
- {k:'festival',n:'🌈 Festival',fxm:3,eq1:'auto',mh1:'auto',aus:8,lau:4,eb:1},
- {k:'solocapas',n:'🎬 Solo capas (tu foto o video protagonista)',scene:'none',fxm:1,eq1:'Hourglass',mh1:'Tejido',eqi:90,mhi:80},
- {k:'minimal',n:'🖤 Minimal',scene:'none',fxm:0,eq1:'Líneas',eqs:140},
- {k:'experimental',n:'🧪 Experimental (todo en Auto)',fxm:3,eq1:'auto',eq2:'auto',mh1:'auto',mh2:'auto',lau:4,aus:6},
- {k:'industrial',n:'🏭 Industrial / Techno oscuro',fav:['Nave','Reactor','Subterráneo','Ácido','Hexa'],fxm:1,eq1:'Puntos',mh1:'Terreno',aus:12,eb:2},
- {k:'visualizer',n:'📺 Visualizer Clásico',scene:'none',fxm:0,eq1:'Barras de Cristal',mh1:'Terreno'}];
+ {k:'synthwave',n:'🌆 Synthwave · Hexágono Neón + Barras',scene:'Hex Neón Pulso',eq1:'Barras de Cristal',fxm:1,fxi:90,pal:'7'},
+ {k:'gusano',n:'🕳️ Agujero de Gusano · Ondas de Choque',scene:'Agujero',eq1:'Ondas de Choque',fxm:5,fxi:110,pal:'7'},
+ {k:'club',n:'🔴 Club · Láseres + Secuenciador',scene:'Láseres',eq1:'Secuenciador',fxm:11,fxi:90,pal:'3'},
+ {k:'techno',n:'🟣 Techno · Corredor LED',scene:'Corredor',eq1:'LED',fxm:2,fxi:70,pal:'10'},
+ {k:'aurora',n:'🌌 Aurora · Seda + Cortina de Luz',scene:'Seda',eq1:'Cortina',fxm:6,fxi:100,pal:'8'},
+ {k:'hiper',n:'🚀 Hiperespacio · Fibra Óptica + Girasol',scene:'Fibra',eq1:'Girasol',fxm:7,fxi:100,pal:'11'},
+ {k:'dorado',n:'☀️ Dorado · Aros Solares + Corona',scene:'Aro Solar',eq1:'Corona',fxm:10,fxi:70,pal:'9'},
+ {k:'industrial',n:'🏭 Industrial · Nave de Acero + Puntos',scene:'Nave',eq1:'Puntos',fxm:9,fxi:100,pal:'0'},
+ {k:'urbano',n:'🏙️ Noche Urbana · Reloj de Teselas + Diamantes',scene:'Reloj',eq1:'Diamantes',fxm:8,fxi:60,pal:'4'},
+ {k:'hielo',n:'❄️ Hielo · Túnel Pulso + Ondas Neón',scene:'Túnel Pulso',eq1:'Neón',fxm:6,fxi:80,pal:'2'},
+ {k:'foto',n:'🎬 Tu foto + Reloj de Teselas (sin túnel)',scene:'none',eq1:'Hourglass',mh1:'Tejido',fxm:6,fxi:60,pal:'0'},
+ {k:'cardio',n:'💓 Cardio Minimal (sin túnel)',scene:'none',eq1:'Cardio',fxm:4,fxi:60,pal:'2'},
+ {k:'espacio',n:'🌀 Espacio-Tiempo · Malla + Barras Espejo (sin túnel)',scene:'none',eq1:'Espejo',mh1:'Tejido',fxm:5,fxi:80,pal:'0'},
+ {k:'toroide',n:'🪐 Toroide Cuántico + Anillo Pulsar (sin túnel)',scene:'none',eq1:'Anillo',mh1:'Toroide',fxm:7,fxi:90,pal:'8'}];
 function pv(id,v){if(!/^(eq|mh)[12]$/.test(id)||v===''||v==='auto'||/^\d+$/.test(String(v)))return v;const A=id[0]==='e'?EQN:MHN,K=id[0]==='e'?EK:MK,i=A.findIndex((n,j)=>K.has(j)&&n.includes(v));return i<0?'':String(i)}
 function applyPreset(p){const o={...PRE_DEF,...p};FAV.clear();
- if(o.scene==='none')scene=-2;else{scene=-1;for(const k of o.fav||[]){const i=SC.findIndex(s=>s.n.includes(k));if(i>=0)FAV.add(i)}}
+ if(o.scene==='none')scene=-2;else if(typeof o.scene==='string'&&o.scene!=='auto'){const i=SC.findIndex(s=>s.n.includes(o.scene));scene=i>=0?i:-1}
+ else{scene=-1;for(const k of o.fav||[]){const i=SC.findIndex(s=>s.n.includes(k));if(i>=0)FAV.add(i)}}
  for(const id of Object.keys(PRE_DEF)){const e=$(id);e.value=pv(id,o[id]);e.dispatchEvent(new Event('input'));e.dispatchEvent(new Event('change'))}
  $('dyn').checked=true;$('pname').value=p.n.replace(/^\S+\s/,'');renderSc();favLabel();saveCfg();
- msg('Preset «'+p.n.replace(/^\S+\s/,'')+'» aplicado'+(scene===-2?': sin túnel, tu fondo es el protagonista.':FAV.size?': Auto alternará entre '+FAV.size+' túneles.':': Auto con todos los túneles.'))}
+ const tx=id=>{const v=$(id).value;return(v===''||v==='0')?'':lvTxt(id)},pz=[scene>=0?'túnel «'+stripN(SC[scene].n)+'»':scene===-2?'sin túnel':'túnel en Auto',tx('eq1'),tx('eq2'),tx('mh1'),tx('mh2'),tx('fxm')?'FX '+tx('fxm'):''].filter(Boolean);
+ msg('«'+p.n.replace(/^\S+\s/,'')+'»: '+pz.join(' · '))}
 const UP_KEY='sp_user_presets_v1',upGet=()=>{try{const s=localStorage.getItem(UP_KEY);if(s!==null)return JSON.parse(s)}catch(_){}return MEM.p?JSON.parse(JSON.stringify(MEM.p)):{}};
 function updPinfo(){const e=$('pinfo');if(e)e.textContent='⭐ '+Object.keys(upGet()).length+' preset(s) tuyos guardados en este navegador. La app de la pantalla de inicio guarda aparte: usa «Copiar TODOS» para pasarlos.'}
 function renderStyles(){$('sty').replaceChildren(new Option('✨ Presets (un toque)…',''),...PRESETS.map(p=>new Option(p.n,'p:'+p.k)),...Object.keys(upGet()).map(n=>new Option('⭐ '+n,'u:'+n)));updPinfo()}
@@ -2754,7 +2756,7 @@ function draw3(ci,bd,ht,cc,drop,I,Sz,Y,scn,pp,st){sp3+=dt*(beat*3+.15);{const a=
  st=st||K.st||[0,0,7,0,null];pp=pp||(K.b?[[10,4.3,.18,.84,.04,0,0,.5]]:[[6,4.2,0,0,0,0,0,0]]);if(K.b&&K.m>=3)z3+=dt*st[2]*(st[1]===1?1+E3e.b*3:1+E3e.b*.8);
  const Sc=[Sz,0,0,0,0,Sz,0,0,0,0,1,0,0,Y/1.78,0,1],pr=m4p(cm[2]*(1-.04*E3e.b),w/h,.1,120),vp=m4m(Sc,m4m(pr,m4l(ey,tg))),pj=m4m(Sc,pr);
  const su=(P,mm)=>{const U=P.u;gl.useProgram(P);gl.uniformMatrix4fv(U.uVP,false,vp);gl.uniformMatrix4fv(U.uPj,false,pj);gl.uniform3f(U.uCam,ey[0],ey[1],ey[2]);gl.uniform1f(U.uT,t%3600);gl.uniform1f(U.uBass,E3e.b);gl.uniform1f(U.uBeat,E3e.k);gl.uniform1f(U.uDrop,drop);gl.uniform1f(U.uI,I);
- const k=st[4]&&st[4].length>8&&+$('pal').value===0?st[4]:null;gl.uniform3f(U.uA,k?k[0]:cc[0],k?k[1]:cc[1],k?k[2]:cc[2]);gl.uniform3f(U.uB,k?k[6]:cc[3],k?k[7]:cc[4],k?k[8]:cc[5]);gl.uniform3f(U.uC,k?k[3]:(cc[0]+cc[3])/2,k?k[4]:(cc[1]+cc[4])/2,k?k[5]:(cc[2]+cc[5])/2);
+ const k=st[4]&&st[4].length>8&&+$('pal').value===0?st[4]:null;gl.uniform3f(U.uA,k?k[0]:cc[0],k?k[1]:cc[1],k?k[2]:cc[2]);gl.uniform3f(U.uB,k?k[6]:cc[3],k?k[7]:cc[4],k?k[8]:cc[5]);const mc=[(cc[0]+cc[3])/2,(cc[1]+cc[4])/2,(cc[2]+cc[5])/2],ml=(mc[0]+mc[1]+mc[2])/3,ms=mc.map(x=>Math.max(0,Math.min(1,x+(x-ml)*1.8)));gl.uniform3f(U.uC,k?k[3]:ms[0],k?k[4]:ms[1],k?k[5]:ms[2]);
  gl.uniform4f(U.uR,mm?0:st[0],st[1],st[2],st[3]);gl.uniform4f(U.uK,E3e.m,E3e.h,sp3,E3e.n%16);gl.uniform4f(U.uBA,E3e.a[0],E3e.a[1],E3e.a[2],E3e.a[3]);gl.uniform4f(U.uBC,E3e.ac[0],E3e.ac[1],E3e.ac[2],E3e.ac[3]);gl.uniform1i(U.uBd,1);gl.uniform1i(U.uHist,2);gl.uniform1i(U.uM,mm||K.m);gl.uniform1f(U.uZ,z3)};
  const P=K.b?T.pb:T.pg,U=P.u;su(P);
  gl.activeTexture(gl.TEXTURE0);gl.disable(gl.SCISSOR_TEST);gl.colorMask(true,true,true,true);gl.depthMask(true);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
@@ -2801,7 +2803,7 @@ function r2h(r,g,b){const mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;let h=0;
 function avgCol(src){try{const c=document.createElement('canvas');c.width=c.height=8;const x=c.getContext('2d');x.drawImage(src,0,0,8,8);const d=x.getImageData(0,0,8,8).data;let r=0,g=0,b=0;for(let i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];b+=d[i+2]}const n=d.length/4*255;return[r/n,g/n,b/n]}catch(e){return null}}
 function layerTargets(){const m=+$('pal').value;
  if(m===1){const hh=(t*18)%360;return[...h2r(hh,.9,.6),...h2r(hh+60,.9,.62)]}
- if(m===6)return[1,.62,.12,1,.22,.55];if(m===2)return[.85,.95,1,.6,.8,1];if(m===3)return[1,.55,.15,1,.15,.1];if(m===4)return[.1,.9,1,.2,.3,1];
+ if(m===7)return[1,.15,.65,.1,.85,1];if(m===8)return[.15,1,.6,.6,.25,1];if(m===9)return[1,.8,.25,1,.1,.3];if(m===10)return[.2,.4,1,1,.2,.9];if(m===11)return[.1,1,.7,.75,.95,1];if(m===6)return[1,.62,.12,1,.22,.55];if(m===2)return[.85,.95,1,.6,.8,1];if(m===3)return[1,.55,.15,1,.15,.1];if(m===4)return[.1,.9,1,.2,.3,1];
  if(m===5){const c=$('pcol').value||'#00e5ff',r=parseInt(c.slice(1,3),16)/255,g=parseInt(c.slice(3,5),16)/255,b=parseInt(c.slice(5,7),16)/255,x=r2h(r,g,b);return[r,g,b,...h2r(x[0]+35,Math.max(.6,x[1]),Math.max(.5,x[2]))]}
  const acc=BG===5&&G.A&&G.A.acc?G.A.acc:null;
  if(acc){const x=r2h(acc[0],acc[1],acc[2]),hh=x[0]+180;return[...h2r(hh,Math.max(.75,x[1]),.62),...h2r(hh+40,.9,.66)]}
