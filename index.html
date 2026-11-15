@@ -117,6 +117,8 @@ select.live{border-color:var(--ac2);box-shadow:0 0 0 1px rgba(0,229,255,.25),0 0
     <div class="row"><button id="poff">⏻ Apagar todos los efectos (túnel, capas y FX)</button><button id="rfr">🔄 Refrescar pantalla</button></div>
     <div class="row"><select id="fxm"><option value="0">FX en golpe: ninguno</option><option value="1">FX: zoom en golpe</option><option value="2">FX: sacudida</option><option value="3">FX: zoom + sacudida</option><option value="4">FX: destello blanco</option><option value="5">FX: rebote elástico</option><option value="6">FX: respiración al compás</option><option value="7">FX: bombeo de graves</option><option value="8">FX: balanceo (inclinación)</option><option value="9">FX: viñeta que respira</option><option value="10">FX: destello de color</option><option value="11">FX: PRO (rebote + destello + vibración)</option></select></div>
     <label>Intensidad FX: <span id="fxil">100</span>%</label><input id="fxi" type="range" min="0" max="200" value="100">
+    <div class="row"><select id="fxp"><option value="0">Luz y chispas: ninguno</option><option value="1">⚡ Relámpago</option><option value="2">✈️ Flash de avión (doble destello)</option><option value="3">🔥 Chimenea (brasas que suben)</option><option value="4">✨ Chispas en cada golpe</option><option value="5">🌟 Destello anamórfico (lente de cine)</option><option value="6">🔮 Bokeh de luz flotante</option><option value="7">🎆 Fuegos artificiales en golpe</option></select></div>
+    <label>Intensidad luz y chispas: <span id="fxpl">100</span>%</label><input id="fxpi" type="range" min="0" max="200" value="100">
     <div class="row"><select id="ovl"><option value="0">Espectro: ninguno</option><option value="1">Espectro: barras (abajo)</option><option value="2">Espectro: barras espejo (centro)</option><option value="3">Espectro: anillo (centro)</option></select></div>
     <div class="row"><select id="bars"><option value="0">Duración: la que elijas arriba</option><option value="4">Duración: 4 compases exactos</option><option value="8">Duración: 8 compases exactos</option><option value="16">Duración: 16 compases exactos</option><option value="32">Duración: 32 compases exactos</option></select></div>
     <div class="row"><label style="flex:1;display:flex;gap:8px;align-items:center"><input type="checkbox" id="lpf" checked> 🔁 Repetir la pista si termina antes de la duración elegida</label></div>
@@ -2306,7 +2308,47 @@ function fxEnv(){const d=Math.min(dt,.05);   // golpe con ataque de 14 ms y caí
  FX.v+=(-FX.x*170-FX.v*13)*d;FX.x+=FX.v*d;FX.a+=(FX.sg*.014-FX.a)*(1-Math.exp(-d*8));FX.bs+=(bass-FX.bs)*(1-Math.exp(-d*(bass>FX.bs?30:6)));
  const age=t-lastBeat;return(lastBeat>=0&&age>=0&&age<1.5)?(1-Math.exp(-age/.014))*Math.exp(-age/.15)*FX.acc*1.25:0}
 function fxVig(){if(!fxVg||fxVg.width!==W){fxVg=document.createElement('canvas');fxVg.width=W;fxVg.height=H;const x=fxVg.getContext('2d'),q=x.createRadialGradient(W/2,H/2,Math.min(W,H)*.25,W/2,H/2,Math.hypot(W,H)*.52);q.addColorStop(0,'rgba(0,0,0,0)');q.addColorStop(1,'rgba(0,0,0,.85)');x.fillStyle=q;x.fillRect(0,0,W,H)}return fxVg}
-function fxPost(){const m=+$('fxm').value;if(!m)return;const I=+$('fxi').value/100,pu=fxEnv(),ph=(GRIDOK&&TT>-1e8)?(TT-BOFF)*BPMV/60:t*2;
+function fxPost(){fxTrans();fxLight()}
+// ---- EFECTOS DE LUZ Y CHISPAS: relámpago, flash de avión, brasas, chispas, destello de cine, bokeh, fuegos artificiales ----
+const LP={a:[],g:-1,bolt:null,bt:-9,cd:-9,pt:-9,ft:-9,fy:.5,ac:.8,r:lpR(7),sp:{},s3:0,s6:0};
+function lpR(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let x=Math.imul(a^a>>>15,1|a);x=x+Math.imul(x^x>>>7,61|x)^x;return((x^x>>>14)>>>0)/4294967296}}
+function lpSpr(c){let s=LP.sp[c];if(!s){s=document.createElement('canvas');s.width=s.height=64;const x=s.getContext('2d'),q=x.createRadialGradient(32,32,0,32,32,32);q.addColorStop(0,'rgba('+c+',1)');q.addColorStop(.3,'rgba('+c+',.45)');q.addColorStop(1,'rgba('+c+',0)');x.fillStyle=q;x.fillRect(0,0,64,64);LP.sp[c]=s}return s}
+function lpAdd(p){if(LP.a.length<520){p.m=p.l;LP.a.push(p)}}
+function lpBolt(r){const k=W/1080,x0=W*(.15+.7*r()),x1=x0+(r()-.5)*W*.5,y1=H*(.55+.3*r()),sg=[];
+ const go=(ax,ay,bx,by,d,dep,wd)=>{if(dep===0||Math.hypot(bx-ax,by-ay)<14*k){sg.push([ax,ay,bx,by,wd]);return}
+  const mx=(ax+bx)/2+(r()-.5)*d,my=(ay+by)/2+(r()-.5)*d*.5;go(ax,ay,mx,my,d*.55,dep-1,wd);go(mx,my,bx,by,d*.55,dep-1,wd);
+  if(dep>2&&r()<.22)go(mx,my,mx+(r()-.35)*W*.25,my+(r()*.35+.1)*H*.25,d*.5,dep-2,wd*.55)};
+ go(x0,-20,x1,y1,W*.18,7,1);return sg}
+function fxLight(){const m=+$('fxp').value;if(!m){if(LP.a.length)LP.a.length=0;LP.bolt=null;return}
+ const I=+$('fxpi').value/100;if(I<=0)return;const d=Math.min(dt,.05),k=W/1080;let ev=false;
+ if(LP.g!==gOn){ev=LP.g!==-1;LP.g=gOn;LP.ac=Math.max(.5,Math.min(1.2,beat+.2))}
+ const ac=LP.ac,r=LP.r;pg.save();pg.setTransform(1,0,0,1,0,0);pg.globalCompositeOperation='lighter';
+ if(m===1){if(ev&&t-LP.cd>.8&&(ac>.85||gOn%4===0)){LP.bolt=lpBolt(lpR(gOn*7919+17));LP.bt=t;LP.cd=t}
+  const a=t-LP.bt,f=a<0?0:a<.05?1-a*4:a<.09?.2:a<.15?.95:a<.2?.3:a<.34?.5*(1-(a-.2)/.14):0;
+  if(f>0&&LP.bolt){pg.fillStyle='rgba(170,200,255,'+Math.min(.45,.3*f*I)+')';pg.fillRect(0,0,W,H);pg.lineCap='round';pg.lineJoin='round';
+   for(const [w0,al,col] of [[18,.07,'110,150,255'],[7,.22,'170,200,255'],[2.6,.95,'255,255,255']]){pg.strokeStyle='rgba('+col+','+Math.min(1,al*f*I*1.4)+')';for(const q of LP.bolt){pg.lineWidth=w0*q[4]*k;pg.beginPath();pg.moveTo(q[0],q[1]);pg.lineTo(q[2],q[3]);pg.stroke()}}}}
+ else if(m===2){if(ev&&gOn%2===0)LP.pt=t;const a=t-LP.pt,p=a<0?0:Math.exp(-Math.pow(a/.04,2))+.9*Math.exp(-Math.pow((a-.16)/.04,2));
+  if(p>.02){pg.fillStyle='rgba(255,255,255,'+Math.min(.6,.5*p*I)+')';pg.fillRect(0,0,W,H);const q=pg.createRadialGradient(W*.88,H*.09,0,W*.88,H*.09,W*.6);
+   q.addColorStop(0,'rgba(255,255,255,'+Math.min(1,p*I)+')');q.addColorStop(.25,'rgba(190,220,255,'+Math.min(.6,.5*p*I)+')');q.addColorStop(1,'rgba(190,220,255,0)');pg.fillStyle=q;pg.fillRect(0,0,W,H);
+   pg.fillStyle='rgba(255,255,255,'+Math.min(.9,.7*p*I)+')';pg.fillRect(0,H*.09-2*k,W,4*k)}}
+ else if(m===3){LP.s3+=(26+120*bass)*I*d;while(LP.s3>=1){LP.s3--;lpAdd({x:r()*W,y:H+10,vx:(r()-.5)*70*k,vy:-(150+360*r())*k,g:-20*k,dr:.3,l:2.4+2.2*r(),s:(2+5*r())*k,tp:0,col:r()<.7?'255,140,40':'255,210,110',ph:r()*6})}
+  if(ev)for(let i=0,n=Math.round(20*I*ac);i<n;i++)lpAdd({x:r()*W,y:H+10,vx:(r()-.5)*160*k,vy:-(320+620*r())*k,g:-30*k,dr:.4,l:1.8+1.6*r(),s:(2+6*r())*k,tp:0,col:'255,170,60',ph:r()*6});
+  const q=pg.createLinearGradient(0,H,0,H*.62);q.addColorStop(0,'rgba(255,110,30,'+Math.min(.5,(.12+.35*bass)*I)+')');q.addColorStop(1,'rgba(255,110,30,0)');pg.fillStyle=q;pg.fillRect(0,H*.62,W,H*.38)}
+ else if(m===4&&ev){const n=Math.round((40+40*ac)*I),ox=W*(.5+(r()-.5)*.5);for(let i=0;i<n;i++){const an=-Math.PI/2+(r()-.5)*1.25,sp=(500+1000*r())*k;lpAdd({x:ox,y:H*.98,vx:Math.cos(an)*sp,vy:Math.sin(an)*sp,g:1100*k,dr:.8,l:.7+.8*r(),s:(2.4+3*r())*k,tp:1,col:'255,200,90',ph:0})}}
+ else if(m===5){if(ev){LP.ft=t;LP.fy=.3+.35*r()}const a=t-LP.ft,p=a<0?0:Math.exp(-a*5.5)*Math.min(1,.5+LP.ac*.6);
+  if(p>.02){const y=H*LP.fy,q=pg.createLinearGradient(0,0,W,0);q.addColorStop(0,'rgba(120,170,255,0)');q.addColorStop(.5,'rgba(170,210,255,'+Math.min(1,p*I)+')');q.addColorStop(1,'rgba(120,170,255,0)');
+   pg.fillStyle=q;pg.fillRect(0,y-3*k*(1+p),W,6*k*(1+p));pg.globalAlpha=Math.min(1,.45*p*I);pg.fillRect(0,y-16*k,W,32*k);pg.globalAlpha=Math.min(1,p*I);const z=260*k*(1+p);pg.drawImage(lpSpr('200,225,255'),W/2-z/2,y-z/2,z,z);pg.globalAlpha=1}}
+ else if(m===6){LP.s6+=7*I*d;while(LP.s6>=1){LP.s6--;lpAdd({x:r()*W,y:H*(.45+.6*r()),vx:(r()-.5)*20*k,vy:-(25+60*r())*k,g:0,dr:0,l:4+3*r(),s:(40+110*r())*k,tp:2,col:['255,150,220','150,200,255','255,220,150','170,255,220'][r()*4|0],ph:0})}}
+ else if(m===7&&ev){const cx=W*(.2+.6*r()),cy=H*(.14+.34*r()),col=h2r(Math.floor(r()*360),1,.6).map(x=>Math.round(x*255)).join(','),n=Math.round(90*I);
+  for(let i=0;i<n;i++){const an=6.2832*i/n+r()*.1,sp=(250+280*r())*k;lpAdd({x:cx,y:cy,vx:Math.cos(an)*sp,vy:Math.sin(an)*sp,g:260*k,dr:1.6,l:1.1+.9*r(),s:(2.6+2.6*r())*k,tp:1,col,ph:0})}
+  lpAdd({x:cx,y:cy,vx:0,vy:0,g:0,dr:0,l:.35,s:300*k,tp:2,col,ph:0,fl:1})}
+ for(let i=LP.a.length-1;i>=0;i--){const p=LP.a[i];p.l-=d;if(p.l<=0){LP.a.splice(i,1);continue}
+  p.vy+=p.g*d;const df=Math.exp(-p.dr*d);p.vx*=df;p.vy*=df;p.x+=p.vx*d+(p.tp===0?Math.sin(t*2.2+p.ph)*16*k*d:0);p.y+=p.vy*d;const lf=p.l/p.m;
+  if(p.tp===0){pg.globalAlpha=Math.min(1,lf*1.4*(.65+.35*Math.sin(t*22+p.ph*7))*I);const z=p.s*5;pg.drawImage(lpSpr(p.col),p.x-z/2,p.y-z/2,z,z)}
+  else if(p.tp===1){pg.strokeStyle='rgba('+p.col+','+Math.min(1,lf*1.6*I)+')';pg.lineWidth=p.s*(.5+.9*lf);pg.lineCap='round';pg.beginPath();pg.moveTo(p.x,p.y);pg.lineTo(p.x-p.vx*.07,p.y-p.vy*.07);pg.stroke();pg.globalAlpha=Math.min(1,lf*I);const z=p.s*6;pg.drawImage(lpSpr(p.col),p.x-z/2,p.y-z/2,z,z)}
+  else{pg.globalAlpha=Math.min(1,(p.fl?lf*.8:(.1+.12*bass)*Math.min(1,(p.m-p.l)/.8)*Math.min(1,p.l/.8)*1.6)*I);const z=p.s*2;pg.drawImage(lpSpr(p.col),p.x-z/2,p.y-z/2,z,z)}}
+ pg.globalAlpha=1;pg.restore()}
+function fxTrans(){const m=+$('fxm').value;if(!m)return;const I=+$('fxi').value/100,pu=fxEnv(),ph=(GRIDOK&&TT>-1e8)?(TT-BOFF)*BPMV/60:t*2;
  let z=1,dx=0,dy=0,rot=0,fl=0,fc=0,vg=0;const sh=a=>{dx=a*(Math.sin(t*23)+.6*Math.sin(t*37+1.3))/1.6;dy=a*(Math.cos(t*29)+.6*Math.cos(t*43+.4))/1.6};
  switch(m){case 1:z=1+(.07*pu+.012*FX.bs)*I;break;case 2:sh(16*pu*I);rot=.004*pu*I*Math.sin(t*19);z=1+.012*pu*I;break;case 3:z=1+(.07*pu+.012*FX.bs)*I;sh(12*pu*I);break;
   case 4:fl=.24*pu*I;break;case 5:z=1+FX.x*.1*I;break;case 6:z=1+(.022*Math.sin(Math.PI*ph/2)+.015*pu)*I;break;case 7:z=1+FX.bs*.07*I;break;
@@ -2473,18 +2515,21 @@ $('bsnap').onclick=()=>{if(!buf)return msg('Primero elige una pista');if(!GRIDOK
  const P=60/BPMV;let k=Math.round((+$('st').value-BOFF)/P);if(BOFF+k*P<0)k++;setStart(BOFF+k*P);msg('Inicio alineado al golpe más cercano ('+(+$('st').value).toFixed(3)+' s).')};
 $('bshift').onclick=()=>{BOFF+=60/BPMV;lastBI=null;binfo();msg('El "1" del compás se movió un golpe (suena más agudo en el metrónomo 🔔).')};
 // ---- Presets: 12 looks completos + tus propios presets ----
-const PRE_DEF={eq1:'',eq2:'',mh1:'',mh2:'',eqi:100,eqs:125,eqy:0,mhi:100,mhs:130,mhy:0,pal:'0',lau:8,fxm:0,fxi:100,ovl:0,aus:12,eb:1};
+const PRE_DEF={eq1:'',eq2:'',mh1:'',mh2:'',eqi:100,eqs:125,eqy:0,mhi:100,mhs:130,mhy:0,pal:'0',lau:8,fxm:0,fxi:100,fxp:0,fxpi:100,ovl:0,aus:12,eb:1};
 const PRESETS=[
- {k:'synthwave',n:'🌆 Synthwave · Hexágono Neón + Barras',scene:'Hex Neón Pulso',eq1:'Barras de Cristal',fxm:1,fxi:90,pal:'7'},
- {k:'gusano',n:'🕳️ Agujero de Gusano · Ondas de Choque',scene:'Agujero',eq1:'Ondas de Choque',fxm:5,fxi:110,pal:'7'},
- {k:'club',n:'🔴 Club · Láseres + Secuenciador',scene:'Láseres',eq1:'Secuenciador',fxm:11,fxi:90,pal:'3'},
- {k:'techno',n:'🟣 Techno · Corredor LED',scene:'Corredor',eq1:'LED',fxm:2,fxi:70,pal:'10'},
- {k:'aurora',n:'🌌 Aurora · Seda + Cortina de Luz',scene:'Seda',eq1:'Cortina',fxm:6,fxi:100,pal:'8'},
- {k:'hiper',n:'🚀 Hiperespacio · Fibra Óptica + Girasol',scene:'Fibra',eq1:'Girasol',fxm:7,fxi:100,pal:'11'},
- {k:'dorado',n:'☀️ Dorado · Aros Solares + Corona',scene:'Aro Solar',eq1:'Corona',fxm:10,fxi:70,pal:'9'},
- {k:'industrial',n:'🏭 Industrial · Nave de Acero + Puntos',scene:'Nave',eq1:'Puntos',fxm:9,fxi:100,pal:'0'},
- {k:'urbano',n:'🏙️ Noche Urbana · Reloj de Teselas + Diamantes',scene:'Reloj',eq1:'Diamantes',fxm:8,fxi:60,pal:'4'},
- {k:'hielo',n:'❄️ Hielo · Túnel Pulso + Ondas Neón',scene:'Túnel Pulso',eq1:'Neón',fxm:6,fxi:80,pal:'2'},
+ {k:'synthwave',n:'🌆 Synthwave · Hexágono Neón + Barras',scene:'Hex Neón Pulso',eq1:'Barras de Cristal',fxm:1,fxi:90,pal:'7',fxp:5,fxpi:90},
+ {k:'gusano',n:'🕳️ Agujero de Gusano · Ondas de Choque',scene:'Agujero',eq1:'Ondas de Choque',fxm:5,fxi:110,pal:'7',fxp:6,fxpi:90},
+ {k:'club',n:'🔴 Club · Láseres + Secuenciador',scene:'Láseres',eq1:'Secuenciador',fxm:11,fxi:90,pal:'3',fxp:4,fxpi:90},
+ {k:'techno',n:'🟣 Techno · Corredor LED',scene:'Corredor',eq1:'LED',fxm:2,fxi:70,pal:'10',fxp:2,fxpi:90},
+ {k:'aurora',n:'🌌 Aurora · Seda + Cortina de Luz',scene:'Seda',eq1:'Cortina',fxm:6,fxi:100,pal:'8',fxp:6,fxpi:90},
+ {k:'hiper',n:'🚀 Hiperespacio · Fibra Óptica + Girasol',scene:'Fibra',eq1:'Girasol',fxm:7,fxi:100,pal:'11',fxp:5,fxpi:90},
+ {k:'dorado',n:'☀️ Dorado · Aros Solares + Corona',scene:'Aro Solar',eq1:'Corona',fxm:10,fxi:70,pal:'9',fxp:3,fxpi:90},
+ {k:'industrial',n:'🏭 Industrial · Nave de Acero + Puntos',scene:'Nave',eq1:'Puntos',fxm:9,fxi:100,pal:'0',fxp:4,fxpi:90},
+ {k:'urbano',n:'🏙️ Noche Urbana · Reloj de Teselas + Diamantes',scene:'Reloj',eq1:'Diamantes',fxm:8,fxi:60,pal:'4',fxp:2,fxpi:90},
+ {k:'hielo',n:'❄️ Hielo · Túnel Pulso + Ondas Neón',scene:'Túnel Pulso',eq1:'Neón',fxm:6,fxi:80,pal:'2',fxp:1,fxpi:90},
+  {k:'tormenta',n:'⚡ Tormenta Eléctrica · Relámpagos + Cortina',scene:'Túnel Pulso',eq1:'Cortina',fxm:7,fxi:80,pal:'10',fxp:1,fxpi:100},
+ {k:'chimenea',n:'🔥 Chimenea · Brasas + Aros Solares',scene:'Aro Solar',eq1:'Corona',fxm:6,fxi:70,pal:'9',fxp:3,fxpi:110},
+ {k:'fiesta',n:'🎆 Fiesta · Fuegos Artificiales + Láseres',scene:'Láseres',eq1:'Secuenciador',fxm:5,fxi:90,pal:'1',fxp:7,fxpi:100},
  {k:'foto',n:'🎬 Tu foto + Reloj de Teselas (sin túnel)',scene:'none',eq1:'Hourglass',mh1:'Tejido',fxm:6,fxi:60,pal:'0'},
  {k:'cardio',n:'💓 Cardio Minimal (sin túnel)',scene:'none',eq1:'Cardio',fxm:4,fxi:60,pal:'2'},
  {k:'espacio',n:'🌀 Espacio-Tiempo · Malla + Barras Espejo (sin túnel)',scene:'none',eq1:'Espejo',mh1:'Tejido',fxm:5,fxi:80,pal:'0'},
@@ -2837,7 +2882,7 @@ for(const [id,names,none] of [['eq1',EQN,'Ecualizador 1: apagado'],['eq2',EQN,'E
 for(const [id,lab,fn] of [['eqi','eqil',v=>v],['eqs','eqsl',v=>v],['eqy','eqyl',v=>+v?v:'auto'],['mhi','mhil',v=>v],['mhs','mhsl',v=>v],['mhy','mhyl',v=>+v?v:'centro'],['lau','laul',v=>v]])$(id).addEventListener('input',e=>{$(lab).textContent=fn(e.target.value)});
 
 // ---- Ajustes que se recuerdan ----
-const CB=['vfade','norm','safe','dyn','lpf'],CFG_IDS=['eq1','eq2','eqi','eqs','eqy','mh1','mh2','mhi','mhs','mhy','pal','pcol','lau','fxm','fxi','ovl','tsz','tcol','tsty','txt2','bars','bmode','pb','ho','dl','cx','cy','spd','eb','vd','gord','len','fpsel','sens','aus','tmode','txt'];
+const CB=['vfade','norm','safe','dyn','lpf'],CFG_IDS=['eq1','eq2','eqi','eqs','eqy','mh1','mh2','mhi','mhs','mhy','pal','pcol','lau','fxm','fxi','fxp','fxpi','ovl','tsz','tcol','tsty','txt2','bars','bmode','pb','ho','dl','cx','cy','spd','eb','vd','gord','len','fpsel','sens','aus','tmode','txt'];
 function cfgObj(forPreset){const o={};for(const id of CFG_IDS){if(forPreset&&['txt','txt2','len','bars'].includes(id))continue;o[id]=$(id).value}for(const id of CB)o[id]=$(id).checked;o.scene=scene;o.fav=[...FAV];return o}
 function applyCfg(o){if(!o)return;
  for(const id of CFG_IDS)if(o[id]!==undefined){const e=$(id);e.value=o[id];e.dispatchEvent(new Event('input'));e.dispatchEvent(new Event('change'))}
@@ -2908,7 +2953,7 @@ function pkBuild(a,b,id,cls,hint){const A=$(a),B=$(b),row=A.closest('.row');B.cl
 function pkSync(){for(const [a,b,id] of [['eq1','eq2','eqp'],['mh1','mh2','mhp']]){const box=$(id);if(!box)continue;const x=$(a).value,y=$(b).value;box.querySelectorAll('button[data-v]').forEach(bt=>bt.classList.toggle('on',bt.dataset.v===x||bt.dataset.v===y))}}
 pkBuild('eq1','eq2','eqp','eq','Toca para encender o apagar · hasta 2 a la vez · 🥁 = sigue el golpe del bombo');pkBuild('mh1','mh2','mhp','mh','Toca para encender o apagar · hasta 2 a la vez');
 document.addEventListener('input',pkSync);document.addEventListener('change',pkSync);setInterval(pkSync,700);pkSync();
-$('fxi').oninput=()=>{$('fxil').textContent=$('fxi').value};
+$('fxi').oninput=()=>{$('fxil').textContent=$('fxi').value};$('fxpi').oninput=()=>{$('fxpl').textContent=$('fxpi').value};
 window.lvReady=true;sync();
 
 // ---- Pantalla completa (iPad / computadora) y barra espaciadora ----
