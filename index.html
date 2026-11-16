@@ -106,6 +106,12 @@ select.live{border-color:var(--ac2);box-shadow:0 0 0 1px rgba(0,229,255,.25),0 0
     <label id="binfo">♩ sin analizar</label>
     <div style="margin:12px 0 4px;font-weight:700">🎬 Modo TikTok Pro</div>
     <div class="row"><select id="sty"></select></div>
+    <details id="gu"><summary>🎞️ Guion del video (cambia de preset por tiempo)</summary>
+     <div class="row"><select id="gup"></select></div>
+     <div class="row" style="display:flex;gap:6px"><input id="gut" type="text" value="00:00" inputmode="numeric" style="max-width:84px;text-align:center"><button id="gunow" type="button">⏱ Tiempo actual</button><button id="guadd" type="button">➕ Agregar</button></div>
+     <div id="gul"></div>
+     <div class="row" style="display:flex;gap:6px;align-items:center"><label style="flex:1"><input type="checkbox" id="guon"> Usar guion al reproducir y exportar</label><button id="guclr" type="button">Vaciar</button></div>
+    </details>
     <div class="row"><input id="pname" type="text" placeholder="Nombre de tu preset"><button id="psave">💾 Guardar</button><button id="pdel">🗑</button></div>
     <div class="row"><button id="pcopy">📋 Copiar código</button><button id="pshare">📤 Compartir</button></div>
     <div class="row"><textarea id="pcode" rows="3" placeholder="Pega aquí el código de tu amigo (o el mensaje completo)" style="flex:1;min-width:0;background:#0b0d14;color:#fff;border:1px solid #2a2f45;border-radius:10px;padding:8px;font-size:13px;resize:vertical"></textarea><button id="pimpc">📥 Importar</button></div>
@@ -119,6 +125,8 @@ select.live{border-color:var(--ac2);box-shadow:0 0 0 1px rgba(0,229,255,.25),0 0
     <label>Intensidad FX: <span id="fxil">100</span>%</label><input id="fxi" type="range" min="0" max="200" value="100">
     <div class="row"><select id="fxp"><option value="0">Luz y chispas: ninguno</option><option value="1">⚡ Relámpago</option><option value="2">✈️ Flash de avión (doble destello)</option><option value="3">🔥 Chimenea (brasas que suben)</option><option value="4">✨ Chispas en cada golpe</option><option value="5">🌟 Destello anamórfico (lente de cine)</option><option value="6">🔮 Bokeh de luz flotante</option><option value="7">🎆 Fuegos artificiales en golpe</option></select></div>
     <label>Intensidad luz y chispas: <span id="fxpl">100</span>%</label><input id="fxpi" type="range" min="0" max="200" value="100">
+    <div class="row"><select id="look"><option value="0">🎞️ Look de cine: ninguno</option><option value="1">Cine suave (brillo + grano + viñeta)</option><option value="2">Cine teal y naranja</option><option value="3">Neón vibrante</option><option value="4">Película vintage 35 mm</option></select></div>
+    <label>Intensidad look: <span id="lookl">100</span>%</label><input id="looki" type="range" min="0" max="200" value="100">
     <div class="row"><select id="ovl"><option value="0">Espectro: ninguno</option><option value="1">Espectro: barras (abajo)</option><option value="2">Espectro: barras espejo (centro)</option><option value="3">Espectro: anillo (centro)</option></select></div>
     <div class="row"><select id="bars"><option value="0">Duración: la que elijas arriba</option><option value="4">Duración: 4 compases exactos</option><option value="8">Duración: 8 compases exactos</option><option value="16">Duración: 16 compases exactos</option><option value="32">Duración: 32 compases exactos</option></select></div>
     <div class="row"><label style="flex:1;display:flex;gap:8px;align-items:center"><input type="checkbox" id="lpf" checked> 🔁 Repetir la pista si termina antes de la duración elegida</label></div>
@@ -2308,7 +2316,7 @@ function fxEnv(){const d=Math.min(dt,.05);   // golpe con ataque de 14 ms y caí
  FX.v+=(-FX.x*170-FX.v*13)*d;FX.x+=FX.v*d;FX.a+=(FX.sg*.014-FX.a)*(1-Math.exp(-d*8));FX.bs+=(bass-FX.bs)*(1-Math.exp(-d*(bass>FX.bs?30:6)));
  const age=t-lastBeat;return(lastBeat>=0&&age>=0&&age<1.5)?(1-Math.exp(-age/.014))*Math.exp(-age/.15)*FX.acc*1.25:0}
 function fxVig(){if(!fxVg||fxVg.width!==W){fxVg=document.createElement('canvas');fxVg.width=W;fxVg.height=H;const x=fxVg.getContext('2d'),q=x.createRadialGradient(W/2,H/2,Math.min(W,H)*.25,W/2,H/2,Math.hypot(W,H)*.52);q.addColorStop(0,'rgba(0,0,0,0)');q.addColorStop(1,'rgba(0,0,0,.85)');x.fillStyle=q;x.fillRect(0,0,W,H)}return fxVg}
-function fxPost(){fxTrans();fxLight()}
+function fxPost(){guTick();fxTrans();fxLight();lookPost();xfPost()}
 // ---- EFECTOS DE LUZ Y CHISPAS: relámpago, flash de avión, brasas, chispas, destello de cine, bokeh, fuegos artificiales ----
 const LP={a:[],g:-1,bolt:null,bt:-9,cd:-9,pt:-9,ft:-9,fy:.5,ac:.8,r:lpR(7),sp:{},s3:0,s6:0};
 function lpR(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let x=Math.imul(a^a>>>15,1|a);x=x+Math.imul(x^x>>>7,61|x)^x;return((x^x>>>14)>>>0)/4294967296}}
@@ -2528,25 +2536,25 @@ $('bsnap').onclick=()=>{if(!buf)return msg('Primero elige una pista');if(!GRIDOK
  const P=60/BPMV;let k=Math.round((+$('st').value-BOFF)/P);if(BOFF+k*P<0)k++;setStart(BOFF+k*P);msg('Inicio alineado al golpe más cercano ('+(+$('st').value).toFixed(3)+' s).')};
 $('bshift').onclick=()=>{BOFF+=60/BPMV;lastBI=null;binfo();msg('El "1" del compás se movió un golpe (suena más agudo en el metrónomo 🔔).')};
 // ---- Presets: 12 looks completos + tus propios presets ----
-const PRE_DEF={eq1:'',eq2:'',mh1:'',mh2:'',eqi:100,eqs:125,eqy:0,mhi:100,mhs:130,mhy:0,pal:'0',lau:8,fxm:0,fxi:100,fxp:0,fxpi:100,ovl:0,aus:12,eb:1};
+const PRE_DEF={eq1:'',eq2:'',mh1:'',mh2:'',eqi:100,eqs:125,eqy:0,mhi:100,mhs:130,mhy:0,pal:'0',lau:8,fxm:0,fxi:100,fxp:0,fxpi:100,look:0,looki:100,ovl:0,aus:12,eb:1};
 const PRESETS=[
- {k:'synthwave',n:'🌆 Synthwave · Hexágono Neón + Barras',scene:'Hex Neón Pulso',eq1:'Barras de Cristal',fxm:1,fxi:90,pal:'7',fxp:5,fxpi:90},
- {k:'gusano',n:'🕳️ Agujero de Gusano · Ondas de Choque',scene:'Agujero',eq1:'Ondas de Choque',fxm:5,fxi:110,pal:'7',fxp:6,fxpi:90},
- {k:'club',n:'🔴 Club · Láseres + Secuenciador',scene:'Láseres',eq1:'Secuenciador',fxm:11,fxi:90,pal:'3',fxp:4,fxpi:90},
- {k:'techno',n:'🟣 Techno · Corredor LED',scene:'Corredor',eq1:'LED',fxm:2,fxi:70,pal:'10',fxp:2,fxpi:90},
- {k:'aurora',n:'🌌 Aurora · Seda + Cortina de Luz',scene:'Seda',eq1:'Cortina',fxm:6,fxi:100,pal:'8',fxp:6,fxpi:90},
- {k:'hiper',n:'🚀 Hiperespacio · Fibra Óptica + Girasol',scene:'Fibra',eq1:'Girasol',fxm:7,fxi:100,pal:'11',fxp:5,fxpi:90},
- {k:'dorado',n:'☀️ Dorado · Aros Solares + Corona',scene:'Aro Solar',eq1:'Corona',fxm:10,fxi:70,pal:'9',fxp:3,fxpi:90},
- {k:'industrial',n:'🏭 Industrial · Nave de Acero + Puntos',scene:'Nave',eq1:'Puntos',fxm:9,fxi:100,pal:'0',fxp:4,fxpi:90},
- {k:'urbano',n:'🏙️ Noche Urbana · Reloj de Teselas + Diamantes',scene:'Reloj',eq1:'Diamantes',fxm:8,fxi:60,pal:'4',fxp:2,fxpi:90},
- {k:'hielo',n:'❄️ Hielo · Túnel Pulso + Ondas Neón',scene:'Túnel Pulso',eq1:'Neón',fxm:6,fxi:80,pal:'2',fxp:1,fxpi:90},
-  {k:'tormenta',n:'⚡ Tormenta Eléctrica · Relámpagos + Cortina',scene:'Túnel Pulso',eq1:'Cortina',fxm:7,fxi:80,pal:'10',fxp:1,fxpi:100},
- {k:'chimenea',n:'🔥 Chimenea · Brasas + Aros Solares',scene:'Aro Solar',eq1:'Corona',fxm:6,fxi:70,pal:'9',fxp:3,fxpi:110},
- {k:'fiesta',n:'🎆 Fiesta · Fuegos Artificiales + Láseres',scene:'Láseres',eq1:'Secuenciador',fxm:5,fxi:90,pal:'1',fxp:7,fxpi:100},
- {k:'foto',n:'🎬 Tu foto + Reloj de Teselas (sin túnel)',scene:'none',eq1:'Hourglass',mh1:'Tejido',fxm:6,fxi:60,pal:'0'},
- {k:'cardio',n:'💓 Cardio Minimal (sin túnel)',scene:'none',eq1:'Cardio',fxm:4,fxi:60,pal:'2'},
- {k:'espacio',n:'🌀 Espacio-Tiempo · Malla + Barras Espejo (sin túnel)',scene:'none',eq1:'Espejo',mh1:'Tejido',fxm:5,fxi:80,pal:'0'},
- {k:'toroide',n:'🪐 Toroide Cuántico + Anillo Pulsar (sin túnel)',scene:'none',eq1:'Anillo',mh1:'Toroide',fxm:7,fxi:90,pal:'8'}];
+ {k:'synthwave',n:'🌆 Synthwave · Hexágono Neón + Barras',scene:'Hex Neón Pulso',eq1:'Barras de Cristal',fxm:1,fxi:90,pal:'7',fxp:5,fxpi:90,look:3},
+ {k:'gusano',n:'🕳️ Agujero de Gusano · Ondas de Choque',scene:'Agujero',eq1:'Ondas de Choque',fxm:5,fxi:110,pal:'7',fxp:6,fxpi:90,look:1},
+ {k:'club',n:'🔴 Club · Láseres + Secuenciador',scene:'Láseres',eq1:'Secuenciador',fxm:11,fxi:90,pal:'3',fxp:4,fxpi:90,look:3},
+ {k:'techno',n:'🟣 Techno · Corredor LED',scene:'Corredor',eq1:'LED',fxm:2,fxi:70,pal:'10',fxp:2,fxpi:90,look:2},
+ {k:'aurora',n:'🌌 Aurora · Seda + Cortina de Luz',scene:'Seda',eq1:'Cortina',fxm:6,fxi:100,pal:'8',fxp:6,fxpi:90,look:1},
+ {k:'hiper',n:'🚀 Hiperespacio · Fibra Óptica + Girasol',scene:'Fibra',eq1:'Girasol',fxm:7,fxi:100,pal:'11',fxp:5,fxpi:90,look:2},
+ {k:'dorado',n:'☀️ Dorado · Aros Solares + Corona',scene:'Aro Solar',eq1:'Corona',fxm:10,fxi:70,pal:'9',fxp:3,fxpi:90,look:4},
+ {k:'industrial',n:'🏭 Industrial · Nave de Acero + Puntos',scene:'Nave',eq1:'Puntos',fxm:9,fxi:100,pal:'0',fxp:4,fxpi:90,look:2},
+ {k:'urbano',n:'🏙️ Noche Urbana · Reloj de Teselas + Diamantes',scene:'Reloj',eq1:'Diamantes',fxm:8,fxi:60,pal:'4',fxp:2,fxpi:90,look:2},
+ {k:'hielo',n:'❄️ Hielo · Túnel Pulso + Ondas Neón',scene:'Túnel Pulso',eq1:'Neón',fxm:6,fxi:80,pal:'2',fxp:1,fxpi:90,look:1},
+  {k:'tormenta',n:'⚡ Tormenta Eléctrica · Relámpagos + Cortina',scene:'Túnel Pulso',eq1:'Cortina',fxm:7,fxi:80,pal:'10',fxp:1,fxpi:100,look:2},
+ {k:'chimenea',n:'🔥 Chimenea · Brasas + Aros Solares',scene:'Aro Solar',eq1:'Corona',fxm:6,fxi:70,pal:'9',fxp:3,fxpi:110,look:4},
+ {k:'fiesta',n:'🎆 Fiesta · Fuegos Artificiales + Láseres',scene:'Láseres',eq1:'Secuenciador',fxm:5,fxi:90,pal:'1',fxp:7,fxpi:100,look:3},
+ {k:'foto',n:'🎬 Tu foto + Reloj de Teselas (sin túnel)',scene:'none',eq1:'Hourglass',mh1:'Tejido',fxm:6,fxi:60,pal:'0',look:1},
+ {k:'cardio',n:'💓 Cardio Minimal (sin túnel)',scene:'none',eq1:'Cardio',fxm:4,fxi:60,pal:'2',look:1},
+ {k:'espacio',n:'🌀 Espacio-Tiempo · Malla + Barras Espejo (sin túnel)',scene:'none',eq1:'Espejo',mh1:'Tejido',fxm:5,fxi:80,pal:'0',look:1},
+ {k:'toroide',n:'🪐 Toroide Cuántico + Anillo Pulsar (sin túnel)',scene:'none',eq1:'Anillo',mh1:'Toroide',fxm:7,fxi:90,pal:'8',look:3}];
 function pv(id,v){if(!/^(eq|mh)[12]$/.test(id)||v===''||v==='auto'||/^\d+$/.test(String(v)))return v;const A=id[0]==='e'?EQN:MHN,K=id[0]==='e'?EK:MK,i=A.findIndex((n,j)=>K.has(j)&&n.includes(v));return i<0?'':String(i)}
 function applyPreset(p){const o={...PRE_DEF,...p};FAV.clear();
  if(o.scene==='none')scene=-2;else if(typeof o.scene==='string'&&o.scene!=='auto'){const i=SC.findIndex(s=>s.n.includes(o.scene));scene=i>=0?i:-1}
@@ -2895,7 +2903,7 @@ for(const [id,names,none] of [['eq1',EQN,'Ecualizador 1: apagado'],['eq2',EQN,'E
 for(const [id,lab,fn] of [['eqi','eqil',v=>v],['eqs','eqsl',v=>v],['eqy','eqyl',v=>+v?v:'auto'],['mhi','mhil',v=>v],['mhs','mhsl',v=>v],['mhy','mhyl',v=>+v?v:'centro'],['lau','laul',v=>v]])$(id).addEventListener('input',e=>{$(lab).textContent=fn(e.target.value)});
 
 // ---- Ajustes que se recuerdan ----
-const CB=['vfade','norm','safe','dyn','lpf'],CFG_IDS=['eq1','eq2','eqi','eqs','eqy','mh1','mh2','mhi','mhs','mhy','pal','pcol','lau','fxm','fxi','fxp','fxpi','ovl','tsz','tcol','tsty','txt2','bars','bmode','pb','ho','dl','cx','cy','spd','eb','vd','gord','len','fpsel','sens','aus','tmode','txt'];
+const CB=['vfade','norm','safe','dyn','lpf'],CFG_IDS=['eq1','eq2','eqi','eqs','eqy','mh1','mh2','mhi','mhs','mhy','pal','pcol','lau','fxm','fxi','fxp','fxpi','look','looki','ovl','tsz','tcol','tsty','txt2','bars','bmode','pb','ho','dl','cx','cy','spd','eb','vd','gord','len','fpsel','sens','aus','tmode','txt'];
 function cfgObj(forPreset){const o={};for(const id of CFG_IDS){if(forPreset&&['txt','txt2','len','bars'].includes(id))continue;o[id]=$(id).value}for(const id of CB)o[id]=$(id).checked;o.scene=scene;o.fav=[...FAV];return o}
 function applyCfg(o){if(!o)return;
  for(const id of CFG_IDS)if(o[id]!==undefined){const e=$(id);e.value=o[id];e.dispatchEvent(new Event('input'));e.dispatchEvent(new Event('change'))}
@@ -2967,6 +2975,48 @@ function pkSync(){for(const [a,b,id] of [['eq1','eq2','eqp'],['mh1','mh2','mhp']
 pkBuild('eq1','eq2','eqp','eq','Toca para encender o apagar · hasta 2 a la vez · 🥁 = sigue el golpe del bombo');pkBuild('mh1','mh2','mhp','mh','Toca para encender o apagar · hasta 2 a la vez');
 document.addEventListener('input',pkSync);document.addEventListener('change',pkSync);setInterval(pkSync,700);pkSync();
 $('fxi').oninput=()=>{$('fxil').textContent=$('fxi').value};$('fxpi').oninput=()=>{$('fxpl').textContent=$('fxpi').value};
+
+// ---- ACABADO DE CINE: brillo suave, gradación, viñeta y grano de película ----
+let lkB1=null,lkB2=null,lkN=null;
+function lookPost(){const m=+$('look').value;if(!m)return;const I=+$('looki').value/100;if(I<=0)return;
+ if(!lkB1||lkB1.w0!==W){lkB1=document.createElement('canvas');lkB1.w0=W;lkB1.width=W>>2;lkB1.height=H>>2;lkB2=document.createElement('canvas');lkB2.width=W>>4;lkB2.height=H>>4;
+  lkN=document.createElement('canvas');lkN.width=lkN.height=256;const x=lkN.getContext('2d'),d=x.createImageData(256,256);for(let i=0;i<d.data.length;i+=4){const v=Math.random()*255;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=255}x.putImageData(d,0,0)}
+ const bl=[0,.22,.18,.38,.2][m],gr=[0,.05,.05,.03,.12][m],vg=[0,.35,.45,.3,.6][m];
+ lkB1.getContext('2d').drawImage(cv,0,0,lkB1.width,lkB1.height);lkB2.getContext('2d').drawImage(lkB1,0,0,lkB2.width,lkB2.height);
+ pg.save();pg.setTransform(1,0,0,1,0,0);pg.globalCompositeOperation='screen';pg.globalAlpha=Math.min(1,bl*I);pg.drawImage(lkB2,0,0,W,H);pg.globalAlpha=Math.min(1,bl*I*.7);pg.drawImage(lkB1,0,0,W,H);
+ if(m===2){const q=pg.createLinearGradient(0,0,0,H);q.addColorStop(0,'rgb(0,120,150)');q.addColorStop(1,'rgb(255,140,60)');pg.globalCompositeOperation='soft-light';pg.globalAlpha=Math.min(1,.45*I);pg.fillStyle=q;pg.fillRect(0,0,W,H)}
+ else if(m===3){pg.globalCompositeOperation='saturation';pg.globalAlpha=Math.min(1,.4*I);pg.fillStyle='#f00';pg.fillRect(0,0,W,H)}
+ else if(m===4){pg.globalCompositeOperation='soft-light';pg.globalAlpha=Math.min(1,.4*I);pg.fillStyle='rgb(255,190,120)';pg.fillRect(0,0,W,H)}
+ pg.globalCompositeOperation='source-over';pg.globalAlpha=Math.min(1,vg*I);pg.drawImage(fxVig(),0,0);
+ pg.globalCompositeOperation='overlay';pg.globalAlpha=Math.min(1,gr*I*6);const ox=(Math.floor(t*60)*97)%512,oy=(Math.floor(t*60)*57)%512;for(let y=-oy;y<H;y+=512)for(let x=-ox;x<W;x+=512)pg.drawImage(lkN,x,y,512,512);
+ pg.restore()}
+// ---- TRANSICIÓN SUAVE: al cambiar de escena, ecualizador, malla o preset se funde con el cuadro anterior ----
+const XF={sig:null,snap:null,prev:null,t0:-9};
+function xfPost(){const sig=scene+'|'+$('eq1').value+'|'+$('eq2').value+'|'+$('mh1').value+'|'+$('mh2').value+'|'+(scene===-1?aS:0);
+ if(!XF.prev){XF.prev=document.createElement('canvas');XF.prev.width=540;XF.prev.height=960;XF.snap=document.createElement('canvas');XF.snap.width=540;XF.snap.height=960;XF.sig=sig}
+ if(sig!==XF.sig){XF.sig=sig;XF.snap.getContext('2d').drawImage(XF.prev,0,0);XF.t0=t}
+ const a=1-(t-XF.t0)/.7;if(a>0&&a<=1){pg.save();pg.setTransform(1,0,0,1,0,0);pg.globalAlpha=a*a*.9;pg.drawImage(XF.snap,0,0,W,H);pg.restore()}
+ XF.prev.getContext('2d').drawImage(cv,0,0,540,960)}
+// ---- GUION: preset distinto en cada parte de la canción (intro, drop, cierre), también al exportar ----
+const GU={a:[],cur:-1,lt:0,b:false};try{GU.a=JSON.parse(localStorage.getItem('sp_guion')||'[]').filter(e=>e&&isFinite(e.t)&&typeof e.v==='string')}catch(_){}
+const guSave=()=>{try{localStorage.setItem('sp_guion',JSON.stringify(GU.a))}catch(_){}},guFmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(Math.floor(s%60)).padStart(2,'0'),
+ guParse=v=>{const m=String(v).trim().match(/^(\d+):(\d{1,2})$/);return m?+m[1]*60+ +m[2]:(String(v).trim()!==''&&isFinite(+v)?+v:NaN)};
+function guOpts(){const c=$('gup').value;$('gup').replaceChildren(...PRESETS.map(p=>new Option(p.n,'p:'+p.k)),...Object.keys(upGet()).map(n=>new Option('⭐ '+n,'u:'+n)));if(c)$('gup').value=c}
+function guApply(e){const v=e.v;if(v.startsWith('p:')){const p=PRESETS.find(x=>x.k===v.slice(2));if(p)applyPreset(p)}else{const o=upGet()[v.slice(2)];if(o)applyCfg(o)}}
+function guRender(){const L=$('gul');L.replaceChildren();GU.a.sort((a,b)=>a.t-b.t);
+ GU.a.forEach((e,i)=>{const r=document.createElement('div');r.style.cssText='display:flex;gap:6px;margin:4px 0';const nm=e.v.startsWith('p:')?(PRESETS.find(p=>p.k===e.v.slice(2))||{n:e.v}).n:'⭐ '+e.v.slice(2);
+  const b=document.createElement('button');b.type='button';b.textContent=guFmt(e.t)+' · '+nm;b.style.cssText='flex:1;text-align:left';b.onclick=()=>guApply(e);
+  const x=document.createElement('button');x.type='button';x.textContent='✕';x.onclick=()=>{GU.a.splice(i,1);GU.cur=-1;guSave();guRender()};r.append(b,x);L.append(r)});
+ if(!GU.a.length){const s=document.createElement('div');s.className='pkh';s.textContent='Sin cortes todavía: elige un preset, pon el tiempo y toca Agregar.';L.append(s)}}
+function guTick(){if(busy&&!GU.b)GU.cur=-1;GU.b=busy;if(TT<GU.lt-.5)GU.cur=-1;GU.lt=TT;if(!$('guon').checked||!GU.a.length||TT<0)return;
+ let k=-1;for(let i=0;i<GU.a.length;i++)if(GU.a[i].t<=TT+1e-4)k=i;if(k!==GU.cur){GU.cur=k;if(k>=0)guApply(GU.a[k])}}
+guOpts();guRender();try{$('guon').checked=localStorage.getItem('sp_guion_on')==='1'}catch(_){}
+$('gup').addEventListener('pointerdown',guOpts);$('gut').addEventListener('keydown',e=>e.stopPropagation());
+$('gunow').onclick=()=>{const s=playing?TT:pos();$('gut').value=guFmt(Math.max(0,s))};
+$('guadd').onclick=()=>{const t0=guParse($('gut').value);if(!isFinite(t0)||t0<0)return msg('Escribe el tiempo como mm:ss, por ejemplo 00:45.');if(!$('gup').value)return msg('Elige un preset.');
+ GU.a=GU.a.filter(e=>Math.abs(e.t-t0)>.5);GU.a.push({t:t0,v:$('gup').value});GU.cur=-1;guSave();guRender();msg('Corte agregado en '+guFmt(t0)+'.')};
+$('guclr').onclick=()=>{GU.a=[];GU.cur=-1;guSave();guRender()};$('guon').onchange=()=>{GU.cur=-1;try{localStorage.setItem('sp_guion_on',$('guon').checked?'1':'0')}catch(_){}};
+$('look').addEventListener('input',()=>{});$('looki').oninput=()=>{$('lookl').textContent=$('looki').value};
 window.lvReady=true;sync();
 
 // ---- Pantalla completa (iPad / computadora) y barra espaciadora ----
