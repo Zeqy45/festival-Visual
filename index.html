@@ -143,13 +143,17 @@ select.live{border-color:var(--ac2);box-shadow:0 0 0 1px rgba(0,229,255,.25),0 0
     <label id="pinfo" style="color:var(--mu);font-size:12px"></label>
     <label style="color:var(--mu);font-size:12px;line-height:1.4">ℹ️ No hace falta configurar nada. <b>Para recibir:</b> pega el código (o el mensaje completo) arriba y pulsa Importar, o usa «Importar archivo». <b>Para enviar:</b> «Compartir» o «Copiar código». Tus amigos deben abrir la misma herramienta actualizada.</label>
     <div class="row"><button id="poff">⏻ Apagar todos los efectos (túnel, capas y FX)</button><button id="rfr">🔄 Refrescar pantalla</button></div>
-    <div class="row"><select id="fxm"><option value="0">FX en golpe: ninguno</option><option value="1">FX: zoom en golpe</option><option value="2">FX: sacudida</option><option value="3">FX: zoom + sacudida</option><option value="4">FX: destello blanco</option><option value="5">FX: rebote elástico</option><option value="6">FX: respiración al compás</option><option value="7">FX: bombeo de graves</option><option value="8">FX: balanceo (inclinación)</option><option value="9">FX: viñeta que respira</option><option value="10">FX: destello de color</option><option value="11">FX: PRO (rebote + destello + vibración)</option></select></div>
+    <div class="row"><select id="fxm"><option value="0">FX en golpe: ninguno</option><option value="1">FX: zoom en golpe</option><option value="2">FX: sacudida</option><option value="3">FX: zoom + sacudida</option><option value="4">FX: destello blanco</option><option value="5">FX: rebote elástico</option><option value="6">FX: respiración al compás</option><option value="7">FX: bombeo de graves</option><option value="8">FX: balanceo (inclinación)</option><option value="9">FX: viñeta que respira</option><option value="10">FX: destello de color</option><option value="11">FX: PRO (rebote + destello + vibración)</option><option value="12">FX: manchón de movimiento en golpe</option></select></div>
     <label>Intensidad FX: <span id="fxil">100</span>%</label><input id="fxi" type="range" min="0" max="200" value="100">
     <div class="row"><select id="fxp"><option value="0">Luz y chispas: ninguno</option><option value="1">⚡ Relámpago</option><option value="2">✈️ Flash de avión (doble destello)</option><option value="3">🔥 Chimenea (brasas que suben)</option><option value="4">✨ Chispas en cada golpe</option><option value="5">🌟 Destello anamórfico (lente de cine)</option><option value="6">🔮 Bokeh de luz flotante</option><option value="7">🎆 Fuegos artificiales en golpe</option></select></div>
     <label>Intensidad luz y chispas: <span id="fxpl">100</span>%</label><input id="fxpi" type="range" min="0" max="200" value="100">
-    <div class="row"><select id="look"><option value="0">🎞️ Look de cine: ninguno</option><option value="1">Cine suave (brillo + grano + viñeta)</option><option value="2">Cine teal y naranja</option><option value="3">Neón vibrante</option><option value="4">Película vintage 35 mm</option></select></div>
+    <div class="row"><select id="look"><option value="0">🎞️ Look de cine: ninguno</option><option value="1">Cine suave (brillo + grano + viñeta)</option><option value="2">Cine teal y naranja</option><option value="3">Neón vibrante</option><option value="4">Película vintage 35 mm</option><option value="5">Duotono (color del tema)</option></select></div>
     <label>Intensidad look: <span id="lookl">100</span>%</label><input id="looki" type="range" min="0" max="200" value="100">
-    <div class="row"><select id="ovl"><option value="0">Espectro: ninguno</option><option value="1">Espectro: barras (abajo)</option><option value="2">Espectro: barras espejo (centro)</option><option value="3">Espectro: anillo (centro)</option></select></div>
+    <div class="row"><select id="ovl"><option value="0">Espectro: ninguno</option><option value="4">💗 Anillo neón con orejas (logo)</option><option value="5">☀️ Corona de picos (logo)</option><option value="6">🌸 Flor espectral</option><option value="7">🌀 Onda circular con ecos</option><option value="8">📶 Barras neón con reflejo</option><option value="9">〰️ Línea de onda neón con ecos</option><option value="1">Clásico: barras (abajo)</option><option value="2">Clásico: barras espejo (centro)</option><option value="3">Clásico: anillo (centro)</option></select></div>
+    <label>Tamaño del espectro: <span id="ovsl">100</span>%</label><input id="ovs" type="range" min="50" max="170" value="100">
+    <label>Fuerza: <span id="ovil">100</span>%</label><input id="ovi" type="range" min="30" max="180" value="100">
+    <label>Reacción (seca ↔ suave): <span id="ovrl">12</span></label><input id="ovr" type="range" min="0" max="100" value="12">
+    <div class="row" style="display:flex;gap:6px"><button id="ovlg" type="button">🖼️ Logo al centro</button><button id="ovlx" type="button">Quitar logo</button><input id="ovlf" type="file" accept="image/*" hidden></div>
     <div class="row"><select id="bars"><option value="0">Duración: la que elijas arriba</option><option value="4">Duración: 4 compases exactos</option><option value="8">Duración: 8 compases exactos</option><option value="16">Duración: 16 compases exactos</option><option value="32">Duración: 32 compases exactos</option></select></div>
     <div class="row"><label style="flex:1;display:flex;gap:8px;align-items:center"><input type="checkbox" id="lpf" checked> 🔁 Repetir la pista si termina antes de la duración elegida</label></div>
     <div class="row"><button id="bsnap">🎯 Alinear inicio al golpe</button><button id="bshift">↻ Mover el "1"</button></div>
@@ -2309,7 +2313,7 @@ const curLen=()=>{const b=+$('bars').value;if(b&&GRIDOK)return Math.min(180,Math
 function lenInfo(){if(!buf)return;const v=+$('st').value,av=buf.duration-v,L=curLen(),bb=+$('bars').value&&GRIDOK;
    $('stm').textContent='('+Math.floor(v/60)+':'+String(Math.floor(v%60)).padStart(2,'0')+') · quedan '+Math.floor(av)+' s · clip: '+L+' s'+(bb?' ('+$('bars').value+' compases exactos)':'')+(L>av+.05?($('lpf').checked?' · se repetirá para llegar a '+L+' s':' · ⚠ solo grabará '+Math.floor(av)+' s'):'')}
   const rr=(x,y,w,h)=>{g.beginPath();if(g.roundRect)g.roundRect(x,y,w,h,Math.min(w,h)/2);else g.rect(x,y,w,h);g.fill()};
-function ovlDraw(){const o=+$('ovl').value;if(!o)return;const col='hsl('+((t*20)%360|0)+',100%,72%)';
+function ovlDraw(){const o=+$('ovl').value;if(!o)return;if(o>3)return ovPro(o);const col='hsl('+((t*20)%360|0)+',100%,72%)';
  g.save();g.lineCap='round';g.shadowBlur=16;g.shadowColor=col;
  if(o<3){const N=36,x0=70,x1=W-150,bw=(x1-x0)/N;for(let i=0;i<N;i++){const v=fd[2+i*2]/255,hh=14+v*H*.13*(.7+bass*.7);g.fillStyle=i%2?'#fff':col;
    if(o===1)rr(x0+i*bw+bw*.15,H*.72-hh,bw*.7,hh);else rr(x0+i*bw+bw*.15,H*.5-hh/2,bw*.7,hh)}}
@@ -2392,13 +2396,16 @@ function fxLight(){const m=+$('fxp').value;if(!m){if(LP.a.length)LP.a.length=0;L
   else{p.x+=p.vx*d;p.y+=p.vy*d;pg.globalAlpha=Math.min(1,(p.fl?lf*.8:(.1+.12*bass)*Math.min(1,(p.m-p.l)/.8)*Math.min(1,p.l/.8)*1.6)*I);const z=p.s*2;pg.drawImage(lpSpr(p.col),p.x-z/2,p.y-z/2,z,z)}}
  pg.globalAlpha=1;pg.restore()}
 function fxTrans(){const m=+$('fxm').value;if(!m)return;const I=+$('fxi').value/100,pu=fxEnv(),ph=(GRIDOK&&TT>-1e8)?(TT-BOFF)*BPMV/60:t*2;
- let z=1,dx=0,dy=0,rot=0,fl=0,fc=0,vg=0;const sh=a=>{dx=a*(Math.sin(t*23)+.6*Math.sin(t*37+1.3))/1.6;dy=a*(Math.cos(t*29)+.6*Math.cos(t*43+.4))/1.6};
+ let z=1,dx=0,dy=0,rot=0,fl=0,fc=0,vg=0,sm=0;const sh=a=>{dx=a*(Math.sin(t*23)+.6*Math.sin(t*37+1.3))/1.6;dy=a*(Math.cos(t*29)+.6*Math.cos(t*43+.4))/1.6};
  switch(m){case 1:z=1+(.07*pu+.012*FX.bs)*I;break;case 2:sh(16*pu*I);rot=.004*pu*I*Math.sin(t*19);z=1+.012*pu*I;break;case 3:z=1+(.07*pu+.012*FX.bs)*I;sh(12*pu*I);break;
   case 4:fl=.24*pu*I;break;case 5:z=1+FX.x*.1*I;break;case 6:z=1+(.022*Math.sin(Math.PI*ph/2)+.015*pu)*I;break;case 7:z=1+FX.bs*.07*I;break;
-  case 8:rot=FX.a*I;z=1+Math.abs(rot)*1.4+.01*pu*I;break;case 9:vg=1;z=1+.02*pu*I;break;case 10:fl=.22*pu*I;fc=1;break;case 11:z=1+FX.x*.07*I;fl=.1*pu*I;fc=1;sh(5*pu*I);break}
+  case 8:rot=FX.a*I;z=1+Math.abs(rot)*1.4+.01*pu*I;break;case 9:vg=1;z=1+.02*pu*I;break;case 10:fl=.22*pu*I;fc=1;break;case 11:z=1+FX.x*.07*I;fl=.1*pu*I;fc=1;sh(5*pu*I);break;case 12:sm=Math.min(1.2,bass*1.3)*I;z=1+.03*sm;break}
  FX.z=z;FX.dx=dx;FX.dy=dy;FX.rot=rot;FX.pu=pu;
  if(z!==1||dx||dy||rot){if(!tmpC){tmpC=document.createElement('canvas');tmpC.width=W;tmpC.height=H;tmpX=tmpC.getContext('2d');tmpX.globalCompositeOperation='copy'}
   tmpX.drawImage(cv,0,0);pg.save();pg.setTransform(1,0,0,1,0,0);pg.clearRect(0,0,W,H);pg.translate(W/2+dx,H/2+dy);pg.rotate(rot);pg.scale(z,z);pg.translate(-W/2,-H/2);pg.drawImage(tmpC,0,0);pg.restore()}
+ if(sm>.05){if(!tmpC){tmpC=document.createElement('canvas');tmpC.width=W;tmpC.height=H;tmpX=tmpC.getContext('2d');tmpX.globalCompositeOperation='copy'}
+  tmpX.drawImage(cv,0,0);const sa=(gOn*2.399)%Math.PI,am=sm*38*W/1080,ax=Math.cos(sa)*am,ay=Math.sin(sa)*am,N=7;pg.save();pg.setTransform(1,0,0,1,0,0);
+  for(let i=0;i<N;i++){const u=(i/(N-1)-.5)*2;pg.globalAlpha=1/(i+1);pg.setTransform(1,0,0,1,0,0);pg.translate(W/2+ax*u,H/2+ay*u);pg.rotate(sm*.03*u);const zz=1+z*0+sm*.025*u+.03*sm;pg.scale(zz,zz);pg.translate(-W/2,-H/2);pg.drawImage(tmpC,0,0)}pg.restore()}
  if(fl>.004){pg.save();pg.setTransform(1,0,0,1,0,0);pg.globalCompositeOperation='lighter';const a=Math.min(.5,fl);pg.fillStyle=fc?'hsla('+((t*20)%360)+',95%,60%,'+a+')':'rgba(255,255,255,'+a+')';pg.fillRect(0,0,W,H);pg.restore()}
  if(vg){pg.save();pg.setTransform(1,0,0,1,0,0);pg.globalAlpha=Math.min(1,I*(.9-.6*pu));pg.drawImage(fxVig(),0,0);pg.restore()}}
 // Guía de zona segura (solo vista previa): lo que TikTok tapa con su interfaz
@@ -2558,7 +2565,7 @@ $('bsnap').onclick=()=>{if(!buf)return msg('Primero elige una pista');if(!GRIDOK
  const P=60/BPMV;let k=Math.round((+$('st').value-BOFF)/P);if(BOFF+k*P<0)k++;setStart(BOFF+k*P);msg('Inicio alineado al golpe más cercano ('+(+$('st').value).toFixed(3)+' s).')};
 $('bshift').onclick=()=>{BOFF+=60/BPMV;lastBI=null;binfo();msg('El "1" del compás se movió un golpe (suena más agudo en el metrónomo 🔔).')};
 // ---- Presets: 12 looks completos + tus propios presets ----
-const PRE_DEF={eq1:'',eq2:'',mh1:'',mh2:'',eqi:100,eqs:125,eqy:0,mhi:100,mhs:130,mhy:0,pal:'0',lau:8,fxm:0,fxi:100,fxp:0,fxpi:100,look:0,looki:100,ovl:0,aus:12,eb:1};
+const PRE_DEF={eq1:'',eq2:'',mh1:'',mh2:'',eqi:100,eqs:125,eqy:0,mhi:100,mhs:130,mhy:0,pal:'0',lau:8,fxm:0,fxi:100,fxp:0,fxpi:100,look:0,looki:100,ovl:0,ovs:100,ovi:100,ovr:12,aus:12,eb:1};
 const PRESETS=[
  {k:'synthwave',n:'🌆 Synthwave · Hexágono Neón + Barras',scene:'Hex Neón Pulso',eq1:'Barras de Cristal',fxm:1,fxi:90,pal:'7',fxp:5,fxpi:90,look:3},
  {k:'gusano',n:'🕳️ Agujero de Gusano · Ondas de Choque',scene:'Agujero',eq1:'Ondas de Choque',fxm:5,fxi:110,pal:'7',fxp:6,fxpi:90,look:1},
@@ -2573,6 +2580,9 @@ const PRESETS=[
   {k:'tormenta',n:'⚡ Tormenta Eléctrica · Relámpagos + Cortina',scene:'Túnel Pulso',eq1:'Cortina',fxm:7,fxi:80,pal:'10',fxp:1,fxpi:100,look:2},
  {k:'chimenea',n:'🔥 Chimenea · Brasas + Aros Solares',scene:'Aro Solar',eq1:'Corona',fxm:6,fxi:70,pal:'9',fxp:3,fxpi:110,look:4},
  {k:'fiesta',n:'🎆 Fiesta · Fuegos Artificiales + Láseres',scene:'Láseres',eq1:'Secuenciador',fxm:5,fxi:90,pal:'1',fxp:7,fxpi:100,look:3},
+ {k:'logo',n:'💗 Logo Neón · Anillo con orejas (estilo TikTok)',scene:'none',fxm:12,fxi:100,ovl:4,look:5,looki:100,pal:'7'},
+ {k:'flor',n:'🌸 Flor Espectral · Pétalos con ecos',scene:'none',fxm:5,fxi:80,ovl:6,look:1,pal:'8'},
+ {k:'ameba',n:'🌀 Onda Circular · Ecos hipnóticos',scene:'none',fxm:6,fxi:90,ovl:7,look:3,pal:'10'},
  {k:'foto',n:'🎬 Tu foto + Reloj de Teselas (sin túnel)',scene:'none',eq1:'Hourglass',mh1:'Tejido',fxm:6,fxi:60,pal:'0',look:1},
  {k:'cardio',n:'💓 Cardio Minimal (sin túnel)',scene:'none',eq1:'Cardio',fxm:4,fxi:60,pal:'2',look:1},
  {k:'espacio',n:'🌀 Espacio-Tiempo · Malla + Barras Espejo (sin túnel)',scene:'none',eq1:'Espejo',mh1:'Tejido',fxm:5,fxi:80,pal:'0',look:1},
@@ -2925,7 +2935,7 @@ for(const [id,names,none] of [['eq1',EQN,'Ecualizador 1: apagado'],['eq2',EQN,'E
 for(const [id,lab,fn] of [['eqi','eqil',v=>v],['eqs','eqsl',v=>v],['eqy','eqyl',v=>+v?v:'auto'],['mhi','mhil',v=>v],['mhs','mhsl',v=>v],['mhy','mhyl',v=>+v?v:'centro'],['lau','laul',v=>v]])$(id).addEventListener('input',e=>{$(lab).textContent=fn(e.target.value)});
 
 // ---- Ajustes que se recuerdan ----
-const CB=['vfade','norm','safe','dyn','lpf'],CFG_IDS=['eq1','eq2','eqi','eqs','eqy','mh1','mh2','mhi','mhs','mhy','pal','pcol','lau','fxm','fxi','fxp','fxpi','look','looki','ovl','tsz','tcol','tsty','txt2','bars','bmode','pb','ho','dl','cx','cy','spd','eb','vd','gord','len','fpsel','sens','aus','tmode','txt'];
+const CB=['vfade','norm','safe','dyn','lpf'],CFG_IDS=['eq1','eq2','eqi','eqs','eqy','mh1','mh2','mhi','mhs','mhy','pal','pcol','lau','fxm','fxi','fxp','fxpi','look','looki','ovl','ovs','ovi','ovr','tsz','tcol','tsty','txt2','bars','bmode','pb','ho','dl','cx','cy','spd','eb','vd','gord','len','fpsel','sens','aus','tmode','txt'];
 function cfgObj(forPreset){const o={};for(const id of CFG_IDS){if(forPreset&&['txt','txt2','len','bars'].includes(id))continue;o[id]=$(id).value}for(const id of CB)o[id]=$(id).checked;o.scene=scene;o.fav=[...FAV];return o}
 function applyCfg(o){if(!o)return;
  for(const id of CFG_IDS)if(o[id]!==undefined){const e=$(id);e.value=o[id];e.dispatchEvent(new Event('input'));e.dispatchEvent(new Event('change'))}
@@ -3003,12 +3013,13 @@ let lkB1=null,lkB2=null,lkN=null;
 function lookPost(){const m=+$('look').value;if(!m)return;const I=+$('looki').value/100;if(I<=0)return;
  if(!lkB1||lkB1.w0!==W){lkB1=document.createElement('canvas');lkB1.w0=W;lkB1.width=W>>2;lkB1.height=H>>2;lkB2=document.createElement('canvas');lkB2.width=W>>4;lkB2.height=H>>4;
   lkN=document.createElement('canvas');lkN.width=lkN.height=256;const x=lkN.getContext('2d'),d=x.createImageData(256,256);for(let i=0;i<d.data.length;i+=4){const v=Math.random()*255;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=255}x.putImageData(d,0,0)}
- const bl=[0,.22,.18,.38,.2][m],gr=[0,.05,.05,.03,.12][m],vg=[0,.35,.45,.3,.6][m];
+ const bl=[0,.22,.18,.38,.2,.16][m],gr=[0,.05,.05,.03,.12,.07][m],vg=[0,.35,.45,.3,.6,.5][m];
  lkB1.getContext('2d').drawImage(cv,0,0,lkB1.width,lkB1.height);lkB2.getContext('2d').drawImage(lkB1,0,0,lkB2.width,lkB2.height);
  pg.save();pg.setTransform(1,0,0,1,0,0);pg.globalCompositeOperation='screen';pg.globalAlpha=Math.min(1,bl*I);pg.drawImage(lkB2,0,0,W,H);pg.globalAlpha=Math.min(1,bl*I*.7);pg.drawImage(lkB1,0,0,W,H);
  if(m===2){const q=pg.createLinearGradient(0,0,0,H);q.addColorStop(0,'rgb(0,120,150)');q.addColorStop(1,'rgb(255,140,60)');pg.globalCompositeOperation='soft-light';pg.globalAlpha=Math.min(1,.45*I);pg.fillStyle=q;pg.fillRect(0,0,W,H)}
  else if(m===3){pg.globalCompositeOperation='saturation';pg.globalAlpha=Math.min(1,.4*I);pg.fillStyle='#f00';pg.fillRect(0,0,W,H)}
  else if(m===4){pg.globalCompositeOperation='soft-light';pg.globalAlpha=Math.min(1,.4*I);pg.fillStyle='rgb(255,190,120)';pg.fillRect(0,0,W,H)}
+ else if(m===5){const A=layerTargets(),c='rgb('+[0,1,2].map(i=>Math.round(A[i]*255)).join(',')+')';pg.globalCompositeOperation='saturation';pg.globalAlpha=Math.min(1,I);pg.fillStyle='#000';pg.fillRect(0,0,W,H);pg.globalCompositeOperation='color';pg.globalAlpha=Math.min(1,.9*I);pg.fillStyle=c;pg.fillRect(0,0,W,H);pg.globalCompositeOperation='soft-light';pg.globalAlpha=Math.min(1,.5*I);pg.fillRect(0,0,W,H)}
  pg.globalCompositeOperation='source-over';pg.globalAlpha=Math.min(1,vg*I);pg.drawImage(fxVig(),0,0);
  pg.globalCompositeOperation='overlay';pg.globalAlpha=Math.min(1,gr*I*6);const ox=(Math.floor(t*60)*97)%512,oy=(Math.floor(t*60)*57)%512;for(let y=-oy;y<H;y+=512)for(let x=-ox;x<W;x+=512)pg.drawImage(lkN,x,y,512,512);
  pg.restore()}
@@ -3094,6 +3105,49 @@ try{$('aik').value=localStorage.getItem('sp_ak')||'';$('aim').value=localStorage
 $('aisv').onclick=()=>{try{localStorage.setItem('sp_ak',$('aik').value.trim());localStorage.setItem('sp_am',$('aim').value.trim());$('aio').textContent='Guardado en este navegador.'}catch(_){$('aio').textContent='No pude guardar en este navegador.'}};
 $('aikd').onclick=()=>{$('aik').value='';try{localStorage.removeItem('sp_ak')}catch(_){}$('aio').textContent='Clave borrada.'};$('aip').addEventListener('keydown',e=>e.stopPropagation());
 $('look').addEventListener('input',()=>{});$('looki').oninput=()=>{$('lookl').textContent=$('looki').value};
+// ---- ESPECTROS PRO: anillo neón con orejas, corona de picos, flor, onda circular con ecos, barras con reflejo y línea de onda ----
+const OV={e:new Float32Array(64),bs:0,tr:[],st:0,pk:null,logo:null};
+try{const u=localStorage.getItem('sp_logo');if(u){OV.logo=new Image();OV.logo.src=u}}catch(_){}
+function ovBands(){const d=Math.min(dt,.05),tau=.05+.35*(+$('ovr').value/100),kd=1-Math.exp(-d/tau),ka=1-Math.exp(-d/.012);   // ataque de 1 cuadro; caída en 2 a 3 cuadros (reacción seca)
+ for(let k=0;k<64;k++){const a=2+Math.floor(Math.pow(k/64,1.6)*118),b=Math.max(a+1,2+Math.floor(Math.pow((k+1)/64,1.6)*118));let m=0;for(let i=a;i<b&&i<256;i++)m=Math.max(m,fd[i]);const v=Math.min(1,Math.pow(m/255,1.4)*(1+k/64*.8));OV.e[k]+=(v-OV.e[k])*(v>OV.e[k]?ka:kd)}
+ const bv=Math.min(1,bass*1.25);OV.bs+=(bv-OV.bs)*(bv>OV.bs?ka:kd)}
+const ovBi=u=>{const x=Math.max(0,Math.min(63,u*63)),i=Math.floor(x),f=x-i,a=OV.e[i],b=OV.e[Math.min(63,i+1)];return a+(b-a)*f*f*(3-2*f)};
+function ovContour(R0,A,fn,n){const p=new Float32Array(n),q=new Float32Array(n);for(let i=0;i<n;i++)p[i]=R0+A*fn(i/n);for(let i=0;i<n;i++)q[i]=(p[(i+n-2)%n]+4*p[(i+n-1)%n]+6*p[i]+4*p[(i+1)%n]+p[(i+2)%n])/16;return q}
+function ovRR(x,y,w,h,r){r=Math.min(r,w/2,h/2);g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();g.fill()}
+function ovPro(o){const k=W/1080,sz=+$('ovs').value/100,I=+$('ovi').value/100,cx=W/2+CX,cy=H/2+CY,d=Math.min(dt,.05);ovBands();if(OV.st!==o){OV.st=o;OV.tr=[];OV.pk=null}
+ const cc=layerTargets(),Rn=x=>Math.round(x*255),rgb=cc.slice(0,3).map(Rn).join(','),rgb2=cc.slice(3,6).map(Rn).join(','),pulse=1+.07*OV.bs*I,TAU=6.2832,ang=f=>f*TAU-1.5708,mir=f=>{const a=f*2;return a<1?a:2-a};
+ g.save();g.lineCap='round';g.lineJoin='round';
+ const neon=(al,wk)=>{g.strokeStyle='rgba('+rgb+','+.16*al+')';g.lineWidth=22*k*wk;g.stroke();g.strokeStyle='rgba('+rgb+','+.5*al+')';g.lineWidth=9*k*wk;g.stroke();g.strokeStyle='rgba(255,255,255,'+.95*al+')';g.lineWidth=2.8*k*wk;g.stroke()};
+ const trace=(p,sc,rot)=>{const n=p.length;g.beginPath();for(let i=0;i<n;i++){const a=ang(i/n)+rot,r=p[i]*sc,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;i?g.lineTo(x,y):g.moveTo(x,y)}g.closePath()};
+ const disc=R=>{g.save();g.beginPath();g.arc(cx,cy,R,0,TAU);g.fillStyle='rgba(6,0,4,.85)';g.fill();if(OV.logo&&OV.logo.complete&&OV.logo.naturalWidth){g.clip();const s=R*1.72;g.drawImage(OV.logo,cx-s/2,cy-s/2,s,s)}g.restore();g.beginPath();g.arc(cx,cy,R,0,TAU);neon(.6,.5)};
+ if(o===4||o===6||o===7){const n=240,R0=230*k*sz*pulse;let pts,rot=0,Rd=R0*.88;
+  if(o===4)pts=ovContour(R0,R0*1.2*I,f=>Math.pow(ovBi(.06+mir(f)*.86),1.45),n);
+  else if(o===6){rot=t*.15+OV.bs*.08;Rd=R0*.5;pts=ovContour(R0*.6,R0*.95*I,f=>{const s=f*6;return Math.pow(ovBi(.03+mir(s-Math.floor(s))*.85),1.1)},n)}
+  else{Rd=0;pts=ovContour(R0*.85,R0*.7*I,f=>{let s=0;for(let h=1;h<=14;h++)s+=ovBi(h/15)*Math.sin(TAU*h*f+t*(.4+h*.07)+h*1.7)/Math.pow(h,.35);return s*.55},n)}
+  OV.tr.push(pts);if(OV.tr.length>9)OV.tr.shift();
+  for(let e=3;e>=1;e--){const q=OV.tr[OV.tr.length-1-e*2];if(!q)continue;trace(q,1+.04*e,rot-(o===6?.03*e:0));neon(.34/e,.55)}
+  trace(pts,1,rot);if(o!==7){g.fillStyle='rgba(8,0,6,.5)';g.fill()}neon(1,1);
+  if(Rd){disc(Rd);if(o===4){g.strokeStyle='rgba(255,255,255,.7)';g.lineWidth=2.2*k;for(let i=0;i<110;i++){const f=i/110,v=Math.pow(ovBi(.5+mir(f)*.5),1.3),a=ang(f),c=Math.cos(a),s=Math.sin(a),r0=Rd*1.01,r1=r0+(3+v*24)*k;g.beginPath();g.moveTo(cx+c*r0,cy+s*r0);g.lineTo(cx+c*r1,cy+s*r1);g.stroke()}}}}
+ else if(o===5){const n=120,R0=215*k*sz*pulse,rot=t*.1+OV.bs*.05;if(!OV.pk)OV.pk=new Float32Array(n);
+  for(let i=0;i<n;i++){const f=i/n,v=Math.pow(ovBi(.02+mir(f)*.95),.95),len=(8+v*190*I)*k*sz,a=ang(f)+rot,c=Math.cos(a),s=Math.sin(a);OV.pk[i]=Math.max(len,OV.pk[i]-d*160*k);
+   g.beginPath();g.moveTo(cx+c*R0,cy+s*R0);g.lineTo(cx+c*(R0+len),cy+s*(R0+len));g.strokeStyle='rgba('+rgb+',.22)';g.lineWidth=15*k;g.stroke();g.strokeStyle='rgba(255,255,255,.95)';g.lineWidth=4.2*k;g.stroke();
+   g.fillStyle='rgba('+rgb2+',.95)';g.beginPath();g.arc(cx+c*(R0+OV.pk[i]+10*k),cy+s*(R0+OV.pk[i]+10*k),2.8*k,0,TAU);g.fill()}
+  g.beginPath();g.arc(cx,cy,R0-8*k,0,TAU);neon(.8,.6);disc(R0*.9)}
+ else if(o===8){const N=36,x0=60*k,x1=W-60*k,bw=(x1-x0)/N,base=H*.7,mh=H*.2*I*sz;if(!OV.pk)OV.pk=new Float32Array(64);
+  for(let i=0;i<N;i++){const v=Math.pow(ovBi(.02+i/N*.95),.9),h=10*k+v*mh*(.75+OV.bs*.4),x=x0+i*bw+bw*.14,w=bw*.72;OV.pk[i]=Math.max(h,OV.pk[i]-d*140*k);
+   const gr=g.createLinearGradient(0,base-h,0,base);gr.addColorStop(0,'rgb('+rgb+')');gr.addColorStop(1,'rgb('+rgb2+')');
+   g.fillStyle='rgba('+rgb+',.18)';ovRR(x-5*k,base-h-5*k,w+10*k,h+5*k,w*.6);g.fillStyle=gr;ovRR(x,base-h,w,h,w*.5);g.fillStyle='rgba(255,255,255,.85)';ovRR(x+w*.3,base-h,w*.4,Math.min(h,12*k),w*.2);
+   g.fillStyle='rgba(255,255,255,.9)';ovRR(x,base-OV.pk[i]-10*k,w,4*k,2*k);g.globalAlpha=.22;g.fillStyle=gr;ovRR(x,base+6*k,w,h*.45,w*.5);g.globalAlpha=1}}
+ else if(o===9){const n=140,base=H*.62,amp=H*.16*I*sz,p=new Float32Array(n),s2=new Float32Array(n);for(let i=0;i<n;i++)p[i]=Math.pow(ovBi(.02+mir(i/(n-1))*.9),1.1)*(.8+OV.bs*.5);
+  for(let i=0;i<n;i++)s2[i]=(p[Math.max(0,i-2)]+4*p[Math.max(0,i-1)]+6*p[i]+4*p[Math.min(n-1,i+1)]+p[Math.min(n-1,i+2)])/16;OV.tr.push(s2);if(OV.tr.length>9)OV.tr.shift();
+  const line=(q,dy,sc,al,wk)=>{g.beginPath();for(let i=0;i<n;i++){const x=60*k+(W-120*k)*i/(n-1),y=base+dy-q[i]*amp*sc;i?g.lineTo(x,y):g.moveTo(x,y)}neon(al,wk)};
+  for(let e=3;e>=1;e--){const q=OV.tr[OV.tr.length-1-e*2];if(q)line(q,e*14*k,1,.3/e,.55)}line(s2,8*k,-.35,.3,.5);line(s2,0,1,1,1)}
+ g.restore()}
+// logo al centro del anillo
+$('ovlg').onclick=()=>$('ovlf').click();
+$('ovlf').onchange=e=>{const f=e.target.files[0];if(!f)return;const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d'),s=Math.min(im.width,im.height);x.drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,256,256);const u=c.toDataURL('image/png');OV.logo=new Image();OV.logo.src=u;try{localStorage.setItem('sp_logo',u)}catch(_){msg('Logo puesto, pero no pude guardarlo en este navegador.')}URL.revokeObjectURL(im.src)};im.src=URL.createObjectURL(f);e.target.value=''};
+$('ovlx').onclick=()=>{OV.logo=null;try{localStorage.removeItem('sp_logo')}catch(_){}};
+$('ovs').oninput=()=>{$('ovsl').textContent=$('ovs').value};$('ovi').oninput=()=>{$('ovil').textContent=$('ovi').value};$('ovr').oninput=()=>{$('ovrl').textContent=$('ovr').value};
 window.lvReady=true;sync();
 
 // ---- Pantalla completa (iPad / computadora) y barra espaciadora ----
