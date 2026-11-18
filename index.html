@@ -149,11 +149,11 @@ select.live{border-color:var(--ac2);box-shadow:0 0 0 1px rgba(0,229,255,.25),0 0
     <label>Intensidad luz y chispas: <span id="fxpl">100</span>%</label><input id="fxpi" type="range" min="0" max="200" value="100">
     <div class="row"><select id="look"><option value="0">🎞️ Look de cine: ninguno</option><option value="1">Cine suave (brillo + grano + viñeta)</option><option value="2">Cine teal y naranja</option><option value="3">Neón vibrante</option><option value="4">Película vintage 35 mm</option><option value="5">Duotono (color del tema)</option></select></div>
     <label>Intensidad look: <span id="lookl">100</span>%</label><input id="looki" type="range" min="0" max="200" value="100">
-    <div class="row"><select id="ovl"><option value="0">Espectro: ninguno</option><option value="4">💗 Anillo neón con orejas (logo)</option><option value="5">☀️ Corona de picos (logo)</option><option value="6">🌸 Flor espectral</option><option value="7">🌀 Onda circular con ecos</option><option value="8">📶 Barras neón con reflejo</option><option value="9">〰️ Línea de onda neón con ecos</option><option value="1">Clásico: barras (abajo)</option><option value="2">Clásico: barras espejo (centro)</option><option value="3">Clásico: anillo (centro)</option></select></div>
+    <div class="row"><select id="ovl"><option value="0">Espectro: ninguno</option><option value="4">💗 Anillo cósmico (espinas, cuernos y galaxia)</option><option value="5">☀️ Corona de picos (centro cósmico)</option><option value="6">🌸 Flor espectral</option><option value="7">🌀 Onda circular con ecos</option><option value="8">📶 Barras neón con reflejo</option><option value="9">〰️ Línea de onda neón con ecos</option><option value="1">Clásico: barras (abajo)</option><option value="2">Clásico: barras espejo (centro)</option><option value="3">Clásico: anillo (centro)</option></select></div>
     <label>Tamaño del espectro: <span id="ovsl">100</span>%</label><input id="ovs" type="range" min="50" max="170" value="100">
     <label>Fuerza: <span id="ovil">100</span>%</label><input id="ovi" type="range" min="30" max="180" value="100">
     <label>Reacción (seca ↔ suave): <span id="ovrl">12</span></label><input id="ovr" type="range" min="0" max="100" value="12">
-    <div class="row" style="display:flex;gap:6px"><button id="ovlg" type="button">🖼️ Logo al centro</button><button id="ovlx" type="button">Quitar logo</button><input id="ovlf" type="file" accept="image/*" hidden></div>
+    <label>Giro con la música: <span id="ovgl">100</span>%</label><input id="ovg" type="range" min="0" max="200" value="100">
     <div class="row"><select id="bars"><option value="0">Duración: la que elijas arriba</option><option value="4">Duración: 4 compases exactos</option><option value="8">Duración: 8 compases exactos</option><option value="16">Duración: 16 compases exactos</option><option value="32">Duración: 32 compases exactos</option></select></div>
     <div class="row"><label style="flex:1;display:flex;gap:8px;align-items:center"><input type="checkbox" id="lpf" checked> 🔁 Repetir la pista si termina antes de la duración elegida</label></div>
     <div class="row"><button id="bsnap">🎯 Alinear inicio al golpe</button><button id="bshift">↻ Mover el "1"</button></div>
@@ -2565,7 +2565,7 @@ $('bsnap').onclick=()=>{if(!buf)return msg('Primero elige una pista');if(!GRIDOK
  const P=60/BPMV;let k=Math.round((+$('st').value-BOFF)/P);if(BOFF+k*P<0)k++;setStart(BOFF+k*P);msg('Inicio alineado al golpe más cercano ('+(+$('st').value).toFixed(3)+' s).')};
 $('bshift').onclick=()=>{BOFF+=60/BPMV;lastBI=null;binfo();msg('El "1" del compás se movió un golpe (suena más agudo en el metrónomo 🔔).')};
 // ---- Presets: 12 looks completos + tus propios presets ----
-const PRE_DEF={eq1:'',eq2:'',mh1:'',mh2:'',eqi:100,eqs:125,eqy:0,mhi:100,mhs:130,mhy:0,pal:'0',lau:8,fxm:0,fxi:100,fxp:0,fxpi:100,look:0,looki:100,ovl:0,ovs:100,ovi:100,ovr:12,aus:12,eb:1};
+const PRE_DEF={eq1:'',eq2:'',mh1:'',mh2:'',eqi:100,eqs:125,eqy:0,mhi:100,mhs:130,mhy:0,pal:'0',lau:8,fxm:0,fxi:100,fxp:0,fxpi:100,look:0,looki:100,ovl:0,ovs:100,ovi:100,ovr:12,ovg:100,aus:12,eb:1};
 const PRESETS=[
  {k:'synthwave',n:'🌆 Synthwave · Hexágono Neón + Barras',scene:'Hex Neón Pulso',eq1:'Barras de Cristal',fxm:1,fxi:90,pal:'7',fxp:5,fxpi:90,look:3},
  {k:'gusano',n:'🕳️ Agujero de Gusano · Ondas de Choque',scene:'Agujero',eq1:'Ondas de Choque',fxm:5,fxi:110,pal:'7',fxp:6,fxpi:90,look:1},
@@ -2580,7 +2580,7 @@ const PRESETS=[
   {k:'tormenta',n:'⚡ Tormenta Eléctrica · Relámpagos + Cortina',scene:'Túnel Pulso',eq1:'Cortina',fxm:7,fxi:80,pal:'10',fxp:1,fxpi:100,look:2},
  {k:'chimenea',n:'🔥 Chimenea · Brasas + Aros Solares',scene:'Aro Solar',eq1:'Corona',fxm:6,fxi:70,pal:'9',fxp:3,fxpi:110,look:4},
  {k:'fiesta',n:'🎆 Fiesta · Fuegos Artificiales + Láseres',scene:'Láseres',eq1:'Secuenciador',fxm:5,fxi:90,pal:'1',fxp:7,fxpi:100,look:3},
- {k:'logo',n:'💗 Logo Neón · Anillo con orejas (estilo TikTok)',scene:'none',fxm:12,fxi:100,ovl:4,look:5,looki:100,pal:'7'},
+ {k:'logo',n:'💗 Anillo Cósmico · Espinas, cuernos y galaxia',scene:'none',fxm:12,fxi:100,ovl:4,look:5,looki:100,pal:'7'},
  {k:'flor',n:'🌸 Flor Espectral · Pétalos con ecos',scene:'none',fxm:5,fxi:80,ovl:6,look:1,pal:'8'},
  {k:'ameba',n:'🌀 Onda Circular · Ecos hipnóticos',scene:'none',fxm:6,fxi:90,ovl:7,look:3,pal:'10'},
  {k:'foto',n:'🎬 Tu foto + Reloj de Teselas (sin túnel)',scene:'none',eq1:'Hourglass',mh1:'Tejido',fxm:6,fxi:60,pal:'0',look:1},
@@ -2935,7 +2935,7 @@ for(const [id,names,none] of [['eq1',EQN,'Ecualizador 1: apagado'],['eq2',EQN,'E
 for(const [id,lab,fn] of [['eqi','eqil',v=>v],['eqs','eqsl',v=>v],['eqy','eqyl',v=>+v?v:'auto'],['mhi','mhil',v=>v],['mhs','mhsl',v=>v],['mhy','mhyl',v=>+v?v:'centro'],['lau','laul',v=>v]])$(id).addEventListener('input',e=>{$(lab).textContent=fn(e.target.value)});
 
 // ---- Ajustes que se recuerdan ----
-const CB=['vfade','norm','safe','dyn','lpf'],CFG_IDS=['eq1','eq2','eqi','eqs','eqy','mh1','mh2','mhi','mhs','mhy','pal','pcol','lau','fxm','fxi','fxp','fxpi','look','looki','ovl','ovs','ovi','ovr','tsz','tcol','tsty','txt2','bars','bmode','pb','ho','dl','cx','cy','spd','eb','vd','gord','len','fpsel','sens','aus','tmode','txt'];
+const CB=['vfade','norm','safe','dyn','lpf'],CFG_IDS=['eq1','eq2','eqi','eqs','eqy','mh1','mh2','mhi','mhs','mhy','pal','pcol','lau','fxm','fxi','fxp','fxpi','look','looki','ovl','ovs','ovi','ovr','ovg','tsz','tcol','tsty','txt2','bars','bmode','pb','ho','dl','cx','cy','spd','eb','vd','gord','len','fpsel','sens','aus','tmode','txt'];
 function cfgObj(forPreset){const o={};for(const id of CFG_IDS){if(forPreset&&['txt','txt2','len','bars'].includes(id))continue;o[id]=$(id).value}for(const id of CB)o[id]=$(id).checked;o.scene=scene;o.fav=[...FAV];return o}
 function applyCfg(o){if(!o)return;
  for(const id of CFG_IDS)if(o[id]!==undefined){const e=$(id);e.value=o[id];e.dispatchEvent(new Event('input'));e.dispatchEvent(new Event('change'))}
@@ -3105,30 +3105,47 @@ try{$('aik').value=localStorage.getItem('sp_ak')||'';$('aim').value=localStorage
 $('aisv').onclick=()=>{try{localStorage.setItem('sp_ak',$('aik').value.trim());localStorage.setItem('sp_am',$('aim').value.trim());$('aio').textContent='Guardado en este navegador.'}catch(_){$('aio').textContent='No pude guardar en este navegador.'}};
 $('aikd').onclick=()=>{$('aik').value='';try{localStorage.removeItem('sp_ak')}catch(_){}$('aio').textContent='Clave borrada.'};$('aip').addEventListener('keydown',e=>e.stopPropagation());
 $('look').addEventListener('input',()=>{});$('looki').oninput=()=>{$('lookl').textContent=$('looki').value};
-// ---- ESPECTROS PRO: anillo neón con orejas, corona de picos, flor, onda circular con ecos, barras con reflejo y línea de onda ----
-const OV={e:new Float32Array(64),bs:0,tr:[],st:0,pk:null,logo:null};
-try{const u=localStorage.getItem('sp_logo');if(u){OV.logo=new Image();OV.logo.src=u}}catch(_){}
+// ---- ESPECTROS PRO: anillo cósmico (espinas que giran con la música, cuernos con el bajo, centro de galaxia), corona, flor, onda circular, barras y línea ----
+const OV={e:new Float32Array(64),bs:0,hi:0,tr:[],st:0,pk:null,rot:0,w:0,sx:0,sv:0,sg:1,g:-1,neb:0,pa:0,
+ stars:Array.from({length:110},()=>({z:Math.random(),a:Math.random()*6.2832,h:Math.random()})),spk:Array.from({length:90},(_,i)=>({h:.55+.45*Math.abs(Math.sin(i*12.9898)*43758.5453%1),h2:Math.abs(Math.sin(i*78.233)*12345.679%1)}))};
 function ovBands(){const d=Math.min(dt,.05),tau=.05+.35*(+$('ovr').value/100),kd=1-Math.exp(-d/tau),ka=1-Math.exp(-d/.012);   // ataque de 1 cuadro; caída en 2 a 3 cuadros (reacción seca)
  for(let k=0;k<64;k++){const a=2+Math.floor(Math.pow(k/64,1.6)*118),b=Math.max(a+1,2+Math.floor(Math.pow((k+1)/64,1.6)*118));let m=0;for(let i=a;i<b&&i<256;i++)m=Math.max(m,fd[i]);const v=Math.min(1,Math.pow(m/255,1.4)*(1+k/64*.8));OV.e[k]+=(v-OV.e[k])*(v>OV.e[k]?ka:kd)}
- const bv=Math.min(1,bass*1.25);OV.bs+=(bv-OV.bs)*(bv>OV.bs?ka:kd)}
+ const bv=Math.min(1,bass*1.25);OV.bs+=(bv-OV.bs)*(bv>OV.bs?ka:kd);let hs=0;for(let i=130;i<256;i++)hs+=fd[i];const hv=Math.min(1,hs/126/70);OV.hi+=(hv-OV.hi)*(hv>OV.hi?ka:kd)}
+function ovPhys(d,G){if(OV.g!==gOn){if(OV.g!==-1){OV.w-=(1.2+1.6*Math.min(1.2,beat))*G;OV.sv+=OV.sg*(5+4*Math.min(1.2,beat));OV.sg=-OV.sg}OV.g=gOn}   // cada golpe empuja el giro; los cuernos oscilan de lado a lado
+ OV.w+=(-(.18+1.0*OV.bs+.5*OV.hi)*G-OV.w)*(1-Math.exp(-d*6));OV.rot+=OV.w*d;OV.sv+=(-OV.sx*150-OV.sv*10)*d;OV.sx+=OV.sv*d;OV.neb+=d*(.12+.7*OV.hi);OV.pa+=d*(1.1+3.5*OV.hi+1.5*OV.bs)}
 const ovBi=u=>{const x=Math.max(0,Math.min(63,u*63)),i=Math.floor(x),f=x-i,a=OV.e[i],b=OV.e[Math.min(63,i+1)];return a+(b-a)*f*f*(3-2*f)};
 function ovContour(R0,A,fn,n){const p=new Float32Array(n),q=new Float32Array(n);for(let i=0;i<n;i++)p[i]=R0+A*fn(i/n);for(let i=0;i<n;i++)q[i]=(p[(i+n-2)%n]+4*p[(i+n-1)%n]+6*p[i]+4*p[(i+1)%n]+p[(i+2)%n])/16;return q}
 function ovRR(x,y,w,h,r){r=Math.min(r,w/2,h/2);g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();g.fill()}
-function ovPro(o){const k=W/1080,sz=+$('ovs').value/100,I=+$('ovi').value/100,cx=W/2+CX,cy=H/2+CY,d=Math.min(dt,.05);ovBands();if(OV.st!==o){OV.st=o;OV.tr=[];OV.pk=null}
+function ovCosmos(cx,cy,R,k,rgb,rgb2,d){const TAU=6.2832;g.save();g.beginPath();g.arc(cx,cy,R,0,TAU);g.clip();
+ const bg=g.createRadialGradient(cx,cy,0,cx,cy,R);bg.addColorStop(0,'rgb(22,6,44)');bg.addColorStop(.7,'rgb(7,2,16)');bg.addColorStop(1,'rgb(2,0,6)');g.fillStyle=bg;g.fillRect(cx-R,cy-R,2*R,2*R);g.globalCompositeOperation='lighter';
+ for(let j=0;j<3;j++){const a=OV.neb*(.6+j*.35)+j*2.1,r=R*(.38+.1*j),x=cx+Math.cos(a)*r,y=cy+Math.sin(a*1.3)*r*.8,col=j===1?rgb2:j===2?'150,90,255':rgb,q=g.createRadialGradient(x,y,0,x,y,R*(.75+.25*OV.bs));q.addColorStop(0,'rgba('+col+','+(.26+.25*OV.bs)+')');q.addColorStop(1,'rgba('+col+',0)');g.fillStyle=q;g.fillRect(cx-R,cy-R,2*R,2*R)}
+ const sp=(.12+1.1*OV.bs+.5*OV.hi)*d;g.lineCap='round';
+ for(const s of OV.stars){s.z+=sp*(.4+s.h);if(s.z>1){s.z=.02;s.a=Math.random()*TAU;s.h=Math.random()}s.a+=d*(.25+.5*s.z);const r=R*Math.pow(s.z,1.35)*1.02,al=Math.min(1,s.z*2.2)*(.55+.45*Math.sin(t*6+s.h*40)),tl=Math.min(r*.4,sp/Math.max(d,.001)*R*.05*s.z),a2=s.a-.05*(1+OV.bs*3);
+  g.strokeStyle='rgba(255,255,255,'+al*.85+')';g.lineWidth=(.6+s.z*2.6)*k;g.beginPath();g.moveTo(cx+Math.cos(s.a)*r,cy+Math.sin(s.a)*r);g.lineTo(cx+Math.cos(a2)*(r-tl),cy+Math.sin(a2)*(r-tl));g.stroke()}
+ const cr=R*(.11+.17*OV.bs),q=g.createRadialGradient(cx,cy,0,cx,cy,cr*2.6);q.addColorStop(0,'rgba(255,255,255,'+Math.min(1,.6+.3*OV.bs)+')');q.addColorStop(.25,'rgba('+rgb+',.7)');q.addColorStop(1,'rgba('+rgb+',0)');g.fillStyle=q;g.fillRect(cx-R,cy-R,2*R,2*R);
+ g.save();g.translate(cx,cy);g.rotate(OV.neb*.5);g.scale(1,.32);g.strokeStyle='rgba(255,255,255,.3)';g.lineWidth=1.5*k*3;g.beginPath();g.arc(0,0,R*.64,0,TAU);g.stroke();
+ const px=Math.cos(OV.pa)*R*.64,py=Math.sin(OV.pa)*R*.64,pg2=g.createRadialGradient(px,py,0,px,py,14*k*3);pg2.addColorStop(0,'rgba(255,255,255,1)');pg2.addColorStop(1,'rgba('+rgb2+',0)');g.fillStyle=pg2;g.beginPath();g.arc(px,py,14*k*3,0,TAU);g.fill();g.restore();g.restore()}
+function ovPro(o){const k=W/1080,sz=+$('ovs').value/100,I=+$('ovi').value/100,G=+$('ovg').value/100,cx=W/2+CX,cy=H/2+CY,d=Math.min(dt,.05);ovBands();ovPhys(d,G);if(OV.st!==o){OV.st=o;OV.tr=[];OV.pk=null}
  const cc=layerTargets(),Rn=x=>Math.round(x*255),rgb=cc.slice(0,3).map(Rn).join(','),rgb2=cc.slice(3,6).map(Rn).join(','),pulse=1+.07*OV.bs*I,TAU=6.2832,ang=f=>f*TAU-1.5708,mir=f=>{const a=f*2;return a<1?a:2-a};
  g.save();g.lineCap='round';g.lineJoin='round';
  const neon=(al,wk)=>{g.strokeStyle='rgba('+rgb+','+.16*al+')';g.lineWidth=22*k*wk;g.stroke();g.strokeStyle='rgba('+rgb+','+.5*al+')';g.lineWidth=9*k*wk;g.stroke();g.strokeStyle='rgba(255,255,255,'+.95*al+')';g.lineWidth=2.8*k*wk;g.stroke()};
  const trace=(p,sc,rot)=>{const n=p.length;g.beginPath();for(let i=0;i<n;i++){const a=ang(i/n)+rot,r=p[i]*sc,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;i?g.lineTo(x,y):g.moveTo(x,y)}g.closePath()};
- const disc=R=>{g.save();g.beginPath();g.arc(cx,cy,R,0,TAU);g.fillStyle='rgba(6,0,4,.85)';g.fill();if(OV.logo&&OV.logo.complete&&OV.logo.naturalWidth){g.clip();const s=R*1.72;g.drawImage(OV.logo,cx-s/2,cy-s/2,s,s)}g.restore();g.beginPath();g.arc(cx,cy,R,0,TAU);neon(.6,.5)};
- if(o===4||o===6||o===7){const n=240,R0=230*k*sz*pulse;let pts,rot=0,Rd=R0*.88;
-  if(o===4)pts=ovContour(R0,R0*1.2*I,f=>Math.pow(ovBi(.06+mir(f)*.86),1.45),n);
-  else if(o===6){rot=t*.15+OV.bs*.08;Rd=R0*.5;pts=ovContour(R0*.6,R0*.95*I,f=>{const s=f*6;return Math.pow(ovBi(.03+mir(s-Math.floor(s))*.85),1.1)},n)}
+ const disc=R=>{ovCosmos(cx,cy,R,k,rgb,rgb2,d);g.beginPath();g.arc(cx,cy,R,0,TAU);neon(.55,.45)};
+ if(o===4){const Rd=270*k*sz*pulse,lob=ovContour(Rd*1.04,Rd*1.0*I,f=>Math.pow(Math.max(0,ovBi(.06+mir(f)*.86)-.16)/.84,1.5),240);OV.tr.push(lob);if(OV.tr.length>9)OV.tr.shift();   // cuernos: solo aparecen con el bajo fuerte
+  for(let e=3;e>=1;e--){const q=OV.tr[OV.tr.length-1-e*2];if(!q)continue;trace(q,1+.035*e,OV.sx);neon(.34/e,.55)}
+  trace(lob,1,OV.sx);g.fillStyle='rgba(8,0,6,.55)';g.fill();neon(1,1);
+  for(let i=0;i<90;i++){const f=i/90,S=OV.spk[i],v=ovBi(.04+mir(f)*.92+.04*(S.h2-.5)),len=8*k+(v*S.h*.85+OV.hi*S.h2*.5)*Rd*.5*I,a=ang(f)+OV.rot,x0=Rd*1.02,x1=x0+len,hw=.021;   // 90 espinas de largo irregular que giran
+   g.beginPath();g.moveTo(cx+Math.cos(a-hw)*x0,cy+Math.sin(a-hw)*x0);g.lineTo(cx+Math.cos(a)*x1,cy+Math.sin(a)*x1);g.lineTo(cx+Math.cos(a+hw)*x0,cy+Math.sin(a+hw)*x0);g.closePath();g.fillStyle='rgba(255,255,255,.92)';g.fill();g.strokeStyle='rgba('+rgb+',.55)';g.lineWidth=2.2*k;g.stroke()}
+  for(let j=0;j<8;j++){const a=ang((j*.381966)%1)+OV.rot,s=(9+OV.hi*30+OV.bs*16+8*Math.sin(t*5+j*2))*k*sz,x=cx+Math.cos(a)*(Rd*1.02+14*k),y=cy+Math.sin(a)*(Rd*1.02+14*k);   // destellos de 4 puntas
+   g.fillStyle='rgba('+rgb+',.35)';g.beginPath();g.arc(x,y,s*.9,0,TAU);g.fill();g.fillStyle='rgba(255,255,255,.95)';g.beginPath();g.moveTo(x,y-s);g.lineTo(x+s*.18,y-s*.18);g.lineTo(x+s,y);g.lineTo(x+s*.18,y+s*.18);g.lineTo(x,y+s);g.lineTo(x-s*.18,y+s*.18);g.lineTo(x-s,y);g.lineTo(x-s*.18,y-s*.18);g.closePath();g.fill()}
+  disc(Rd);g.beginPath();g.arc(cx,cy,Rd*.93,0,TAU);g.strokeStyle='rgba(255,255,255,.3)';g.lineWidth=1.6*k;g.stroke()}
+ else if(o===6||o===7){const n=240,R0=230*k*sz*pulse;let pts,rot=0,Rd=R0*.88;
+  if(o===6){rot=OV.rot*.35+OV.sx*.5;Rd=R0*.5;pts=ovContour(R0*.6,R0*.95*I,f=>{const s=f*6;return Math.pow(ovBi(.03+mir(s-Math.floor(s))*.85),1.1)},n)}
   else{Rd=0;pts=ovContour(R0*.85,R0*.7*I,f=>{let s=0;for(let h=1;h<=14;h++)s+=ovBi(h/15)*Math.sin(TAU*h*f+t*(.4+h*.07)+h*1.7)/Math.pow(h,.35);return s*.55},n)}
   OV.tr.push(pts);if(OV.tr.length>9)OV.tr.shift();
   for(let e=3;e>=1;e--){const q=OV.tr[OV.tr.length-1-e*2];if(!q)continue;trace(q,1+.04*e,rot-(o===6?.03*e:0));neon(.34/e,.55)}
-  trace(pts,1,rot);if(o!==7){g.fillStyle='rgba(8,0,6,.5)';g.fill()}neon(1,1);
-  if(Rd){disc(Rd);if(o===4){g.strokeStyle='rgba(255,255,255,.7)';g.lineWidth=2.2*k;for(let i=0;i<110;i++){const f=i/110,v=Math.pow(ovBi(.5+mir(f)*.5),1.3),a=ang(f),c=Math.cos(a),s=Math.sin(a),r0=Rd*1.01,r1=r0+(3+v*24)*k;g.beginPath();g.moveTo(cx+c*r0,cy+s*r0);g.lineTo(cx+c*r1,cy+s*r1);g.stroke()}}}}
- else if(o===5){const n=120,R0=215*k*sz*pulse,rot=t*.1+OV.bs*.05;if(!OV.pk)OV.pk=new Float32Array(n);
+  trace(pts,1,rot);if(o!==7){g.fillStyle='rgba(8,0,6,.5)';g.fill()}neon(1,1);if(Rd)disc(Rd)}
+ else if(o===5){const n=120,R0=215*k*sz*pulse,rot=OV.rot*.5;if(!OV.pk)OV.pk=new Float32Array(n);
   for(let i=0;i<n;i++){const f=i/n,v=Math.pow(ovBi(.02+mir(f)*.95),.95),len=(8+v*190*I)*k*sz,a=ang(f)+rot,c=Math.cos(a),s=Math.sin(a);OV.pk[i]=Math.max(len,OV.pk[i]-d*160*k);
    g.beginPath();g.moveTo(cx+c*R0,cy+s*R0);g.lineTo(cx+c*(R0+len),cy+s*(R0+len));g.strokeStyle='rgba('+rgb+',.22)';g.lineWidth=15*k;g.stroke();g.strokeStyle='rgba(255,255,255,.95)';g.lineWidth=4.2*k;g.stroke();
    g.fillStyle='rgba('+rgb2+',.95)';g.beginPath();g.arc(cx+c*(R0+OV.pk[i]+10*k),cy+s*(R0+OV.pk[i]+10*k),2.8*k,0,TAU);g.fill()}
@@ -3143,11 +3160,7 @@ function ovPro(o){const k=W/1080,sz=+$('ovs').value/100,I=+$('ovi').value/100,cx
   const line=(q,dy,sc,al,wk)=>{g.beginPath();for(let i=0;i<n;i++){const x=60*k+(W-120*k)*i/(n-1),y=base+dy-q[i]*amp*sc;i?g.lineTo(x,y):g.moveTo(x,y)}neon(al,wk)};
   for(let e=3;e>=1;e--){const q=OV.tr[OV.tr.length-1-e*2];if(q)line(q,e*14*k,1,.3/e,.55)}line(s2,8*k,-.35,.3,.5);line(s2,0,1,1,1)}
  g.restore()}
-// logo al centro del anillo
-$('ovlg').onclick=()=>$('ovlf').click();
-$('ovlf').onchange=e=>{const f=e.target.files[0];if(!f)return;const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d'),s=Math.min(im.width,im.height);x.drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,256,256);const u=c.toDataURL('image/png');OV.logo=new Image();OV.logo.src=u;try{localStorage.setItem('sp_logo',u)}catch(_){msg('Logo puesto, pero no pude guardarlo en este navegador.')}URL.revokeObjectURL(im.src)};im.src=URL.createObjectURL(f);e.target.value=''};
-$('ovlx').onclick=()=>{OV.logo=null;try{localStorage.removeItem('sp_logo')}catch(_){}};
-$('ovs').oninput=()=>{$('ovsl').textContent=$('ovs').value};$('ovi').oninput=()=>{$('ovil').textContent=$('ovi').value};$('ovr').oninput=()=>{$('ovrl').textContent=$('ovr').value};
+$('ovs').oninput=()=>{$('ovsl').textContent=$('ovs').value};$('ovi').oninput=()=>{$('ovil').textContent=$('ovi').value};$('ovr').oninput=()=>{$('ovrl').textContent=$('ovr').value};$('ovg').oninput=()=>{$('ovgl').textContent=$('ovg').value};
 window.lvReady=true;sync();
 
 // ---- Pantalla completa (iPad / computadora) y barra espaciadora ----
