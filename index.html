@@ -91,6 +91,20 @@ select.live{border-color:var(--ac2);box-shadow:0 0 0 1px rgba(0,229,255,.25),0 0
     </div>
     
     <p id="msg">Elige una pista musical o extrae el audio de un video.</p>
+    <details id="gu" open><summary>🎞️ Línea de tiempo: el video cambia solo por partes</summary>
+     <div class="pkh" style="line-height:1.5">① Carga tu canción · ② Toca <b>Crear guion automático</b> · ③ Dale <b>Reproducir</b>: el video cambia de escena, efectos y transiciones en cada parte de la canción · ④ Si quieres, toca un bloque de color para cambiarlo o arrástralo.</div>
+     <div class="row" style="display:flex;gap:6px"><select id="guas" style="max-width:120px"><option value="0">Suave</option><option value="1" selected>Normal</option><option value="2">Explosivo</option></select><button id="guauto" type="button" style="flex:1">✨ Crear guion automático</button><button id="guun" type="button">↩</button></div>
+     <div class="row" style="display:flex;gap:6px;align-items:center"><button id="tlz1" type="button">−</button><button id="tlz2" type="button">+</button><label style="flex:1"><input type="checkbox" id="guon"> Usar al reproducir y exportar</label><button id="guclr" type="button">Vaciar</button></div>
+     <div id="tlw"><div id="tlc"></div></div>
+     <div class="pkh">Toca un bloque para editarlo, arrástralo para moverlo. Toca un espacio vacío para fijar el tiempo.</div>
+     <div class="row" style="display:flex;gap:6px"><select id="tla"></select><input id="gut" type="text" value="00:00" inputmode="numeric" style="max-width:84px;text-align:center"><button id="gunow" type="button">⏱</button><button id="tladd" type="button">➕</button></div>
+     <div id="tle" hidden><div class="pkh" id="teh"></div>
+      <div class="row"><select id="tev"></select></div>
+      <div class="row" style="display:flex;gap:6px;align-items:center"><input id="tet" type="text" style="max-width:84px;text-align:center" inputmode="numeric"><span id="tedl"><input id="ted" type="number" min="0" step="0.5" style="max-width:80px"> s</span></div>
+      <span id="tetl"><label>Intensidad <span id="teil">100</span>%</label><input id="tei" type="range" min="10" max="200" value="100"></span>
+      <span id="texl"><label>Cómo entra</label><div class="row"><select id="tex"></select></div></span>
+      <div style="display:flex;gap:6px"><button id="tedup" type="button">Duplicar</button><button id="tedel" type="button">Borrar</button></div></div>
+    </details>
     
     <div class="row"><input type="text" id="scq" placeholder="🔍 Buscar escena o túnel…" autocomplete="off"></div>
     <div class="row"><select id="xbl"><option value="scr">Túneles externos: mezclar con tu fondo</option><option value="over">Túneles externos: opacos (tapan el fondo)</option></select></div>
@@ -114,26 +128,8 @@ select.live{border-color:var(--ac2);box-shadow:0 0 0 1px rgba(0,229,255,.25),0 0
     <label id="binfo">♩ sin analizar</label>
     <div style="margin:12px 0 4px;font-weight:700">🎬 Modo TikTok Pro</div>
     <div class="row"><select id="sty"></select></div>
-    <details id="gu" open><summary>🎞️ Línea de tiempo (efectos y transiciones)</summary>
-     <div class="row" style="display:flex;gap:6px;align-items:center"><button id="tlz1" type="button">−</button><button id="tlz2" type="button">+</button><label style="flex:1"><input type="checkbox" id="guon"> Usar al reproducir y exportar</label><button id="guclr" type="button">Vaciar</button></div>
-     <div id="tlw"><div id="tlc"></div></div>
-     <div class="pkh">Toca un bloque para editarlo, arrástralo para moverlo. Toca un espacio vacío para fijar el tiempo.</div>
-     <div class="row" style="display:flex;gap:6px"><select id="tla"></select><input id="gut" type="text" value="00:00" inputmode="numeric" style="max-width:84px;text-align:center"><button id="gunow" type="button">⏱</button><button id="tladd" type="button">➕</button></div>
-     <div id="tle" hidden><div class="pkh" id="teh"></div>
-      <div class="row"><select id="tev"></select></div>
-      <div class="row" style="display:flex;gap:6px;align-items:center"><input id="tet" type="text" style="max-width:84px;text-align:center" inputmode="numeric"><span id="tedl"><input id="ted" type="number" min="0" step="0.5" style="max-width:80px"> s</span></div>
-      <span id="tetl"><label>Intensidad <span id="teil">100</span>%</label><input id="tei" type="range" min="10" max="200" value="100"></span>
-      <span id="texl"><label>Cómo entra</label><div class="row"><select id="tex"></select></div></span>
-      <div style="display:flex;gap:6px"><button id="tedup" type="button">Duplicar</button><button id="tedel" type="button">Borrar</button></div></div>
-    </details>
-    <details id="ai"><summary>🤖 Asistente de Claude (arma el video contigo)</summary>
-     <div class="pkh">Claude ve tu canción (BPM y energía por segundo), el catálogo y tu línea de tiempo, y la arma. Usa tu propia clave de la API de Anthropic: se guarda solo en este navegador. Ponle un límite de gasto.</div>
-     <div class="row"><input id="aik" type="password" placeholder="Clave API (sk-ant-…)" autocomplete="off" style="width:100%"></div>
-     <div class="row" style="display:flex;gap:6px"><input id="aim" type="text" style="flex:1"><button id="aisv" type="button">Guardar</button><button id="aikd" type="button">Borrar clave</button></div>
-     <textarea id="aip" rows="3" placeholder="Ej.: video de 60 s para techno, el drop entra a los 30 s con relámpagos y un flash blanco" style="width:100%"></textarea>
-     <div style="display:flex;gap:6px;align-items:center"><button id="aigo" type="button">✨ Crear / ajustar</button><button id="aiun" type="button">↩ Deshacer</button><label><input type="checkbox" id="aire" checked> Reemplazar</label></div>
-     <div id="aio" class="pkh" style="white-space:pre-wrap"></div>
-    </details>
+    
+    
     <div class="row"><input id="pname" type="text" placeholder="Nombre de tu preset"><button id="psave">💾 Guardar</button><button id="pdel">🗑</button></div>
     <div class="row"><button id="pcopy">📋 Copiar código</button><button id="pshare">📤 Compartir</button></div>
     <div class="row"><textarea id="pcode" rows="3" placeholder="Pega aquí el código de tu amigo (o el mensaje completo)" style="flex:1;min-width:0;background:#0b0d14;color:#fff;border:1px solid #2a2f45;border-radius:10px;padding:8px;font-size:13px;resize:vertical"></textarea><button id="pimpc">📥 Importar</button></div>
@@ -3080,30 +3076,24 @@ $('guclr').onclick=()=>{GU.undo=JSON.stringify(GU.a);GU.a=[];GU.selE=null;guComm
 try{$('guon').checked=localStorage.getItem('sp_guion_on')==='1'}catch(_){}$('guon').onchange=()=>{guRestore();GU.cur=-1;GU.tr=-1;try{localStorage.setItem('sp_guion_on',$('guon').checked?'1':'0')}catch(_){}};
 setInterval(()=>{const h=$('tph');if(!h)return;const x=Math.max(0,playing?TT:pos())*GU.px;h.style.left=x+'px';const w=$('tlw');if(playing&&(x<w.scrollLeft||x>w.scrollLeft+w.clientWidth-30))w.scrollLeft=Math.max(0,x-40)},250);
 tlRender();tlEdit();
-// ---- ASISTENTE DE CLAUDE: ve la canción (energía, BPM), el catálogo y tu línea de tiempo, y la arma contigo ----
-const AI={h:[]},nz=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
-const AI_SYS='Eres el director de video de «Synth Pilot VFX», dentro de la app. Diseñas la línea de tiempo de un video musical vertical (9:16). Recibes un JSON con duración, BPM, perfil de energía (0 a 9 por segundo: 0 silencio, 9 lo más fuerte), catálogo y la línea de tiempo actual. Responde SOLO con un JSON, sin texto fuera de él ni bloques de código: {"mensaje":"explicación breve en español, máximo 300 caracteres","guion":[{"pista":"preset|movimiento|luz|look|transicion","t":segundos,"d":duración en segundos (movimiento, luz y look; opcional en transicion),"v":"nombre EXACTO del catálogo","i":intensidad 10-200 (movimiento, luz y look),"x":"corte seco|fundido|flash blanco|zoom|barrido (solo en preset: cómo entra)"}]}. Reglas: usa solo nombres del catálogo. Empieza con un preset en t=0. Cambia de preset en las secciones (intro, verso, drop, cierre) que detectes con la energía, alineando a compases (BPM). Usa transiciones fuertes (flash blanco, zoom) en el drop y suaves (fundido) en pasajes tranquilos. Movimiento y luz van en rangos cortos (4 a 12 s) en momentos de mucha energía, nunca todo el tiempo. Máximo 40 elementos. Si el usuario pide ajustar, devuelve el guion COMPLETO resultante.';
-function aiEnergy(){if(!buf)return null;const ch=buf.getChannelData(0),sr=buf.sampleRate,n=Math.min(Math.floor(buf.duration),300),o=[];for(let s=0;s<n;s++){let a=0,c=0;for(let i=s*sr;i<(s+1)*sr&&i<ch.length;i+=64){a+=ch[i]*ch[i];c++}o.push(Math.sqrt(a/Math.max(c,1)))}const mx=Math.max(...o,1e-6);return o.map(v=>Math.round(9*v/mx))}
-function aiCtx(){const nm=tr=>tlOpts(tr).map(o=>o[1]);return{duracion_s:buf?Math.round(buf.duration):null,bpm:Math.round(BPMV),tiempo_actual_s:Math.round(Math.max(0,playing?TT:pos())),energia_por_segundo:aiEnergy(),
- catalogo:{preset:nm('p'),movimiento:nm('fx'),luz:nm('lz'),look:nm('lk'),transicion:TRX},linea_de_tiempo_actual:GU.a.map(e=>({pista:{p:'preset',fx:'movimiento',lz:'luz',lk:'look',tr:'transicion'}[e.tr],t:e.t,d:e.d,v:tlName(e),i:e.i,x:TRX[e.x??1]}))}}
-const aiFind=(o,v)=>{const n=nz(v);return o.find(x=>nz(x[1])===n||nz(x[0])===n)||o.find(x=>n&&(nz(x[1]).includes(n)||n.includes(nz(x[1]))))};
-function aiApply(plan,rep){const out=[],bad=[],mp={preset:'p',movimiento:'fx',luz:'lz',look:'lk',transicion:'tr'},lim=buf?buf.duration:600;
- for(const it of (plan.guion||[])){try{const tr=mp[nz(it.pista).split(' ')[0]];if(!tr)throw 0;const t0=Math.max(0,Math.min(+it.t,lim));if(!isFinite(t0))throw 0;const h=aiFind(tlOpts(tr),it.v);if(!h)throw 0;
-  const e={tr,t:Math.round(t0*2)/2,d:tr==='p'||(tr==='tr'&&!+it.d)?0:Math.max(.3,Math.min(+it.d||6,120)),v:h[0],i:Math.max(10,Math.min(+it.i||100,200)),x:1};if(tr==='p'){const x=aiFind(TRX.map((n,i)=>[String(i),n]),it.x||'fundido');e.x=x?+x[0]:1}out.push(e)}catch(_){bad.push(String(it&&it.v||'?'))}}
- if(!out.length)throw new Error('Claude no devolvió eventos válidos.');GU.undo=JSON.stringify(GU.a);GU.a=rep?out:[...GU.a,...out];GU.selE=null;GU.a.sort((a,b)=>a.t-b.t);GU.cur=-1;GU.act={};GU.tr=-1;guSave();tlRender();tlEdit();return{n:out.length,bad}}
-async function aiCall(msgs){const key=($('aik').value.trim()||localStorage.getItem('sp_ak')||'');if(!key)throw new Error('Falta tu clave de la API de Anthropic.');
- let r;try{r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:$('aim').value.trim()||'claude-sonnet-5-5',max_tokens:3000,system:AI_SYS,messages:msgs})})}catch(_){throw new Error('No pude conectar con la API. Revisa tu internet.')}
- const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(r.status===401?'La clave no es válida (401).':r.status===429?'Límite de uso alcanzado (429). Espera un momento.':(j.error&&j.error.message)||('Error '+r.status));
- return(j.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('')}
-$('aigo').onclick=async()=>{const q=$('aip').value.trim(),o=$('aio');if(!q){o.textContent='Cuéntame qué video quieres.';return}o.textContent='🤖 Pensando…';$('aigo').disabled=true;
- try{const txt=await aiCall([...AI.h,{role:'user',content:'CONTEXTO:\n'+JSON.stringify(aiCtx())+'\n\nPETICIÓN:\n'+q}]),a=txt.indexOf('{'),b=txt.lastIndexOf('}');if(a<0||b<a)throw new Error('La respuesta no trae un guion legible.');
-  const plan=JSON.parse(txt.slice(a,b+1)),r=aiApply(plan,$('aire').checked);AI.h.push({role:'user',content:q},{role:'assistant',content:(plan.mensaje||'Listo')+' ['+r.n+' eventos]'});AI.h=AI.h.slice(-6);
-  o.textContent='🤖 '+(plan.mensaje||'Listo.')+'\n'+r.n+' eventos en la línea de tiempo'+(r.bad.length?' · '+r.bad.length+' descartados ('+r.bad.slice(0,3).join(', ')+')':'')+'.';$('guon').checked=true;$('guon').dispatchEvent(new Event('change'))}
- catch(e){o.textContent='⚠️ '+(e.message||e)}finally{$('aigo').disabled=false}};
-$('aiun').onclick=()=>{if(!GU.undo)return;GU.a=JSON.parse(GU.undo);GU.undo=null;GU.selE=null;guCommit();$('aio').textContent='↩ Deshecho.'};
-try{$('aik').value=localStorage.getItem('sp_ak')||'';$('aim').value=localStorage.getItem('sp_am')||'claude-sonnet-5-5'}catch(_){}
-$('aisv').onclick=()=>{try{localStorage.setItem('sp_ak',$('aik').value.trim());localStorage.setItem('sp_am',$('aim').value.trim());$('aio').textContent='Guardado en este navegador.'}catch(_){$('aio').textContent='No pude guardar en este navegador.'}};
-$('aikd').onclick=()=>{$('aik').value='';try{localStorage.removeItem('sp_ak')}catch(_){}$('aio').textContent='Clave borrada.'};$('aip').addEventListener('keydown',e=>e.stopPropagation());
+// ---- GUION AUTOMÁTICO: lee la energía de tu canción y arma la línea de tiempo (sin internet ni claves) ----
+try{localStorage.removeItem('sp_ak');localStorage.removeItem('sp_am')}catch(_){}
+function tlEnergy(){if(!buf)return null;const ch=buf.getChannelData(0),sr=buf.sampleRate,n=Math.min(Math.floor(buf.duration),600),o=[];for(let s=0;s<n;s++){let a=0,c=0;for(let i=s*sr;i<(s+1)*sr&&i<ch.length;i+=64){a+=ch[i]*ch[i];c++}o.push(Math.sqrt(a/Math.max(c,1)))}return o}
+function guAuto(){if(!buf){msg('Primero carga una canción y luego toca «Crear guion automático».');return}const e=tlEnergy(),n=e.length;if(n<20){msg('La canción es muy corta para armar un guion.');return}
+ const sm=e.map((_,i)=>{let a=0,c=0;for(let j=Math.max(0,i-2);j<=Math.min(n-1,i+2);j++){a+=e[j];c++}return a/c}),so=[...sm].sort((a,b)=>a-b),lo=so[Math.floor(n*.2)],hi=so[Math.floor(n*.85)],lv=sm.map(v=>Math.max(0,Math.min(1,(v-lo)/Math.max(hi-lo,1e-6)))),cl=lv.map(v=>v<.33?0:v<.66?1:2);
+ const runs=[];let cur=cl[0],st=0;for(let i=1;i<n;i++){if(cl[i]!==cur){let k=i;while(k<n&&cl[k]===cl[i])k++;if(k-i>=6||k>=n){runs.push([st,i,cur]);st=i;cur=cl[i]}}}runs.push([st,n,cur]);
+ const seg=[];for(const r of runs){if(seg.length&&(r[1]-r[0]<8||seg[seg.length-1][2]===r[2]))seg[seg.length-1][1]=r[1];else seg.push([...r])}
+ const mode=+$('guas').value,D=Math.ceil(buf.duration),bar=240/Math.max(60,Math.min(200,BPMV||120)),snap=x=>GRIDOK?Math.max(0,Math.round((BOFF+Math.round((x-BOFF)/bar)*bar)*100)/100):Math.round(x/2)*2;
+ const PL=[['p:aurora','p:hielo','p:cardio','p:foto'],['p:urbano','p:synthwave','p:gusano','p:hiper'],['p:club','p:techno','p:dorado','p:fiesta','p:tormenta','p:industrial']].map(a=>a.filter(v=>PRESETS.some(p=>'p:'+p.k===v))),LZ=['1','4','7','2','3'],out=[],cnt=[0,0,0];let last='',lzi=0,drops=0;
+ seg.forEach(([a,b,lvl],j)=>{const t0=j===0?0:snap(a),prev=j?seg[j-1][2]:-1,drop=lvl===2&&prev<2,pool=PL[lvl];let v=pool[cnt[lvl]++%pool.length];if(v===last)v=pool[cnt[lvl]++%pool.length];last=v;
+  out.push({tr:'p',t:t0,d:0,v,i:100,x:j===0?1:drop?2:lvl===2?3:1});const len=Math.max(4,b-a);
+  if(drop){drops++;out.push({tr:'fx',t:t0,d:Math.min(10,len),v:'5',i:[100,125,150][mode]});if(mode>0)out.push({tr:'lz',t:t0,d:6,v:LZ[lzi++%LZ.length],i:100})}
+  else if(lvl>=1&&mode>=1)out.push({tr:'fx',t:t0,d:Math.min(24,len),v:'6',i:80});
+  if(mode===2&&lvl===1)out.push({tr:'lz',t:t0+2,d:8,v:'6',i:90})});
+ const md=[...lv].sort((x,y)=>x-y)[n>>1];out.push({tr:'lk',t:0,d:D,v:md<.4?'1':md<.6?'2':'3',i:100});
+ GU.undo=JSON.stringify(GU.a);GU.a=out;GU.selE=null;GU.px=Math.max(2,Math.min(32,($('tlw').clientWidth||360)/(D+6)));guCommit();$('guon').checked=true;$('guon').dispatchEvent(new Event('change'));
+ const np=out.filter(e=>e.tr==='p').length;msg('Guion listo: '+np+' partes'+(drops?' ('+drops+(drops>1?' drops':' drop')+')':'')+' y '+out.length+' eventos. Dale Reproducir y ajusta lo que quieras.')}
+$('guauto').onclick=guAuto;$('guun').onclick=()=>{if(!GU.undo)return;GU.a=JSON.parse(GU.undo);GU.undo=null;GU.selE=null;guCommit()};
 $('look').addEventListener('input',()=>{});$('looki').oninput=()=>{$('lookl').textContent=$('looki').value};
 // ---- ESPECTROS PRO: anillo cósmico (espinas que giran con la música, cuernos con el bajo, centro de galaxia), corona, flor, onda circular, barras y línea ----
 const OV={e:new Float32Array(64),bs:0,hi:0,tr:[],st:0,pk:null,rot:0,w:0,sx:0,sv:0,sg:1,g:-1,neb:0,pa:0,
