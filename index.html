@@ -145,7 +145,7 @@ select.live{border-color:var(--ac2);box-shadow:0 0 0 1px rgba(0,229,255,.25),0 0
     <label>Intensidad luz y chispas: <span id="fxpl">100</span>%</label><input id="fxpi" type="range" min="0" max="200" value="100">
     <div class="row"><select id="look"><option value="0">🎞️ Look de cine: ninguno</option><option value="1">Cine suave (brillo + grano + viñeta)</option><option value="2">Cine teal y naranja</option><option value="3">Neón vibrante</option><option value="4">Película vintage 35 mm</option><option value="5">Duotono (color del tema)</option></select></div>
     <label>Intensidad look: <span id="lookl">100</span>%</label><input id="looki" type="range" min="0" max="200" value="100">
-    <div class="row"><select id="ovl"><option value="0">Espectro: ninguno</option><option value="4">💗 Anillo cósmico (espinas, cuernos y galaxia)</option><option value="5">☀️ Corona de picos (centro cósmico)</option><option value="6">🌸 Flor espectral</option><option value="7">🌀 Onda circular con ecos</option><option value="8">📶 Barras neón con reflejo</option><option value="9">〰️ Línea de onda neón con ecos</option><option value="1">Clásico: barras (abajo)</option><option value="2">Clásico: barras espejo (centro)</option><option value="3">Clásico: anillo (centro)</option></select></div>
+    <div class="row"><select id="ovl"><option value="0">Espectro: ninguno</option><option value="4">💗 Anillo cósmico (espinas, cuernos y galaxia)</option><option value="5">☀️ Corona de picos (centro cósmico)</option><option value="6">🌸 Flor espectral (doble pétalo)</option><option value="7">🌀 Cinta circular con ecos</option><option value="8">📶 Barras neón con reflejo</option><option value="9">🏔️ Cordillera de ondas (estilo Joy Division)</option><option value="1">Clásico: barras (abajo)</option><option value="2">Clásico: barras espejo (centro)</option><option value="3">Clásico: anillo (centro)</option></select></div>
     <label>Tamaño del espectro: <span id="ovsl">100</span>%</label><input id="ovs" type="range" min="50" max="170" value="100">
     <label>Fuerza: <span id="ovil">100</span>%</label><input id="ovi" type="range" min="30" max="180" value="100">
     <label>Reacción (seca ↔ suave): <span id="ovrl">12</span></label><input id="ovr" type="range" min="0" max="100" value="12">
@@ -2454,7 +2454,7 @@ async function exportCFR(st,len){
  let ap=0,lastV=-9;const vf=$('vfade').checked,clipLen=n/sr;
  for(let i=0;i<nF;i++){
   if(err)throw err;if(cancel)throw new Error('Exportación cancelada.');
-  t=i/efps;TT=st+(loopS?t%loopS:t);spec(mono,sr,t);lev();if(layersActive())eqFromPcm(mono,sr,t);
+  t=i/efps;TT=st+(loopS?t%loopS:t);spec(mono,sr,t);lev();if(layersActive()||ovOn())eqFromPcm(mono,sr,t);
   if(BG===5&&G.items.length){await galTick();const A=G.A;if(A&&A.k==='vid'){const vt=((t-G.t0)%A.dur+A.dur)%A.dur;if(vt<A.lv||vt-A.lv>=1/30){A.lv=vt;A.el.pause();await seekEl(A.el,vt)}}}
   at(t)();fxPost();
   if(vf){const a=Math.min(1,t/.3,(clipLen-t)/.5);if(a<1){pg.fillStyle='rgba(0,0,0,'+(1-Math.max(0,a))+')';pg.fillRect(0,0,W,H)}}
@@ -2885,7 +2885,7 @@ function eqStep(db,sr){eqMap(sr);let pkdb=-200,pw=0;
  EQ.m=sum/64;EQ.es+=(Edb-EQ.es)*(1-Math.exp(-dt/.18));EQ.el+=(Edb-EQ.el)*(1-Math.exp(-dt/5));if(++EQ.n<30){EQ.es=EQ.el=Edb}/* sin falsos drops mientras el análisis arranca */
  const tg=sil?0:Math.max(0,Math.min(1,(EQ.es-EQ.el-1.5)/5));EQ.drop+=(tg-EQ.drop)*(1-Math.exp(-dt/(tg>EQ.drop?.04:.8)));
  EQ.hist.push({t,b:EQ.b.slice(),d:EQ.drop});while(EQ.hist.length>45)EQ.hist.shift()}
-function eqPreview(){if(!layersActive())return;if(an2&&playing)an2.getFloatFrequencyData(EQ.db);else EQ.db.fill(-120);
+function eqPreview(){if(!layersActive()&&!ovOn())return;if(an2&&playing)an2.getFloatFrequencyData(EQ.db);else EQ.db.fill(-120);
  for(let i=0;i<2048;i++)if(!isFinite(EQ.db[i]))EQ.db[i]=-120;eqStep(EQ.db,ac?ac.sampleRate:48000)}
 const eqW=new Float32Array(4096),eqRe=new Float32Array(4096),eqIm=new Float32Array(4096);
 for(let i=0;i<4096;i++)eqW[i]=.42-.5*Math.cos(2*Math.PI*i/4096)+.08*Math.cos(4*Math.PI*i/4096);
@@ -3095,17 +3095,44 @@ function guAuto(){if(!buf){msg('Primero carga una canción y luego toca «Crear 
  const np=out.filter(e=>e.tr==='p').length;msg('Guion listo: '+np+' partes'+(drops?' ('+drops+(drops>1?' drops':' drop')+')':'')+' y '+out.length+' eventos. Dale Reproducir y ajusta lo que quieras.')}
 $('guauto').onclick=guAuto;$('guun').onclick=()=>{if(!GU.undo)return;GU.a=JSON.parse(GU.undo);GU.undo=null;GU.selE=null;guCommit()};
 $('look').addEventListener('input',()=>{});$('looki').oninput=()=>{$('lookl').textContent=$('looki').value};
-// ---- ESPECTROS PRO: anillo cósmico (espinas que giran con la música, cuernos con el bajo, centro de galaxia), corona, flor, onda circular, barras y línea ----
-const OV={e:new Float32Array(64),bs:0,hi:0,tr:[],st:0,pk:null,rot:0,w:0,sx:0,sv:0,sg:1,g:-1,neb:0,pa:0,
- stars:Array.from({length:110},()=>({z:Math.random(),a:Math.random()*6.2832,h:Math.random()})),spk:Array.from({length:90},(_,i)=>({h:.55+.45*Math.abs(Math.sin(i*12.9898)*43758.5453%1),h2:Math.abs(Math.sin(i*78.233)*12345.679%1)}))};
-function ovBands(){const d=Math.min(dt,.05),tau=.05+.35*(+$('ovr').value/100),kd=1-Math.exp(-d/tau),ka=1-Math.exp(-d/.012);   // ataque de 1 cuadro; caída en 2 a 3 cuadros (reacción seca)
- for(let k=0;k<64;k++){const a=2+Math.floor(Math.pow(k/64,1.6)*118),b=Math.max(a+1,2+Math.floor(Math.pow((k+1)/64,1.6)*118));let m=0;for(let i=a;i<b&&i<256;i++)m=Math.max(m,fd[i]);const v=Math.min(1,Math.pow(m/255,1.4)*(1+k/64*.8));OV.e[k]+=(v-OV.e[k])*(v>OV.e[k]?ka:kd)}
- const bv=Math.min(1,bass*1.25);OV.bs+=(bv-OV.bs)*(bv>OV.bs?ka:kd);let hs=0;for(let i=130;i<256;i++)hs+=fd[i];const hv=Math.min(1,hs/126/70);OV.hi+=(hv-OV.hi)*(hv>OV.hi?ka:kd)}
-function ovPhys(d,G){if(OV.g!==gOn){if(OV.g!==-1){OV.w-=(1.2+1.6*Math.min(1.2,beat))*G;OV.sv+=OV.sg*(5+4*Math.min(1.2,beat));OV.sg=-OV.sg}OV.g=gOn}   // cada golpe empuja el giro; los cuernos oscilan de lado a lado
+// ---- ESPECTROS PRO v2: análisis fino (FFT 4096 -> 96 bandas logarítmicas), curvas suaves, brillo aditivo y picos con gravedad ----
+const SPN=96;
+const SP={b:new Float32Array(SPN),s:new Float32Array(SPN),pk:new Float32Array(SPN),pv:new Float32Array(SPN),raw:new Float32Array(SPN),vs:new Float32Array(SPN),vp:new Float32Array(SPN),agc:-30,msr:0,lo:null,hi:null,fc:null,init:false,hist:[],eb:0,eh:0,em:0};
+const OV={bs:0,hi:0,md:0,tr:[],st:0,rot:0,w:0,sx:0,sv:0,sg:1,g:-1,neb:0,pa:0,rows:[],rt:-1e9,P:new Float32Array(800),
+ stars:Array.from({length:110},()=>({z:Math.random(),a:Math.random()*6.2832,h:Math.random()}))};
+function ovOn(){return+$('ovl').value>3}
+function spMap(sr){if(SP.msr===sr)return;SP.msr=sr;const df=sr/4096;SP.lo=new Float32Array(SPN);SP.hi=new Float32Array(SPN);SP.fc=new Float32Array(SPN);
+ for(let k=0;k<SPN;k++){const f0=35*Math.pow(457.14,k/SPN),f1=35*Math.pow(457.14,(k+1)/SPN);SP.lo[k]=f0/df;SP.hi[k]=f1/df;SP.fc[k]=Math.sqrt(f0*f1)}}
+// 96 bandas (35 Hz a 16 kHz) con interpolación suave en graves, compensación de pendiente, autoganancia, ataque de 1 cuadro y picos con gravedad
+function ovBands(){const d=Math.min(dt,.05);spMap(EQ.msr||48000);const db=EQ.db;let pkdb=-200;
+ for(let k=0;k<SPN;k++){const lo=SP.lo[k],hi=SP.hi[k];let v;
+  if(hi-lo<1.5){const c=(lo+hi)/2,i=Math.min(2046,Math.max(0,Math.floor(c))),f=c-i;v=db[i]*(1-f)+db[i+1]*f}
+  else{v=-200;for(let i=Math.floor(lo);i<=Math.min(2047,Math.ceil(hi));i++)if(db[i]>v)v=db[i]}
+  v+=4*Math.log2(SP.fc[k]/1000);SP.raw[k]=v;if(v>pkdb)pkdb=v}
+ const sil=pkdb<-70;if(!SP.init){SP.agc=pkdb;SP.init=true}
+ SP.agc=Math.max(pkdb,SP.agc-(6+Math.max(0,SP.agc-pkdb-16)*.8)*d);
+ const tau=.05+.30*(+$('ovr').value/100),ka=1-Math.exp(-d/.014),kd=1-Math.exp(-d/tau);
+ for(let k=0;k<SPN;k++){let v=sil?0:Math.max(0,Math.min(1,(SP.raw[k]-(SP.agc-50))/50));v=Math.pow(v,1.35);SP.b[k]+=(v-SP.b[k])*(v>SP.b[k]?ka:kd)}
+ for(let k=0;k<SPN;k++)SP.s[k]=.25*SP.b[Math.max(0,k-1)]+.5*SP.b[k]+.25*SP.b[Math.min(SPN-1,k+1)];
+ for(let k=0;k<SPN;k++){if(SP.s[k]>=SP.pk[k]){SP.pk[k]=SP.s[k];SP.pv[k]=0}else{SP.pv[k]+=d*1.7;SP.pk[k]=Math.max(SP.s[k],SP.pk[k]-SP.pv[k]*d)}}
+ let sb=0,sm=0,sh=0;for(let k=0;k<20;k++)sb+=SP.s[k];for(let k=20;k<58;k++)sm+=SP.s[k];for(let k=58;k<SPN;k++)sh+=SP.s[k];
+ const bv=Math.min(1,sb/20*1.4),mv=Math.min(1,sm/38*1.5),hv=Math.min(1,sh/38*1.7);
+ SP.eb+=(bv-SP.eb)*(bv>SP.eb?ka:kd);SP.em+=(mv-SP.em)*(mv>SP.em?ka:kd);SP.eh+=(hv-SP.eh)*(hv>SP.eh?ka:kd);
+ if(SP.hist.length&&t<SP.hist[SP.hist.length-1].t-.5)SP.hist.length=0;
+ SP.hist.push({t,s:Float32Array.from(SP.s),p:Float32Array.from(SP.pk),b:SP.eb,h:SP.eh,m:SP.em});while(SP.hist.length>45)SP.hist.shift();
+ const want=t-(busy?0:DL)/1000;let h=SP.hist[0];for(const e of SP.hist){if(e.t<=want)h=e;else break}   // compensa la latencia del audio igual que el resto de la app
+ SP.vs=h.s;SP.vp=h.p;OV.bs=h.b;OV.hi=h.h;OV.md=h.m}
+function ovPhys(d,G){if(OV.g!==gOn){if(OV.g!==-1){OV.w-=(1.2+1.6*Math.min(1.2,beat))*G;OV.sv+=OV.sg*(5+4*Math.min(1.2,beat));OV.sg=-OV.sg}OV.g=gOn}   // cada golpe empuja el giro
  OV.w+=(-(.18+1.0*OV.bs+.5*OV.hi)*G-OV.w)*(1-Math.exp(-d*6));OV.rot+=OV.w*d;OV.sv+=(-OV.sx*150-OV.sv*10)*d;OV.sx+=OV.sv*d;OV.neb+=d*(.12+.7*OV.hi);OV.pa+=d*(1.1+3.5*OV.hi+1.5*OV.bs)}
-const ovBi=u=>{const x=Math.max(0,Math.min(63,u*63)),i=Math.floor(x),f=x-i,a=OV.e[i],b=OV.e[Math.min(63,i+1)];return a+(b-a)*f*f*(3-2*f)};
-function ovContour(R0,A,fn,n){const p=new Float32Array(n),q=new Float32Array(n);for(let i=0;i<n;i++)p[i]=R0+A*fn(i/n);for(let i=0;i<n;i++)q[i]=(p[(i+n-2)%n]+4*p[(i+n-1)%n]+6*p[i]+4*p[(i+1)%n]+p[(i+2)%n])/16;return q}
-function ovRR(x,y,w,h,r){r=Math.min(r,w/2,h/2);g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();g.fill()}
+// valor del espectro en u (0..1) con interpolación cúbica (Catmull-Rom): sin escalones
+const spAt=(u,A)=>{const x=Math.max(0,Math.min(1,u))*(SPN-1),i=Math.floor(x),f=x-i,p0=A[Math.max(0,i-1)],p1=A[i],p2=A[Math.min(SPN-1,i+1)],p3=A[Math.min(SPN-1,i+2)];return Math.max(0,p1+.5*f*(p2-p0+f*(2*p0-5*p1+4*p2-p3+f*(3*(p1-p2)+p3-p0))))};
+// curva suave (Catmull-Rom -> bezier) por una lista plana de puntos [x0,y0,x1,y1,...]
+function ovPath(P,n,closed,cont){if(!cont)g.beginPath();g.moveTo(P[0],P[1]);const m=closed?n:n-1;
+ for(let i=0;i<m;i++){let a,b,c,e;if(closed){a=((i+n-1)%n)*2;b=i*2;c=((i+1)%n)*2;e=((i+2)%n)*2}else{a=Math.max(0,i-1)*2;b=i*2;c=(i+1)*2;e=Math.min(n-1,i+2)*2}
+  g.bezierCurveTo(P[b]+(P[c]-P[a])/6,P[b+1]+(P[c+1]-P[a+1])/6,P[c]-(P[e]-P[b])/6,P[c+1]-(P[e+1]-P[b+1])/6,P[c],P[c+1])}
+ if(closed)g.closePath()}
+function ovSm(a,n,p){const b=new Float32Array(n);for(let q=0;q<p;q++){for(let i=0;i<n;i++)b[i]=(a[(i+n-2)%n]+4*a[(i+n-1)%n]+6*a[i]+4*a[(i+1)%n]+a[(i+2)%n])/16;a.set(b)}return a}   // suavizado circular: contornos sin dientes
+function ovRR(x,y,w,h,r){r=Math.min(r,w/2,h/2);if(r<0)r=0;g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();g.fill()}
 function ovCosmos(cx,cy,R,k,rgb,rgb2,d){const TAU=6.2832;g.save();g.beginPath();g.arc(cx,cy,R,0,TAU);g.clip();
  const bg=g.createRadialGradient(cx,cy,0,cx,cy,R);bg.addColorStop(0,'rgb(22,6,44)');bg.addColorStop(.7,'rgb(7,2,16)');bg.addColorStop(1,'rgb(2,0,6)');g.fillStyle=bg;g.fillRect(cx-R,cy-R,2*R,2*R);g.globalCompositeOperation='lighter';
  for(let j=0;j<3;j++){const a=OV.neb*(.6+j*.35)+j*2.1,r=R*(.38+.1*j),x=cx+Math.cos(a)*r,y=cy+Math.sin(a*1.3)*r*.8,col=j===1?rgb2:j===2?'150,90,255':rgb,q=g.createRadialGradient(x,y,0,x,y,R*(.75+.25*OV.bs));q.addColorStop(0,'rgba('+col+','+(.26+.25*OV.bs)+')');q.addColorStop(1,'rgba('+col+',0)');g.fillStyle=q;g.fillRect(cx-R,cy-R,2*R,2*R)}
@@ -3115,40 +3142,63 @@ function ovCosmos(cx,cy,R,k,rgb,rgb2,d){const TAU=6.2832;g.save();g.beginPath();
  const cr=R*(.11+.17*OV.bs),q=g.createRadialGradient(cx,cy,0,cx,cy,cr*2.6);q.addColorStop(0,'rgba(255,255,255,'+Math.min(1,.6+.3*OV.bs)+')');q.addColorStop(.25,'rgba('+rgb+',.7)');q.addColorStop(1,'rgba('+rgb+',0)');g.fillStyle=q;g.fillRect(cx-R,cy-R,2*R,2*R);
  g.save();g.translate(cx,cy);g.rotate(OV.neb*.5);g.scale(1,.32);g.strokeStyle='rgba(255,255,255,.3)';g.lineWidth=1.5*k*3;g.beginPath();g.arc(0,0,R*.64,0,TAU);g.stroke();
  const px=Math.cos(OV.pa)*R*.64,py=Math.sin(OV.pa)*R*.64,pg2=g.createRadialGradient(px,py,0,px,py,14*k*3);pg2.addColorStop(0,'rgba(255,255,255,1)');pg2.addColorStop(1,'rgba('+rgb2+',0)');g.fillStyle=pg2;g.beginPath();g.arc(px,py,14*k*3,0,TAU);g.fill();g.restore();g.restore()}
-function ovPro(o){const k=W/1080,sz=+$('ovs').value/100,I=+$('ovi').value/100,G=+$('ovg').value/100,cx=W/2+CX,cy=H/2+CY,d=Math.min(dt,.05);ovBands();ovPhys(d,G);if(OV.st!==o){OV.st=o;OV.tr=[];OV.pk=null}
- const cc=layerTargets(),Rn=x=>Math.round(x*255),rgb=cc.slice(0,3).map(Rn).join(','),rgb2=cc.slice(3,6).map(Rn).join(','),pulse=1+.07*OV.bs*I,TAU=6.2832,ang=f=>f*TAU-1.5708,mir=f=>{const a=f*2;return a<1?a:2-a};
+function ovPro(o){const k=W/1080,sz=+$('ovs').value/100,I=+$('ovi').value/100,G=+$('ovg').value/100,cx=W/2+CX,cy=H/2+CY,d=Math.min(dt,.05);ovBands();ovPhys(d,G);if(OV.st!==o){OV.st=o;OV.tr=[];OV.rows=[];OV.rt=-1e9}
+ const cc=layerTargets(),Rn=x=>Math.round(x*255),rgb=cc.slice(0,3).map(Rn).join(','),rgb2=cc.slice(3,6).map(Rn).join(','),pulse=1+.07*OV.bs*I,TAU=6.2832,ang=f=>f*TAU-1.5708,mir=f=>{const a=f*2;return a<1?a:2-a},vs=SP.vs,vp=SP.vp,V=(u,A)=>spAt(.02+u*.9,A);
  g.save();g.lineCap='round';g.lineJoin='round';
- const neon=(al,wk)=>{g.strokeStyle='rgba('+rgb+','+.16*al+')';g.lineWidth=22*k*wk;g.stroke();g.strokeStyle='rgba('+rgb+','+.5*al+')';g.lineWidth=9*k*wk;g.stroke();g.strokeStyle='rgba(255,255,255,'+.95*al+')';g.lineWidth=2.8*k*wk;g.stroke()};
- const trace=(p,sc,rot)=>{const n=p.length;g.beginPath();for(let i=0;i<n;i++){const a=ang(i/n)+rot,r=p[i]*sc,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;i?g.lineTo(x,y):g.moveTo(x,y)}g.closePath()};
- const disc=R=>{ovCosmos(cx,cy,R,k,rgb,rgb2,d);g.beginPath();g.arc(cx,cy,R,0,TAU);neon(.55,.45)};
- if(o===4){const Rd=270*k*sz*pulse,lob=ovContour(Rd*1.04,Rd*1.0*I,f=>Math.pow(Math.max(0,ovBi(.06+mir(f)*.86)-.16)/.84,1.5),240);OV.tr.push(lob);if(OV.tr.length>9)OV.tr.shift();   // cuernos: solo aparecen con el bajo fuerte
-  for(let e=3;e>=1;e--){const q=OV.tr[OV.tr.length-1-e*2];if(!q)continue;trace(q,1+.035*e,OV.sx);neon(.34/e,.55)}
-  trace(lob,1,OV.sx);g.fillStyle='rgba(8,0,6,.55)';g.fill();neon(1,1);
-  for(let i=0;i<90;i++){const f=i/90,S=OV.spk[i],v=ovBi(.04+mir(f)*.92+.04*(S.h2-.5)),len=8*k+(v*S.h*.85+OV.hi*S.h2*.5)*Rd*.5*I,a=ang(f)+OV.rot,x0=Rd*1.02,x1=x0+len,hw=.021;   // 90 espinas de largo irregular que giran
-   g.beginPath();g.moveTo(cx+Math.cos(a-hw)*x0,cy+Math.sin(a-hw)*x0);g.lineTo(cx+Math.cos(a)*x1,cy+Math.sin(a)*x1);g.lineTo(cx+Math.cos(a+hw)*x0,cy+Math.sin(a+hw)*x0);g.closePath();g.fillStyle='rgba(255,255,255,.92)';g.fill();g.strokeStyle='rgba('+rgb+',.55)';g.lineWidth=2.2*k;g.stroke()}
-  for(let j=0;j<8;j++){const a=ang((j*.381966)%1)+OV.rot,s=(9+OV.hi*30+OV.bs*16+8*Math.sin(t*5+j*2))*k*sz,x=cx+Math.cos(a)*(Rd*1.02+14*k),y=cy+Math.sin(a)*(Rd*1.02+14*k);   // destellos de 4 puntas
+ const gs=rot=>{if(!g.createConicGradient)return'rgb('+rgb+')';const q=g.createConicGradient(rot-1.5708,cx,cy);q.addColorStop(0,'rgb('+rgb+')');q.addColorStop(.5,'rgb('+rgb2+')');q.addColorStop(1,'rgb('+rgb+')');return q};   // color que recorre el contorno
+ const glow=(st,al,wk)=>{g.globalCompositeOperation='lighter';g.strokeStyle=st;g.globalAlpha=.1*al;g.lineWidth=26*k*wk;g.stroke();g.globalAlpha=.28*al;g.lineWidth=10*k*wk;g.stroke();g.globalAlpha=.9*al;g.lineWidth=3.2*k*wk;g.stroke();g.globalCompositeOperation='source-over';g.globalAlpha=al;g.strokeStyle='rgba(255,255,255,.9)';g.lineWidth=1.3*k*wk;g.stroke();g.globalAlpha=1};
+ const ring=(vals,R0,A,rot,n,minR,cont)=>{const P=OV.P;for(let i=0;i<n;i++){const a=ang(i/n)+rot,r=Math.max(minR||0,R0+A*vals[i]);P[i*2]=cx+Math.cos(a)*r;P[i*2+1]=cy+Math.sin(a)*r}ovPath(P,n,true,cont)};
+ const disc=R=>{ovCosmos(cx,cy,R,k,rgb,rgb2,d);g.beginPath();g.arc(cx,cy,R,0,TAU);glow('rgb('+rgb+')',.6,.45)};
+ if(o===4){const Rd=250*k*sz*pulse,Rb=Rd*1.05,n=160,hv=new Float32Array(n);
+  for(let i=0;i<n;i++)hv[i]=Math.pow(Math.max(0,V(mir(i/n)*.5,vs)-.22)/.78,1.5);   // cuernos: solo aparecen con el bajo fuerte
+  ovSm(hv,n,2);OV.tr.push(hv);if(OV.tr.length>9)OV.tr.shift();
+  for(let e=3;e>=1;e--){const q=OV.tr[OV.tr.length-1-e*2];if(!q)continue;ring(q,Rb*(1+.03*e),Rd*I,OV.sx,n);glow('rgb('+rgb+')',.3/e,.5)}
+  ring(hv,Rb,Rd*I,OV.sx,n);{const ag=g.createRadialGradient(cx,cy,Rd*.9,cx,cy,Rd*2);ag.addColorStop(0,'rgba('+rgb2+',.42)');ag.addColorStop(1,'rgba('+rgb+',0)');g.fillStyle=ag;g.fill()}glow(gs(OV.sx),1,1);
+  g.beginPath();for(let i=0;i<96;i++){const f=i/96,v=Math.pow(V(mir(f),vs),1.1),len=7*k+v*Rd*.62*I,a=ang(f)+OV.rot,hw=.0135,x0=Rb,x1=Rb+len;   // 96 espinas finas, una por banda, que giran con la música
+   g.moveTo(cx+Math.cos(a-hw)*x0,cy+Math.sin(a-hw)*x0);g.lineTo(cx+Math.cos(a)*x1,cy+Math.sin(a)*x1);g.lineTo(cx+Math.cos(a+hw)*x0,cy+Math.sin(a+hw)*x0);g.closePath()}
+  g.globalCompositeOperation='lighter';g.strokeStyle='rgba('+rgb+',.2)';g.lineWidth=8*k;g.stroke();g.globalCompositeOperation='source-over';g.fillStyle='rgba(255,255,255,.94)';g.fill();g.strokeStyle='rgba('+rgb+',.65)';g.lineWidth=1.5*k;g.stroke();
+  g.beginPath();for(let i=0;i<96;i++){const f=i/96,v=Math.pow(V(mir(f),vp),1.1),a=ang(f)+OV.rot,r=Rb+7*k+v*Rd*.62*I+9*k,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;g.moveTo(x+2.4*k,y);g.arc(x,y,2.4*k,0,TAU)}g.fillStyle='rgba('+rgb2+',.95)';g.fill();   // puntos de pico que caen con gravedad
+  for(let j=0;j<8;j++){const a=ang((j*.381966)%1)+OV.rot,s=(9+OV.hi*30+OV.bs*16+8*Math.sin(t*5+j*2))*k*sz,x=cx+Math.cos(a)*(Rb+14*k),y=cy+Math.sin(a)*(Rb+14*k);   // destellos de 4 puntas
    g.fillStyle='rgba('+rgb+',.35)';g.beginPath();g.arc(x,y,s*.9,0,TAU);g.fill();g.fillStyle='rgba(255,255,255,.95)';g.beginPath();g.moveTo(x,y-s);g.lineTo(x+s*.18,y-s*.18);g.lineTo(x+s,y);g.lineTo(x+s*.18,y+s*.18);g.lineTo(x,y+s);g.lineTo(x-s*.18,y+s*.18);g.lineTo(x-s,y);g.lineTo(x-s*.18,y-s*.18);g.closePath();g.fill()}
-  disc(Rd);g.beginPath();g.arc(cx,cy,Rd*.93,0,TAU);g.strokeStyle='rgba(255,255,255,.3)';g.lineWidth=1.6*k;g.stroke()}
- else if(o===6||o===7){const n=240,R0=230*k*sz*pulse;let pts,rot=0,Rd=R0*.88;
-  if(o===6){rot=OV.rot*.35+OV.sx*.5;Rd=R0*.5;pts=ovContour(R0*.6,R0*.95*I,f=>{const s=f*6;return Math.pow(ovBi(.03+mir(s-Math.floor(s))*.85),1.1)},n)}
-  else{Rd=0;pts=ovContour(R0*.85,R0*.7*I,f=>{let s=0;for(let h=1;h<=14;h++)s+=ovBi(h/15)*Math.sin(TAU*h*f+t*(.4+h*.07)+h*1.7)/Math.pow(h,.35);return s*.55},n)}
-  OV.tr.push(pts);if(OV.tr.length>9)OV.tr.shift();
-  for(let e=3;e>=1;e--){const q=OV.tr[OV.tr.length-1-e*2];if(!q)continue;trace(q,1+.04*e,rot-(o===6?.03*e:0));neon(.34/e,.55)}
-  trace(pts,1,rot);if(o!==7){g.fillStyle='rgba(8,0,6,.5)';g.fill()}neon(1,1);if(Rd)disc(Rd)}
- else if(o===5){const n=120,R0=215*k*sz*pulse,rot=OV.rot*.5;if(!OV.pk)OV.pk=new Float32Array(n);
-  for(let i=0;i<n;i++){const f=i/n,v=Math.pow(ovBi(.02+mir(f)*.95),.95),len=(8+v*190*I)*k*sz,a=ang(f)+rot,c=Math.cos(a),s=Math.sin(a);OV.pk[i]=Math.max(len,OV.pk[i]-d*160*k);
-   g.beginPath();g.moveTo(cx+c*R0,cy+s*R0);g.lineTo(cx+c*(R0+len),cy+s*(R0+len));g.strokeStyle='rgba('+rgb+',.22)';g.lineWidth=15*k;g.stroke();g.strokeStyle='rgba(255,255,255,.95)';g.lineWidth=4.2*k;g.stroke();
-   g.fillStyle='rgba('+rgb2+',.95)';g.beginPath();g.arc(cx+c*(R0+OV.pk[i]+10*k),cy+s*(R0+OV.pk[i]+10*k),2.8*k,0,TAU);g.fill()}
-  g.beginPath();g.arc(cx,cy,R0-8*k,0,TAU);neon(.8,.6);disc(R0*.9)}
- else if(o===8){const N=36,x0=60*k,x1=W-60*k,bw=(x1-x0)/N,base=H*.7,mh=H*.2*I*sz;if(!OV.pk)OV.pk=new Float32Array(64);
-  for(let i=0;i<N;i++){const v=Math.pow(ovBi(.02+i/N*.95),.9),h=10*k+v*mh*(.75+OV.bs*.4),x=x0+i*bw+bw*.14,w=bw*.72;OV.pk[i]=Math.max(h,OV.pk[i]-d*140*k);
-   const gr=g.createLinearGradient(0,base-h,0,base);gr.addColorStop(0,'rgb('+rgb+')');gr.addColorStop(1,'rgb('+rgb2+')');
-   g.fillStyle='rgba('+rgb+',.18)';ovRR(x-5*k,base-h-5*k,w+10*k,h+5*k,w*.6);g.fillStyle=gr;ovRR(x,base-h,w,h,w*.5);g.fillStyle='rgba(255,255,255,.85)';ovRR(x+w*.3,base-h,w*.4,Math.min(h,12*k),w*.2);
-   g.fillStyle='rgba(255,255,255,.9)';ovRR(x,base-OV.pk[i]-10*k,w,4*k,2*k);g.globalAlpha=.22;g.fillStyle=gr;ovRR(x,base+6*k,w,h*.45,w*.5);g.globalAlpha=1}}
- else if(o===9){const n=140,base=H*.62,amp=H*.16*I*sz,p=new Float32Array(n),s2=new Float32Array(n);for(let i=0;i<n;i++)p[i]=Math.pow(ovBi(.02+mir(i/(n-1))*.9),1.1)*(.8+OV.bs*.5);
-  for(let i=0;i<n;i++)s2[i]=(p[Math.max(0,i-2)]+4*p[Math.max(0,i-1)]+6*p[i]+4*p[Math.min(n-1,i+1)]+p[Math.min(n-1,i+2)])/16;OV.tr.push(s2);if(OV.tr.length>9)OV.tr.shift();
-  const line=(q,dy,sc,al,wk)=>{g.beginPath();for(let i=0;i<n;i++){const x=60*k+(W-120*k)*i/(n-1),y=base+dy-q[i]*amp*sc;i?g.lineTo(x,y):g.moveTo(x,y)}neon(al,wk)};
-  for(let e=3;e>=1;e--){const q=OV.tr[OV.tr.length-1-e*2];if(q)line(q,e*14*k,1,.3/e,.55)}line(s2,8*k,-.35,.3,.5);line(s2,0,1,1,1)}
+  disc(Rd);g.beginPath();g.arc(cx,cy,Rd*.93,0,TAU);g.strokeStyle='rgba(255,255,255,.3)';g.lineWidth=1.4*k;g.stroke()}
+ else if(o===5){const R0=215*k*sz*pulse,n=120,rot=OV.rot*.5,gst=gs(rot);
+  g.beginPath();g.arc(cx,cy,R0-9*k,0,TAU);glow(gst,.75,.55);
+  g.beginPath();for(let i=0;i<n;i++){const f=i/n,v=Math.pow(V(mir(f),vs),.95),len=(7+v*195*I)*k*sz,a=ang(f)+rot,c=Math.cos(a),s=Math.sin(a);g.moveTo(cx+c*R0,cy+s*R0);g.lineTo(cx+c*(R0+len),cy+s*(R0+len))}
+  g.globalCompositeOperation='lighter';g.strokeStyle=gst;g.globalAlpha=.16;g.lineWidth=15*k;g.stroke();g.globalAlpha=.42;g.lineWidth=7*k;g.stroke();g.globalCompositeOperation='source-over';g.globalAlpha=.8;g.strokeStyle=gst;g.lineWidth=4.2*k;g.stroke();g.globalAlpha=.95;g.strokeStyle='#fff';g.lineWidth=2.2*k;g.stroke();g.globalAlpha=1;
+  g.beginPath();for(let i=0;i<n;i++){const f=i/n,v=Math.pow(V(mir(f),vp),.95),r=R0+(7+v*195*I)*k*sz+11*k,a=ang(f)+rot,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;g.moveTo(x+2.6*k,y);g.arc(x,y,2.6*k,0,TAU)}g.fillStyle='rgba('+rgb2+',.95)';g.fill();
+  disc(R0*.9)}
+ else if(o===6){const R0=235*k*sz*pulse,n=360,rot=OV.rot*.35+OV.sx*.5,Rd=R0*.4,pv=new Float32Array(n),pv2=new Float32Array(n);
+  for(let i=0;i<n;i++){const s=i/n*6,u=1-mir(s-Math.floor(s)),s2=i/n*9,u2=.25+.7*(1-mir(s2-Math.floor(s2)));pv[i]=Math.pow(V(u*.62,vs),1.05);pv2[i]=Math.pow(V(u2,vs),1.1)}   // 6 pétalos grandes (punta = graves) y 9 pequeños (agudos)
+  ovSm(pv,n,3);ovSm(pv2,n,2);OV.tr.push(pv);if(OV.tr.length>9)OV.tr.shift();
+  for(let e=3;e>=1;e--){const q=OV.tr[OV.tr.length-1-e*2];if(!q)continue;const sc=1+.045*e;ring(q,R0*.55*sc,R0*.95*I*sc,rot,n);glow('rgb('+rgb+')',.3/e,.5)}
+  ring(pv,R0*.55,R0*.95*I,rot,n);{const fg=g.createRadialGradient(cx,cy,Rd,cx,cy,R0*1.7);fg.addColorStop(0,'rgba('+rgb2+',.34)');fg.addColorStop(1,'rgba('+rgb+',.04)');g.fillStyle=fg;g.fill()}glow(gs(rot),1,1);
+  ring(pv2,R0*.3,R0*.42*I,-rot*1.4,n);g.fillStyle='rgba('+rgb+',.16)';g.fill();glow(gs(-rot*1.4),.8,.7);
+  disc(Rd*.92)}
+ else if(o===7){const R0=225*k*sz*pulse,n=240,rot=OV.rot*.3,Rd=R0*.5,A=R0*.38*I,vv=new Float32Array(n);
+  for(let i=0;i<n;i++)vv[i]=Math.pow(V(mir((i/n*2)%1),vs),1.05);ovSm(vv,n,1);   // cinta: el borde exterior sube con el espectro y el interior baja un poco
+  OV.tr.push(vv);if(OV.tr.length>13)OV.tr.shift();
+  for(let e=4;e>=1;e--){const q=OV.tr[OV.tr.length-1-e*3];if(!q)continue;const sc=1+.05*e;ring(q,R0*sc,A*sc,rot,n);glow('rgb('+rgb+')',.26/e,.5)}   // ecos que se alejan del centro
+  ring(vv,R0,A,rot,n);ring(vv,R0,-A*.35,rot,n,Rd*1.05,true);{const fg=g.createRadialGradient(cx,cy,Rd,cx,cy,R0+A);fg.addColorStop(0,'rgba('+rgb2+',.6)');fg.addColorStop(1,'rgba('+rgb+',.24)');g.fillStyle=fg;g.fill('evenodd')}
+  ring(vv,R0,A,rot,n);glow(gs(rot),1,1.25);ring(vv,R0,-A*.35,rot,n,Rd*1.05);glow(gs(rot),.75,.8);
+  disc(Rd)}
+ else if(o===8){const N=56,x0=56*k,x1=W-56*k,bw=(x1-x0)/N,base=H*.7,mh=H*.22*I*sz,w=bw*.68,boost=.8+OV.bs*.35;
+  const gr=g.createLinearGradient(0,base,0,base-mh*1.25);gr.addColorStop(0,'rgb('+rgb2+')');gr.addColorStop(1,'rgb('+rgb+')');
+  const rg=g.createLinearGradient(0,base+6*k,0,base+mh*.55);rg.addColorStop(0,'rgba('+rgb+',.4)');rg.addColorStop(1,'rgba('+rgb+',0)');
+  const H1=new Float32Array(N),HP=new Float32Array(N);for(let i=0;i<N;i++){const u=i/(N-1);H1[i]=5*k+Math.pow(V(u,vs),.95)*mh*boost;HP[i]=5*k+Math.pow(V(u,vp),.95)*mh*boost}
+  g.globalCompositeOperation='lighter';g.globalAlpha=.2;g.fillStyle=gr;for(let i=0;i<N;i++){const x=x0+i*bw+(bw-w)/2;ovRR(x-4*k,base-H1[i]-4*k,w+8*k,H1[i]+4*k,(w+8*k)*.5)}g.globalAlpha=1;g.globalCompositeOperation='source-over';   // resplandor
+  g.fillStyle=rg;for(let i=0;i<N;i++){const x=x0+i*bw+(bw-w)/2;ovRR(x,base+6*k,w,H1[i]*.5,w*.5)}   // reflejo que se desvanece
+  g.fillStyle=gr;for(let i=0;i<N;i++){const x=x0+i*bw+(bw-w)/2;ovRR(x,base-H1[i],w,H1[i],w*.5)}
+  g.fillStyle='rgba(255,255,255,.55)';for(let i=0;i<N;i++){const x=x0+i*bw+(bw-w)/2;ovRR(x+w*.14,base-H1[i]+2*k,w*.14,Math.max(0,H1[i]*.5-4*k),w*.07)}   // brillo central
+  g.fillStyle='rgba(255,255,255,.95)';for(let i=0;i<N;i++){const x=x0+i*bw+(bw-w)/2;ovRR(x,base-HP[i]-9*k,w,3.2*k,1.6*k)}   // tapas de pico
+  g.globalCompositeOperation='lighter';g.fillStyle='rgba('+rgb+',.55)';g.fillRect(x0,base+1*k,x1-x0,2*k);g.globalCompositeOperation='source-over'}
+ else if(o===9){const n=128,base=H*.76,amp=H*.105*I*sz*(.9+.25*OV.bs),gap=44*k,NR=12,x0=70*k,x1=W-70*k,dtr=.055;
+  if(t<OV.rt||OV.rt<-1e8)OV.rt=t;if(t-OV.rt>=dtr){OV.rows.unshift(Float32Array.from(vs));if(OV.rows.length>NR)OV.rows.pop();OV.rt=t}
+  const ph=Math.min(1,(t-OV.rt)/dtr),hg=g.createLinearGradient(x0,0,x1,0);hg.addColorStop(0,'rgb('+rgb2+')');hg.addColorStop(.5,'rgb('+rgb+')');hg.addColorStop(1,'rgb('+rgb2+')');
+  const row=(A,yb,sc,al,front)=>{const P=OV.P;for(let i=0;i<n;i++){const q=i/(n-1),x=x0+(x1-x0)*q,wn=Math.pow(Math.sin(Math.PI*q),.6),u=Math.abs(2*q-1);P[i*2]=x;P[i*2+1]=yb-V(u,A)*wn*amp*sc}   // graves al centro, agudos a los lados
+   ovPath(P,n,false);g.lineTo(x1,yb+3*k);g.lineTo(x0,yb+3*k);g.closePath();g.fillStyle='rgba(5,0,12,.86)';g.fill();
+   ovPath(P,n,false);if(front)glow(hg,1,.8);else{g.strokeStyle=hg;g.globalAlpha=al;g.lineWidth=2.2*k;g.stroke();g.globalAlpha=1}};
+  for(let j=NR-1;j>=0;j--){const A=OV.rows[j];if(!A)continue;const jj=j+ph;row(A,base-jj*gap,1-.035*jj,Math.max(.12,1-jj*.075),false)}   // las filas viejas suben y se apagan
+  row(vs,base,1,1,true)}
  g.restore()}
 $('ovs').oninput=()=>{$('ovsl').textContent=$('ovs').value};$('ovi').oninput=()=>{$('ovil').textContent=$('ovi').value};$('ovr').oninput=()=>{$('ovrl').textContent=$('ovr').value};$('ovg').oninput=()=>{$('ovgl').textContent=$('ovg').value};
 window.lvReady=true;sync();
