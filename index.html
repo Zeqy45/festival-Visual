@@ -145,7 +145,7 @@ select.live{border-color:var(--ac2);box-shadow:0 0 0 1px rgba(0,229,255,.25),0 0
     <label>Intensidad luz y chispas: <span id="fxpl">100</span>%</label><input id="fxpi" type="range" min="0" max="200" value="100">
     <div class="row"><select id="look"><option value="0">🎞️ Look de cine: ninguno</option><option value="1">Cine suave (brillo + grano + viñeta)</option><option value="2">Cine teal y naranja</option><option value="3">Neón vibrante</option><option value="4">Película vintage 35 mm</option><option value="5">Duotono (color del tema)</option></select></div>
     <label>Intensidad look: <span id="lookl">100</span>%</label><input id="looki" type="range" min="0" max="200" value="100">
-    <div class="row"><select id="ovl"><option value="0">Espectro: ninguno</option><option value="4">💗 Anillo cósmico (espinas, cuernos y galaxia)</option><option value="5">☀️ Corona de picos (centro cósmico)</option><option value="6">🌸 Flor espectral (doble pétalo)</option><option value="7">🌀 Cinta circular con ecos</option><option value="8">📶 Barras neón con reflejo</option><option value="9">🏔️ Cordillera de ondas (estilo Joy Division)</option><option value="1">Clásico: barras (abajo)</option><option value="2">Clásico: barras espejo (centro)</option><option value="3">Clásico: anillo (centro)</option></select></div>
+    <div class="row"><select id="ovl"><option value="0">Espectro: ninguno</option><option value="4">⚙️ Engranajes de reloj (dientes y rayos)</option><option value="5">🕰️ Esfera de reloj (marcas y manecilla al ritmo)</option><option value="6">🌸 Flor espectral (doble pétalo)</option><option value="7">🌀 Cinta circular con ecos</option><option value="8">📶 Barras neón con reflejo</option><option value="9">🏔️ Cordillera de ondas (estilo Joy Division)</option><option value="1">Clásico renovado: barras LED (abajo)</option><option value="2">Clásico renovado: barras espejo (centro)</option><option value="3">Clásico renovado: anillo de onda (centro)</option></select></div>
     <label>Tamaño del espectro: <span id="ovsl">100</span>%</label><input id="ovs" type="range" min="50" max="170" value="100">
     <label>Fuerza: <span id="ovil">100</span>%</label><input id="ovi" type="range" min="30" max="180" value="100">
     <label>Reacción (seca ↔ suave): <span id="ovrl">12</span></label><input id="ovr" type="range" min="0" max="100" value="12">
@@ -2309,7 +2309,7 @@ const curLen=()=>{const b=+$('bars').value;if(b&&GRIDOK)return Math.min(180,Math
 function lenInfo(){if(!buf)return;const v=+$('st').value,av=buf.duration-v,L=curLen(),bb=+$('bars').value&&GRIDOK;
    $('stm').textContent='('+Math.floor(v/60)+':'+String(Math.floor(v%60)).padStart(2,'0')+') · quedan '+Math.floor(av)+' s · clip: '+L+' s'+(bb?' ('+$('bars').value+' compases exactos)':'')+(L>av+.05?($('lpf').checked?' · se repetirá para llegar a '+L+' s':' · ⚠ solo grabará '+Math.floor(av)+' s'):'')}
   const rr=(x,y,w,h)=>{g.beginPath();if(g.roundRect)g.roundRect(x,y,w,h,Math.min(w,h)/2);else g.rect(x,y,w,h);g.fill()};
-function ovlDraw(){const o=+$('ovl').value;if(!o)return;if(o>3)return ovPro(o);const col='hsl('+((t*20)%360|0)+',100%,72%)';
+function ovlDraw(){const o=+$('ovl').value;if(!o)return;if(o>0)return ovPro(o);const col='hsl('+((t*20)%360|0)+',100%,72%)';
  g.save();g.lineCap='round';g.shadowBlur=16;g.shadowColor=col;
  if(o<3){const N=36,x0=70,x1=W-150,bw=(x1-x0)/N;for(let i=0;i<N;i++){const v=fd[2+i*2]/255,hh=14+v*H*.13*(.7+bass*.7);g.fillStyle=i%2?'#fff':col;
    if(o===1)rr(x0+i*bw+bw*.15,H*.72-hh,bw*.7,hh);else rr(x0+i*bw+bw*.15,H*.5-hh/2,bw*.7,hh)}}
@@ -3098,9 +3098,9 @@ $('look').addEventListener('input',()=>{});$('looki').oninput=()=>{$('lookl').te
 // ---- ESPECTROS PRO v2: análisis fino (FFT 4096 -> 96 bandas logarítmicas), curvas suaves, brillo aditivo y picos con gravedad ----
 const SPN=96;
 const SP={b:new Float32Array(SPN),s:new Float32Array(SPN),pk:new Float32Array(SPN),pv:new Float32Array(SPN),raw:new Float32Array(SPN),vs:new Float32Array(SPN),vp:new Float32Array(SPN),agc:-30,msr:0,lo:null,hi:null,fc:null,init:false,hist:[],eb:0,eh:0,em:0};
-const OV={bs:0,hi:0,md:0,tr:[],st:0,rot:0,w:0,sx:0,sv:0,sg:1,g:-1,neb:0,pa:0,rows:[],rt:-1e9,P:new Float32Array(800),
+const OV={bs:0,hi:0,md:0,tr:[],st:0,rot:0,w:0,sx:0,sv:0,sg:1,g:-1,neb:0,pa:0,rows:[],rt:-1e9,P:new Float32Array(800),ht:0,hA:0,hv:0,
  stars:Array.from({length:110},()=>({z:Math.random(),a:Math.random()*6.2832,h:Math.random()}))};
-function ovOn(){return+$('ovl').value>3}
+function ovOn(){return+$('ovl').value>0}
 function spMap(sr){if(SP.msr===sr)return;SP.msr=sr;const df=sr/4096;SP.lo=new Float32Array(SPN);SP.hi=new Float32Array(SPN);SP.fc=new Float32Array(SPN);
  for(let k=0;k<SPN;k++){const f0=35*Math.pow(457.14,k/SPN),f1=35*Math.pow(457.14,(k+1)/SPN);SP.lo[k]=f0/df;SP.hi[k]=f1/df;SP.fc[k]=Math.sqrt(f0*f1)}}
 // 96 bandas (35 Hz a 16 kHz) con interpolación suave en graves, compensación de pendiente, autoganancia, ataque de 1 cuadro y picos con gravedad
@@ -3122,8 +3122,9 @@ function ovBands(){const d=Math.min(dt,.05);spMap(EQ.msr||48000);const db=EQ.db;
  SP.hist.push({t,s:Float32Array.from(SP.s),p:Float32Array.from(SP.pk),b:SP.eb,h:SP.eh,m:SP.em});while(SP.hist.length>45)SP.hist.shift();
  const want=t-(busy?0:DL)/1000;let h=SP.hist[0];for(const e of SP.hist){if(e.t<=want)h=e;else break}   // compensa la latencia del audio igual que el resto de la app
  SP.vs=h.s;SP.vp=h.p;OV.bs=h.b;OV.hi=h.h;OV.md=h.m}
-function ovPhys(d,G){if(OV.g!==gOn){if(OV.g!==-1){OV.w-=(1.2+1.6*Math.min(1.2,beat))*G;OV.sv+=OV.sg*(5+4*Math.min(1.2,beat));OV.sg=-OV.sg}OV.g=gOn}   // cada golpe empuja el giro
- OV.w+=(-(.18+1.0*OV.bs+.5*OV.hi)*G-OV.w)*(1-Math.exp(-d*6));OV.rot+=OV.w*d;OV.sv+=(-OV.sx*150-OV.sv*10)*d;OV.sx+=OV.sv*d;OV.neb+=d*(.12+.7*OV.hi);OV.pa+=d*(1.1+3.5*OV.hi+1.5*OV.bs)}
+function ovPhys(d,G){if(OV.g!==gOn){if(OV.g!==-1){OV.w-=(1.2+1.6*Math.min(1.2,beat))*G;OV.sv+=OV.sg*(5+4*Math.min(1.2,beat));OV.sg=-OV.sg;OV.ht+=.7854}OV.g=gOn}   // cada golpe empuja el giro
+ OV.w+=(-(.18+1.0*OV.bs+.5*OV.hi)*G-OV.w)*(1-Math.exp(-d*6));OV.rot+=OV.w*d;OV.sv+=(-OV.sx*150-OV.sv*10)*d;OV.sx+=OV.sv*d;OV.neb+=d*(.12+.7*OV.hi);for(let q=0;q<2;q++){OV.hv+=((OV.ht-OV.hA)*420-OV.hv*26)*d/2;OV.hA+=OV.hv*d/2}   // manecilla: paso seco con un pequeño rebote
+ OV.pa+=d*(1.1+3.5*OV.hi+1.5*OV.bs)}
 // valor del espectro en u (0..1) con interpolación cúbica (Catmull-Rom): sin escalones
 const spAt=(u,A)=>{const x=Math.max(0,Math.min(1,u))*(SPN-1),i=Math.floor(x),f=x-i,p0=A[Math.max(0,i-1)],p1=A[i],p2=A[Math.min(SPN-1,i+1)],p3=A[Math.min(SPN-1,i+2)];return Math.max(0,p1+.5*f*(p2-p0+f*(2*p0-5*p1+4*p2-p3+f*(3*(p1-p2)+p3-p0))))};
 // curva suave (Catmull-Rom -> bezier) por una lista plana de puntos [x0,y0,x1,y1,...]
@@ -3146,33 +3147,57 @@ function ovPro(o){const k=W/1080,sz=+$('ovs').value/100,I=+$('ovi').value/100,G=
  const cc=layerTargets(),Rn=x=>Math.round(x*255),rgb=cc.slice(0,3).map(Rn).join(','),rgb2=cc.slice(3,6).map(Rn).join(','),pulse=1+.07*OV.bs*I,TAU=6.2832,ang=f=>f*TAU-1.5708,mir=f=>{const a=f*2;return a<1?a:2-a},vs=SP.vs,vp=SP.vp,V=(u,A)=>spAt(.02+u*.9,A);
  g.save();g.lineCap='round';g.lineJoin='round';
  const gs=rot=>{if(!g.createConicGradient)return'rgb('+rgb+')';const q=g.createConicGradient(rot-1.5708,cx,cy);q.addColorStop(0,'rgb('+rgb+')');q.addColorStop(.5,'rgb('+rgb2+')');q.addColorStop(1,'rgb('+rgb+')');return q};   // color que recorre el contorno
- const glow=(st,al,wk)=>{g.globalCompositeOperation='lighter';g.strokeStyle=st;g.globalAlpha=.1*al;g.lineWidth=26*k*wk;g.stroke();g.globalAlpha=.28*al;g.lineWidth=10*k*wk;g.stroke();g.globalAlpha=.9*al;g.lineWidth=3.2*k*wk;g.stroke();g.globalCompositeOperation='source-over';g.globalAlpha=al;g.strokeStyle='rgba(255,255,255,.9)';g.lineWidth=1.3*k*wk;g.stroke();g.globalAlpha=1};
+ const glow=(st,al,wk)=>{g.globalAlpha=.4*al;g.strokeStyle='rgb(6,0,14)';g.lineWidth=11*k*wk;g.stroke();g.globalCompositeOperation='lighter';g.strokeStyle=st;g.globalAlpha=.1*al;g.lineWidth=26*k*wk;g.stroke();g.globalAlpha=.28*al;g.lineWidth=10*k*wk;g.stroke();g.globalAlpha=.9*al;g.lineWidth=4.2*k*wk;g.stroke();g.globalCompositeOperation='source-over';g.globalAlpha=al;g.strokeStyle='rgba(255,255,255,.9)';g.lineWidth=1.9*k*wk;g.stroke();g.globalAlpha=1};
  const ring=(vals,R0,A,rot,n,minR,cont)=>{const P=OV.P;for(let i=0;i<n;i++){const a=ang(i/n)+rot,r=Math.max(minR||0,R0+A*vals[i]);P[i*2]=cx+Math.cos(a)*r;P[i*2+1]=cy+Math.sin(a)*r}ovPath(P,n,true,cont)};
- const disc=R=>{ovCosmos(cx,cy,R,k,rgb,rgb2,d);g.beginPath();g.arc(cx,cy,R,0,TAU);glow('rgb('+rgb+')',.6,.45)};
- if(o===4){const Rd=250*k*sz*pulse,Rb=Rd*1.05,n=160,hv=new Float32Array(n);
-  for(let i=0;i<n;i++)hv[i]=Math.pow(Math.max(0,V(mir(i/n)*.5,vs)-.22)/.78,1.5);   // cuernos: solo aparecen con el bajo fuerte
-  ovSm(hv,n,2);OV.tr.push(hv);if(OV.tr.length>9)OV.tr.shift();
-  for(let e=3;e>=1;e--){const q=OV.tr[OV.tr.length-1-e*2];if(!q)continue;ring(q,Rb*(1+.03*e),Rd*I,OV.sx,n);glow('rgb('+rgb+')',.3/e,.5)}
-  ring(hv,Rb,Rd*I,OV.sx,n);{const ag=g.createRadialGradient(cx,cy,Rd*.9,cx,cy,Rd*2);ag.addColorStop(0,'rgba('+rgb2+',.42)');ag.addColorStop(1,'rgba('+rgb+',0)');g.fillStyle=ag;g.fill()}glow(gs(OV.sx),1,1);
-  g.beginPath();for(let i=0;i<96;i++){const f=i/96,v=Math.pow(V(mir(f),vs),1.1),len=7*k+v*Rd*.62*I,a=ang(f)+OV.rot,hw=.0135,x0=Rb,x1=Rb+len;   // 96 espinas finas, una por banda, que giran con la música
-   g.moveTo(cx+Math.cos(a-hw)*x0,cy+Math.sin(a-hw)*x0);g.lineTo(cx+Math.cos(a)*x1,cy+Math.sin(a)*x1);g.lineTo(cx+Math.cos(a+hw)*x0,cy+Math.sin(a+hw)*x0);g.closePath()}
-  g.globalCompositeOperation='lighter';g.strokeStyle='rgba('+rgb+',.2)';g.lineWidth=8*k;g.stroke();g.globalCompositeOperation='source-over';g.fillStyle='rgba(255,255,255,.94)';g.fill();g.strokeStyle='rgba('+rgb+',.65)';g.lineWidth=1.5*k;g.stroke();
-  g.beginPath();for(let i=0;i<96;i++){const f=i/96,v=Math.pow(V(mir(f),vp),1.1),a=ang(f)+OV.rot,r=Rb+7*k+v*Rd*.62*I+9*k,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;g.moveTo(x+2.4*k,y);g.arc(x,y,2.4*k,0,TAU)}g.fillStyle='rgba('+rgb2+',.95)';g.fill();   // puntos de pico que caen con gravedad
-  for(let j=0;j<8;j++){const a=ang((j*.381966)%1)+OV.rot,s=(9+OV.hi*30+OV.bs*16+8*Math.sin(t*5+j*2))*k*sz,x=cx+Math.cos(a)*(Rb+14*k),y=cy+Math.sin(a)*(Rb+14*k);   // destellos de 4 puntas
-   g.fillStyle='rgba('+rgb+',.35)';g.beginPath();g.arc(x,y,s*.9,0,TAU);g.fill();g.fillStyle='rgba(255,255,255,.95)';g.beginPath();g.moveTo(x,y-s);g.lineTo(x+s*.18,y-s*.18);g.lineTo(x+s,y);g.lineTo(x+s*.18,y+s*.18);g.lineTo(x,y+s);g.lineTo(x-s*.18,y+s*.18);g.lineTo(x-s,y);g.lineTo(x-s*.18,y-s*.18);g.closePath();g.fill()}
-  disc(Rd);g.beginPath();g.arc(cx,cy,Rd*.93,0,TAU);g.strokeStyle='rgba(255,255,255,.3)';g.lineWidth=1.4*k;g.stroke()}
- else if(o===5){const R0=215*k*sz*pulse,n=120,rot=OV.rot*.5,gst=gs(rot);
-  g.beginPath();g.arc(cx,cy,R0-9*k,0,TAU);glow(gst,.75,.55);
-  g.beginPath();for(let i=0;i<n;i++){const f=i/n,v=Math.pow(V(mir(f),vs),.95),len=(7+v*195*I)*k*sz,a=ang(f)+rot,c=Math.cos(a),s=Math.sin(a);g.moveTo(cx+c*R0,cy+s*R0);g.lineTo(cx+c*(R0+len),cy+s*(R0+len))}
-  g.globalCompositeOperation='lighter';g.strokeStyle=gst;g.globalAlpha=.16;g.lineWidth=15*k;g.stroke();g.globalAlpha=.42;g.lineWidth=7*k;g.stroke();g.globalCompositeOperation='source-over';g.globalAlpha=.8;g.strokeStyle=gst;g.lineWidth=4.2*k;g.stroke();g.globalAlpha=.95;g.strokeStyle='#fff';g.lineWidth=2.2*k;g.stroke();g.globalAlpha=1;
-  g.beginPath();for(let i=0;i<n;i++){const f=i/n,v=Math.pow(V(mir(f),vp),.95),r=R0+(7+v*195*I)*k*sz+11*k,a=ang(f)+rot,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;g.moveTo(x+2.6*k,y);g.arc(x,y,2.6*k,0,TAU)}g.fillStyle='rgba('+rgb2+',.95)';g.fill();
-  disc(R0*.9)}
+ const disc=R=>{g.beginPath();g.arc(cx,cy,R,0,TAU);glow('rgb('+rgb+')',.4,.35)};   // centro transparente: solo un aro fino
+ if(o===1){const N=40,x0=60*k,x1=W-60*k,bw=(x1-x0)/N,w=bw*.7,base=H*.74,sh=12*k*sz,sg=5*k*sz,mh=H*.28*I*sz,st=sh+sg,bo=.8+OV.bs*.3;   // medidor de segmentos tipo LED
+  const gr=g.createLinearGradient(0,base,0,base-mh);gr.addColorStop(0,'rgb('+rgb2+')');gr.addColorStop(1,'rgb('+rgb+')');
+  g.beginPath();for(let i=0;i<N;i++){const x=x0+i*bw+(bw-w)/2,ns=Math.max(1,Math.round(Math.pow(V(i/(N-1),vs),.95)*mh*bo/st));for(let s=0;s<ns;s++)g.rect(x,base-(s+1)*st+sg,w,sh)}
+  g.fillStyle='rgba(6,0,14,.6)';g.fill();g.globalCompositeOperation='lighter';g.globalAlpha=.28;g.strokeStyle=gr;g.lineWidth=8*k;g.stroke();g.globalAlpha=1;g.globalCompositeOperation='source-over';g.fillStyle=gr;g.fill();
+  g.beginPath();for(let i=0;i<N;i++){const x=x0+i*bw+(bw-w)/2,ps=Math.max(1,Math.round(Math.pow(V(i/(N-1),vp),.95)*mh*bo/st));g.rect(x,base-(ps+1)*st+sg,w,sh*.45)}   // marca de pico
+  g.fillStyle='rgba(255,255,255,.95)';g.fill()}
+ else if(o===2){const N=64,x0=60*k,x1=W-60*k,bw=(x1-x0)/N,w=bw*.52,mh=H*.17*I*sz,bo=.8+OV.bs*.3;
+  const gr=g.createLinearGradient(0,cy-mh*1.15,0,cy+mh*1.15);gr.addColorStop(0,'rgb('+rgb+')');gr.addColorStop(.5,'rgb('+rgb2+')');gr.addColorStop(1,'rgb('+rgb+')');
+  const hh=new Float32Array(N),hp=new Float32Array(N);for(let i=0;i<N;i++){const u=Math.abs(2*((i+.5)/N)-1);hh[i]=4*k+Math.pow(V(u,vs),.95)*mh*bo;hp[i]=4*k+Math.pow(V(u,vp),.95)*mh*bo}   // graves al centro, agudos a los lados
+  g.globalCompositeOperation='lighter';g.globalAlpha=.2;g.fillStyle=gr;for(let i=0;i<N;i++){const x=x0+i*bw+(bw-w)/2;ovRR(x-4*k,cy-hh[i]-4*k,w+8*k,2*hh[i]+8*k,(w+8*k)/2)}g.globalAlpha=1;g.globalCompositeOperation='source-over';
+  g.fillStyle=gr;for(let i=0;i<N;i++){const x=x0+i*bw+(bw-w)/2;ovRR(x,cy-hh[i],w,2*hh[i],w/2)}
+  g.fillStyle='rgba(255,255,255,.92)';for(let i=0;i<N;i++){const x=x0+i*bw+(bw-w)/2;ovRR(x,cy-hp[i]-10*k,w,3*k,1.5*k);ovRR(x,cy+hp[i]+7*k,w,3*k,1.5*k)}
+  g.globalCompositeOperation='lighter';g.fillStyle='rgba('+rgb+',.5)';g.fillRect(x0,cy-1*k,x1-x0,2*k);g.globalCompositeOperation='source-over'}
+ else if(o===3){const R0=240*k*sz*pulse,n=240,A=R0*.42*I,rot=OV.rot*.2,vv=new Float32Array(n);
+  for(let i=0;i<n;i++)vv[i]=Math.pow(V(mir((i/n*2)%1),vs),1.05);ovSm(vv,n,1);
+  OV.tr.push(vv);if(OV.tr.length>13)OV.tr.shift();
+  for(let e=3;e>=1;e--){const q=OV.tr[OV.tr.length-1-e*3];if(!q)continue;const sc=1+.04*e;ring(q,R0*sc,A*sc,rot,n);glow('rgb('+rgb+')',.22/e,.45)}
+  ring(vv,R0,A,rot,n);glow(gs(rot),1,1.5);   // anillo de onda: solo contorno, centro transparente
+  g.beginPath();g.arc(cx,cy,R0-12*k,0,TAU);glow('rgb('+rgb+')',.35,.35)}
+ else if(o===4){const R=235*k*sz*pulse,N=48,st=TAU/N,band=24*k*sz,rr=R-band,gst=gs(OV.rot);
+  const gear=(R0,n,hs,rot,cont)=>{const s=TAU/n,a0=ang(0)+rot;if(!cont)g.beginPath();   // engrane: dientes trapezoidales cortos
+   for(let i=0;i<n;i++){const a=a0+i*s,h=hs[i],b0=a-s*.27,b1=a+s*.27,t0=a-s*.15,t1=a+s*.15,x0=cx+Math.cos(b0)*R0,y0=cy+Math.sin(b0)*R0;if(i===0)g.moveTo(x0,y0);else g.lineTo(x0,y0);
+    g.lineTo(cx+Math.cos(t0)*(R0+h),cy+Math.sin(t0)*(R0+h));g.lineTo(cx+Math.cos(t1)*(R0+h),cy+Math.sin(t1)*(R0+h));g.lineTo(cx+Math.cos(b1)*R0,cy+Math.sin(b1)*R0);g.arc(cx,cy,R0,b1,a+s*.73)}
+   g.closePath()};
+  const th=new Float32Array(N);for(let i=0;i<N;i++)th[i]=(7+Math.pow(V(mir(i/N),vs),1.05)*34*I)*k*sz;ovSm(th,N,1);   // alto de cada diente = su banda del espectro
+  gear(R,N,th,OV.rot,false);g.moveTo(cx+rr,cy);g.arc(cx,cy,rr,0,TAU);g.fillStyle='rgba('+rgb+',.2)';g.fill('evenodd');glow(gst,1,1.5);
+  const N2=32,R2=R*.6,t2=new Float32Array(N2);for(let i=0;i<N2;i++)t2[i]=(4+Math.pow(V(.3+.65*(1-mir(i/N2)),vs),1.05)*17*I)*k*sz;ovSm(t2,N2,1);
+  gear(R2,N2,t2,-OV.rot*1.5,false);glow(gs(-OV.rot*1.5),.9,1.1);   // engrane interior que gira al revés
+  const Rh=R*.17;g.beginPath();for(let j=0;j<5;j++){const a=-OV.rot*1.5+j*TAU/5-1.5708,h1=.1,h2=.055,Rq=R2-6*k;
+   g.moveTo(cx+Math.cos(a-h1)*Rh,cy+Math.sin(a-h1)*Rh);g.lineTo(cx+Math.cos(a-h2)*Rq,cy+Math.sin(a-h2)*Rq);g.lineTo(cx+Math.cos(a+h2)*Rq,cy+Math.sin(a+h2)*Rq);g.lineTo(cx+Math.cos(a+h1)*Rh,cy+Math.sin(a+h1)*Rh);g.closePath()}
+  glow('rgb('+rgb+')',.8,.8);   // rayos tipo reloj esqueleto
+  g.beginPath();g.arc(cx,cy,Rh,0,TAU);glow('rgb('+rgb+')',.9,.8);g.beginPath();g.arc(cx,cy,Rh*.32,0,TAU);glow('rgb('+rgb2+')',.9,.6);   // cubo: centro transparente
+  g.beginPath();for(let i=0;i<N;i++){const a=ang(0)+OV.rot+i*st,r=R+(7+Math.pow(V(mir(i/N),vp),1.05)*34*I)*k*sz+9*k,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;g.moveTo(x+2.3*k,y);g.arc(x,y,2.3*k,0,TAU)}g.fillStyle='rgba('+rgb2+',.95)';g.fill()}   // puntos de pico con gravedad
+ else if(o===5){const R0=215*k*sz*pulse,n=120,rot=OV.rot*.25,gst=gs(rot);
+  const lenAt=(i,A)=>{const mj=i%10===0;return(mj?14:6)*k*sz+Math.pow(V(mir(i/n),A),.95)*(mj?46:52)*I*k*sz};
+  g.beginPath();g.arc(cx,cy,R0-10*k,0,TAU);glow(gst,.6,.45);
+  g.beginPath();for(let i=0;i<n;i++){if(i%10===0)continue;const a=ang(i/n)+rot,c=Math.cos(a),s=Math.sin(a),L=lenAt(i,vs);g.moveTo(cx+c*R0,cy+s*R0);g.lineTo(cx+c*(R0+L),cy+s*(R0+L))}
+  g.globalCompositeOperation='lighter';g.strokeStyle=gst;g.globalAlpha=.16;g.lineWidth=12*k;g.stroke();g.globalAlpha=.42;g.lineWidth=7*k;g.stroke();g.globalCompositeOperation='source-over';g.globalAlpha=.95;g.strokeStyle='#fff';g.lineWidth=3*k;g.stroke();g.globalAlpha=1;
+  g.beginPath();for(let i=0;i<n;i+=10){const a=ang(i/n)+rot,c=Math.cos(a),s=Math.sin(a),L=lenAt(i,vs);g.moveTo(cx+c*R0,cy+s*R0);g.lineTo(cx+c*(R0+L),cy+s*(R0+L))}   // marcas de hora, más gruesas
+  g.globalCompositeOperation='lighter';g.strokeStyle=gst;g.globalAlpha=.3;g.lineWidth=14*k;g.stroke();g.globalCompositeOperation='source-over';g.globalAlpha=.95;g.strokeStyle='#fff';g.lineWidth=4.4*k;g.stroke();g.globalAlpha=1;
+  g.beginPath();for(let i=0;i<n;i++){const a=ang(i/n)+rot,r=R0+lenAt(i,vp)+9*k,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;g.moveTo(x+2*k,y);g.arc(x,y,2*k,0,TAU)}g.fillStyle='rgba('+rgb2+',.95)';g.fill();
+  {const a=OV.hA-1.5708,c=Math.cos(a),s=Math.sin(a),Lh=R0*.82,Lt=R0*.16;g.beginPath();g.moveTo(cx-c*Lt,cy-s*Lt);g.lineTo(cx+c*Lh,cy+s*Lh);glow('rgb('+rgb2+')',.9,.55);g.beginPath();g.arc(cx,cy,10*k,0,TAU);glow('rgb('+rgb+')',.8,.45)}}   // manecilla que da un paso en cada golpe
  else if(o===6){const R0=235*k*sz*pulse,n=360,rot=OV.rot*.35+OV.sx*.5,Rd=R0*.4,pv=new Float32Array(n),pv2=new Float32Array(n);
   for(let i=0;i<n;i++){const s=i/n*6,u=1-mir(s-Math.floor(s)),s2=i/n*9,u2=.25+.7*(1-mir(s2-Math.floor(s2)));pv[i]=Math.pow(V(u*.62,vs),1.05);pv2[i]=Math.pow(V(u2,vs),1.1)}   // 6 pétalos grandes (punta = graves) y 9 pequeños (agudos)
   ovSm(pv,n,3);ovSm(pv2,n,2);OV.tr.push(pv);if(OV.tr.length>9)OV.tr.shift();
   for(let e=3;e>=1;e--){const q=OV.tr[OV.tr.length-1-e*2];if(!q)continue;const sc=1+.045*e;ring(q,R0*.55*sc,R0*.95*I*sc,rot,n);glow('rgb('+rgb+')',.3/e,.5)}
-  ring(pv,R0*.55,R0*.95*I,rot,n);{const fg=g.createRadialGradient(cx,cy,Rd,cx,cy,R0*1.7);fg.addColorStop(0,'rgba('+rgb2+',.34)');fg.addColorStop(1,'rgba('+rgb+',.04)');g.fillStyle=fg;g.fill()}glow(gs(rot),1,1);
-  ring(pv2,R0*.3,R0*.42*I,-rot*1.4,n);g.fillStyle='rgba('+rgb+',.16)';g.fill();glow(gs(-rot*1.4),.8,.7);
+  ring(pv,R0*.55,R0*.95*I,rot,n);{const fg=g.createRadialGradient(cx,cy,Rd,cx,cy,R0*1.7);fg.addColorStop(0,'rgba('+rgb2+',.34)');fg.addColorStop(1,'rgba('+rgb+',.04)');g.fillStyle=fg;g.moveTo(cx+Rd,cy);g.arc(cx,cy,Rd,0,TAU);g.fill('evenodd')}glow(gs(rot),1,1);
+  ring(pv2,R0*.3,R0*.42*I,-rot*1.4,n);glow(gs(-rot*1.4),.8,.7);
   disc(Rd*.92)}
  else if(o===7){const R0=225*k*sz*pulse,n=240,rot=OV.rot*.3,Rd=R0*.5,A=R0*.38*I,vv=new Float32Array(n);
   for(let i=0;i<n;i++)vv[i]=Math.pow(V(mir((i/n*2)%1),vs),1.05);ovSm(vv,n,1);   // cinta: el borde exterior sube con el espectro y el interior baja un poco
