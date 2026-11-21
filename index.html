@@ -145,7 +145,7 @@ select.live{border-color:var(--ac2);box-shadow:0 0 0 1px rgba(0,229,255,.25),0 0
     <label>Intensidad luz y chispas: <span id="fxpl">100</span>%</label><input id="fxpi" type="range" min="0" max="200" value="100">
     <div class="row"><select id="look"><option value="0">🎞️ Look de cine: ninguno</option><option value="1">Cine suave (brillo + grano + viñeta)</option><option value="2">Cine teal y naranja</option><option value="3">Neón vibrante</option><option value="4">Película vintage 35 mm</option><option value="5">Duotono (color del tema)</option></select></div>
     <label>Intensidad look: <span id="lookl">100</span>%</label><input id="looki" type="range" min="0" max="200" value="100">
-    <div class="row"><select id="ovl"><option value="0">Espectro: ninguno</option><option value="4">⚙️ Engranajes de reloj (dientes y rayos)</option><option value="5">🕰️ Esfera de reloj (marcas y manecilla al ritmo)</option><option value="6">🌸 Flor espectral (doble pétalo)</option><option value="7">🌀 Cinta circular con ecos</option><option value="8">📶 Barras neón con reflejo</option><option value="9">🏔️ Cordillera de ondas (estilo Joy Division)</option><option value="1">Clásico renovado: barras LED (abajo)</option><option value="2">Clásico renovado: barras espejo (centro)</option><option value="3">Clásico renovado: anillo de onda (centro)</option></select></div>
+    <div class="row"><select id="ovl"><option value="0">Espectro: ninguno</option><option value="4">🧵 Halo de seda (anillos flexibles que crecen)</option><option value="5">🕰️ Esfera de reloj (marcas y manecilla al ritmo)</option><option value="6">🌸 Flor espectral (doble pétalo)</option><option value="7">🌀 Cinta circular con ecos</option><option value="8">📶 Barras neón con reflejo</option><option value="9">🏔️ Cordillera de ondas (estilo Joy Division)</option><option value="10">🔥 Llamarada solar (filamentos flexibles)</option><option value="11">🌊 Aurora líquida (ondas espejo)</option><option value="1">Clásico renovado: barras LED (abajo)</option><option value="2">Clásico renovado: barras espejo (centro)</option><option value="3">Clásico renovado: anillo de onda (centro)</option></select></div>
     <label>Tamaño del espectro: <span id="ovsl">100</span>%</label><input id="ovs" type="range" min="50" max="170" value="100">
     <label>Fuerza: <span id="ovil">100</span>%</label><input id="ovi" type="range" min="30" max="180" value="100">
     <label>Reacción (seca ↔ suave): <span id="ovrl">12</span></label><input id="ovr" type="range" min="0" max="100" value="12">
@@ -3098,7 +3098,7 @@ $('look').addEventListener('input',()=>{});$('looki').oninput=()=>{$('lookl').te
 // ---- ESPECTROS PRO v2: análisis fino (FFT 4096 -> 96 bandas logarítmicas), curvas suaves, brillo aditivo y picos con gravedad ----
 const SPN=96;
 const SP={b:new Float32Array(SPN),s:new Float32Array(SPN),pk:new Float32Array(SPN),pv:new Float32Array(SPN),raw:new Float32Array(SPN),vs:new Float32Array(SPN),vp:new Float32Array(SPN),agc:-30,msr:0,lo:null,hi:null,fc:null,init:false,hist:[],eb:0,eh:0,em:0};
-const OV={bs:0,hi:0,md:0,tr:[],st:0,rot:0,w:0,sx:0,sv:0,sg:1,g:-1,neb:0,pa:0,rows:[],rt:-1e9,P:new Float32Array(800),ht:0,hA:0,hv:0,
+const OV={bs:0,hi:0,md:0,tr:[],st:0,rot:0,w:0,sx:0,sv:0,sg:1,g:-1,neb:0,pa:0,rows:[],rt:-1e9,P:new Float32Array(800),ht:0,hA:0,hv:0,gr:0,gv:0,
  stars:Array.from({length:110},()=>({z:Math.random(),a:Math.random()*6.2832,h:Math.random()}))};
 function ovOn(){return+$('ovl').value>0}
 function spMap(sr){if(SP.msr===sr)return;SP.msr=sr;const df=sr/4096;SP.lo=new Float32Array(SPN);SP.hi=new Float32Array(SPN);SP.fc=new Float32Array(SPN);
@@ -3169,20 +3169,15 @@ function ovPro(o){const k=W/1080,sz=+$('ovs').value/100,I=+$('ovi').value/100,G=
   for(let e=3;e>=1;e--){const q=OV.tr[OV.tr.length-1-e*3];if(!q)continue;const sc=1+.04*e;ring(q,R0*sc,A*sc,rot,n);glow('rgb('+rgb+')',.22/e,.45)}
   ring(vv,R0,A,rot,n);glow(gs(rot),1,1.5);   // anillo de onda: solo contorno, centro transparente
   g.beginPath();g.arc(cx,cy,R0-12*k,0,TAU);glow('rgb('+rgb+')',.35,.35)}
- else if(o===4){const R=235*k*sz*pulse,N=48,st=TAU/N,band=24*k*sz,rr=R-band,gst=gs(OV.rot);
-  const gear=(R0,n,hs,rot,cont)=>{const s=TAU/n,a0=ang(0)+rot;if(!cont)g.beginPath();   // engrane: dientes trapezoidales cortos
-   for(let i=0;i<n;i++){const a=a0+i*s,h=hs[i],b0=a-s*.27,b1=a+s*.27,t0=a-s*.15,t1=a+s*.15,x0=cx+Math.cos(b0)*R0,y0=cy+Math.sin(b0)*R0;if(i===0)g.moveTo(x0,y0);else g.lineTo(x0,y0);
-    g.lineTo(cx+Math.cos(t0)*(R0+h),cy+Math.sin(t0)*(R0+h));g.lineTo(cx+Math.cos(t1)*(R0+h),cy+Math.sin(t1)*(R0+h));g.lineTo(cx+Math.cos(b1)*R0,cy+Math.sin(b1)*R0);g.arc(cx,cy,R0,b1,a+s*.73)}
-   g.closePath()};
-  const th=new Float32Array(N);for(let i=0;i<N;i++)th[i]=(7+Math.pow(V(mir(i/N),vs),1.05)*34*I)*k*sz;ovSm(th,N,1);   // alto de cada diente = su banda del espectro
-  gear(R,N,th,OV.rot,false);g.moveTo(cx+rr,cy);g.arc(cx,cy,rr,0,TAU);g.fillStyle='rgba('+rgb+',.2)';g.fill('evenodd');glow(gst,1,1.5);
-  const N2=32,R2=R*.6,t2=new Float32Array(N2);for(let i=0;i<N2;i++)t2[i]=(4+Math.pow(V(.3+.65*(1-mir(i/N2)),vs),1.05)*17*I)*k*sz;ovSm(t2,N2,1);
-  gear(R2,N2,t2,-OV.rot*1.5,false);glow(gs(-OV.rot*1.5),.9,1.1);   // engrane interior que gira al revés
-  const Rh=R*.17;g.beginPath();for(let j=0;j<5;j++){const a=-OV.rot*1.5+j*TAU/5-1.5708,h1=.1,h2=.055,Rq=R2-6*k;
-   g.moveTo(cx+Math.cos(a-h1)*Rh,cy+Math.sin(a-h1)*Rh);g.lineTo(cx+Math.cos(a-h2)*Rq,cy+Math.sin(a-h2)*Rq);g.lineTo(cx+Math.cos(a+h2)*Rq,cy+Math.sin(a+h2)*Rq);g.lineTo(cx+Math.cos(a+h1)*Rh,cy+Math.sin(a+h1)*Rh);g.closePath()}
-  glow('rgb('+rgb+')',.8,.8);   // rayos tipo reloj esqueleto
-  g.beginPath();g.arc(cx,cy,Rh,0,TAU);glow('rgb('+rgb+')',.9,.8);g.beginPath();g.arc(cx,cy,Rh*.32,0,TAU);glow('rgb('+rgb2+')',.9,.6);   // cubo: centro transparente
-  g.beginPath();for(let i=0;i<N;i++){const a=ang(0)+OV.rot+i*st,r=R+(7+Math.pow(V(mir(i/N),vp),1.05)*34*I)*k*sz+9*k,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;g.moveTo(x+2.3*k,y);g.arc(x,y,2.3*k,0,TAU)}g.fillStyle='rgba('+rgb2+',.95)';g.fill()}   // puntos de pico con gravedad
+ else if(o===4){for(let q=0;q<2;q++){OV.gv+=((OV.bs-OV.gr)*300-OV.gv*15)*d/2;OV.gr+=OV.gv*d/2}   // crece con el bajo y rebota como elástico
+  const R0=200*k*sz*(1+.32*OV.gr*I),n=240,L=7,vals=new Float32Array(n);
+  for(let j=0;j<L;j++){const t1=j/(L-1),folds=2+(j%3),sg=j%2?1:-1,ph=OV.neb*(.14+.05*j)*sg+j*.37,um=.4+.07*j,col=[0,1,2].map(c=>Rn(cc[c]+(cc[c+3]-cc[c])*t1)).join(',');
+   for(let i=0;i<n;i++)vals[i]=Math.pow(V(mir((((i/n*folds+ph)%1)+1)%1)*um,vs),1.1);   // cada hilo recorre el espectro a su ritmo
+   ovSm(vals,n,3);const rj=R0*(1+.03*j),aj=R0*(.2+.05*j)*I,rr=OV.rot*sg*(.5+.12*j);ring(vals,rj,aj,rr,n);g.moveTo(cx+R0*.78,cy);g.arc(cx,cy,R0*.78,0,TAU);g.globalCompositeOperation='lighter';g.globalAlpha=1;g.fillStyle='rgba('+col+',.06)';g.fill('evenodd');ring(vals,rj,aj,rr,n);   // velo translúcido entre hilos
+   g.globalCompositeOperation='source-over';g.strokeStyle='rgb(6,0,14)';g.globalAlpha=.3;g.lineWidth=4.6*k;g.stroke();
+   g.globalCompositeOperation='lighter';g.strokeStyle='rgb('+col+')';g.globalAlpha=.16;g.lineWidth=11*k;g.stroke();
+   g.globalCompositeOperation='source-over';g.globalAlpha=.95;g.lineWidth=(2.2+.2*j)*k;g.stroke();
+   if(j===L-1){g.strokeStyle='#fff';g.globalAlpha=.85;g.lineWidth=1*k;g.stroke()}g.globalAlpha=1}}
  else if(o===5){const R0=215*k*sz*pulse,n=120,rot=OV.rot*.25,gst=gs(rot);
   const lenAt=(i,A)=>{const mj=i%10===0;return(mj?14:6)*k*sz+Math.pow(V(mir(i/n),A),.95)*(mj?46:52)*I*k*sz};
   g.beginPath();g.arc(cx,cy,R0-10*k,0,TAU);glow(gst,.6,.45);
@@ -3224,6 +3219,21 @@ function ovPro(o){const k=W/1080,sz=+$('ovs').value/100,I=+$('ovi').value/100,G=
    ovPath(P,n,false);if(front)glow(hg,1,.8);else{g.strokeStyle=hg;g.globalAlpha=al;g.lineWidth=2.2*k;g.stroke();g.globalAlpha=1}};
   for(let j=NR-1;j>=0;j--){const A=OV.rows[j];if(!A)continue;const jj=j+ph;row(A,base-jj*gap,1-.035*jj,Math.max(.12,1-jj*.075),false)}   // las filas viejas suben y se apagan
   row(vs,base,1,1,true)}
+  else if(o===10){const R0=165*k*sz*(1+.14*OV.bs*I),n=96,rot=OV.rot*.5,gst=gs(rot),tp=[];
+  g.beginPath();for(let i=0;i<n;i++){const f=i/n,v=Math.pow(V(mir(f),vs),1.05),len=(16+v*215*I)*k*sz,a=ang(f)+rot,c=Math.cos(a),s=Math.sin(a),px=-s,py=c,
+    sw=.5*Math.sin(t*1.7+i*.9)+.5*Math.sin(t*2.9+i*1.7),am=len*(.1+.22*v)*sw,x0=cx+c*R0,y0=cy+s*R0;   // vaivén suave de cada filamento
+   g.moveTo(x0,y0);g.bezierCurveTo(x0+c*len*.4+px*am*.9,y0+s*len*.4+py*am*.9,x0+c*len*.75-px*am*.5,y0+s*len*.75-py*am*.5,x0+c*len+px*am*.4,y0+s*len+py*am*.4);tp.push(x0+c*len+px*am*.4,y0+s*len+py*am*.4,v)}
+  g.globalAlpha=.4;g.strokeStyle='rgb(6,0,14)';g.lineWidth=6*k;g.stroke();g.globalAlpha=1;
+  g.globalCompositeOperation='lighter';g.strokeStyle=gst;g.globalAlpha=.14;g.lineWidth=13*k;g.stroke();g.globalAlpha=.4;g.lineWidth=5*k;g.stroke();g.globalCompositeOperation='source-over';g.globalAlpha=.95;g.strokeStyle='#fff';g.lineWidth=1.8*k;g.stroke();g.globalAlpha=1;
+  g.beginPath();for(let i=0;i<tp.length;i+=3){const x=tp[i],y=tp[i+1],r=(2+tp[i+2]*5)*k;g.moveTo(x+r,y);g.arc(x,y,r,0,TAU)}g.fillStyle='rgba('+rgb2+',.95)';g.fill();   // punta brillante de cada filamento
+  g.beginPath();g.arc(cx,cy,R0-8*k,0,TAU);glow(gst,.6,.5)}
+ else if(o===11){const n=140,mh=H*.2*I*sz,bo=.75+OV.bs*.5,x0=0,x1=W,P=OV.P,fc=[1,.66,.4],al=[.4,.5,.6];
+  const shape=(sc,l)=>{for(let i=0;i<n;i++){const q=i/(n-1),u=Math.abs(2*q-1)*(1-.22*l),wn=Math.pow(Math.sin(Math.PI*q),.45),rp=1+.2*Math.sin(q*13+t*(1.5+.7*l)+l*2)*(.35+OV.hi),h=(6*k+V(u,vs)*mh*sc*bo)*rp*wn,x=x0+(x1-x0)*q;
+    P[i*2]=x;P[i*2+1]=cy-h;P[(2*n-1-i)*2]=x;P[(2*n-1-i)*2+1]=cy+h}ovPath(P,2*n,true)};   // forma espejo con ondulación viva
+  const gr=g.createLinearGradient(0,cy-mh*1.2,0,cy+mh*1.2);gr.addColorStop(0,'rgba('+rgb+',.12)');gr.addColorStop(.5,'rgba('+rgb2+',.32)');gr.addColorStop(1,'rgba('+rgb+',.12)');
+  shape(1,0);g.fillStyle='rgba(6,0,14,.3)';g.fill();
+  for(let l=0;l<3;l++){shape(fc[l],l);g.globalCompositeOperation='lighter';g.globalAlpha=al[l];g.fillStyle=gr;g.fill();g.strokeStyle=l===0?'rgb('+rgb+')':l===1?'rgb('+rgb2+')':'#fff';g.globalAlpha=.9;g.lineWidth=(l===2?2.2:1.8)*k;g.stroke();g.globalAlpha=.18;g.lineWidth=10*k;g.stroke();g.globalCompositeOperation='source-over';g.globalAlpha=1}
+  g.globalCompositeOperation='lighter';g.fillStyle='rgba(255,255,255,.55)';g.fillRect(x0,cy-1*k,x1-x0,2*k);g.globalCompositeOperation='source-over'}
  g.restore()}
 $('ovs').oninput=()=>{$('ovsl').textContent=$('ovs').value};$('ovi').oninput=()=>{$('ovil').textContent=$('ovi').value};$('ovr').oninput=()=>{$('ovrl').textContent=$('ovr').value};$('ovg').oninput=()=>{$('ovgl').textContent=$('ovg').value};
 window.lvReady=true;sync();
