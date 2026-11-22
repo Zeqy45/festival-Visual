@@ -2086,29 +2086,45 @@ cv.width=W;cv.height=H;
 let g=pg,ac,an,src,dest,fileObj,fd=new Uint8Array(256),scene=-1,t=0,dt=.016,bass=0,mid=0,hi=0,beat=0,avg=0,lastBeat=-1,off=0,rec=null,wl=null,busy=false,lastD=0,peaks=new Array(32).fill(0);
 let stage='',stats='',na=0,dsc=0,adts=0;const ascOf=r=>{const f=[96000,88200,64000,48000,44100,32000,24000,22050,16000,12000,11025,8000].indexOf(r),i=f<0?4:f;return new Uint8Array([16|(i>>1),((i&1)<<7)|16])};const sm=new Float32Array(256),msg=s=>$('msg').textContent=s,nap=ms=>new Promise(r=>setTimeout(r,ms));
 
-// ---- Audio: se decodifica y suena vía AudioBufferSource (estable en iOS) ----
+// ---- Audio: suena con el reproductor nativo del navegador (resiste bloqueo de pantalla y llamadas en iOS); el espectro se calcula de la propia pista decodificada ----
 let buf=null,bsrc=null,t0=0,pausedAt=0,playing=false,tracks=[],ti=-1,cancel=false;
-let AUDIO_BAD=false;const ctx=()=>{try{navigator.audioSession.type='playback'}catch(e){}
+let AUDIO_BAD=false;const ctx=()=>{try{navigator.audioSession.type='playback'}catch(e){}   // el AudioContext ya solo se usa para el metrónomo de prueba
  if(ac&&(ac.state==='closed'||AUDIO_BAD)){const o=ac;ac=null;AUDIO_BAD=false;try{o.onstatechange=null;o.close()}catch(e){}}
- if(!ac){ac=new(window.AudioContext||window.webkitAudioContext)();an=ac.createAnalyser();an.fftSize=512;an.smoothingTimeConstant=.78;an.connect(ac.destination);an2=ac.createAnalyser();an2.fftSize=4096;an2.smoothingTimeConstant=.5;an2.minDecibels=-100;an2.maxDecibels=-10;{const z=ac.createGain();z.gain.value=0;an2.connect(z);z.connect(ac.destination)}ac.onstatechange=()=>{if(ac&&ac.state==='interrupted')AUDIO_BAD=true;if(playing&&(ac.state==='interrupted'||ac.state==='suspended')){pause();msg('Audio interrumpido (llamada u otra app). Toca Reproducir para continuar.')}}}return ac};
-const pos=()=>playing?ac.currentTime-t0:pausedAt;
-function stopSrc(){if(bsrc){bsrc.onended=null;try{bsrc.stop()}catch(e){}try{bsrc.disconnect()}catch(e){}bsrc=null}}
-function play(off){ctx();stopSrc();tOv0=t;lastBI=null;off=Math.max(0,Math.min(off,buf.duration-.05));
- const s=bsrc=ac.createBufferSource();s.buffer=buf;s.connect(an);if(an2)s.connect(an2);s.start(0,off);t0=ac.currentTime-off;playing=true;wakeOn();$('pl').textContent='⏸ Pausa';
- s.onended=()=>{if(bsrc===s&&playing){playing=false;wakeOff();pausedAt=0;$('pl').textContent='▶ Reproducir';if(tracks.length>1)loadTrack((ti+1)%tracks.length,true)}}}
+ if(!ac){ac=new(window.AudioContext||window.webkitAudioContext)();ac.onstatechange=()=>{if(ac&&ac.state==='interrupted')AUDIO_BAD=true}}return ac};
+let AU=null,auURL=null,auEst=0,auNow=0,auGen=0,monoB=null,monoFor=null;
+function ensureAU(){if(AU)return AU;AU=new Audio();AU.preload='auto';AU.setAttribute('playsinline','');AU.style.display='none';document.body.appendChild(AU);
+ AU.addEventListener('ended',()=>{if(playing){playing=false;wakeOff();pausedAt=0;$('pl').textContent='▶ Reproducir';if(tracks.length>1)loadTrack((ti+1)%tracks.length,true)}});
+ AU.addEventListener('pause',()=>{if(playing&&!AU.ended){playing=false;pausedAt=Math.max(0,AU.currentTime||auEst);wakeOff();$('pl').textContent='▶ Reproducir';msg('El sistema pausó el audio (bloqueo, llamada u otra app). Toca Reproducir para continuar.')}});
+ AU.addEventListener('error',()=>{if(auURL)msg('El reproductor no pudo leer esta pista. Prueba con un MP3 o M4A.')});
+ try{if(navigator.mediaSession){navigator.mediaSession.setActionHandler('play',()=>{if(!playing&&buf)$('pl').click()});navigator.mediaSession.setActionHandler('pause',()=>{if(playing)$('pl').click()})}}catch(e){}
+ return AU}
+function setAU(f){ensureAU();try{AU.pause()}catch(e){}if(auURL){try{URL.revokeObjectURL(auURL)}catch(e){}}auURL=URL.createObjectURL(f);AU.src=auURL;try{AU.load()}catch(e){}
+ try{if(navigator.mediaSession&&window.MediaMetadata)navigator.mediaSession.metadata=new MediaMetadata({title:f.name.replace(/\.[^.]+$/,''),artist:'Synth Pilot VFX'})}catch(e){}}
+const pos=()=>{if(!playing)return pausedAt;const now=performance.now()/1000,ct=AU.currentTime;let e=auEst+(now-auNow);if(AU.paused||AU.readyState<3||!(Math.abs(ct-e)<.3))e=ct;else e+=(ct-e)*.05;auEst=e;auNow=now;return e};   // reloj suave sobre el reproductor nativo
+function stopSrc(){try{if(AU)AU.pause()}catch(e){}}
+function getMono(){if(monoFor!==buf){monoFor=buf;if(buf.numberOfChannels>1){const a=buf.getChannelData(0),b=buf.getChannelData(1),m=new Float32Array(a.length);for(let i=0;i<m.length;i++)m[i]=.5*(a[i]+b[i]);monoB=m}else monoB=buf.getChannelData(0)}return monoB}
+const smL=new Float32Array(256),rePL=new Float32Array(512),imPL=new Float32Array(512);
+function specLive(mono,sr,tc){const N=512,e=Math.floor(tc*sr);for(let i=0;i<N;i++){const k=e-N+i,x=k>=0&&k<mono.length?mono[k]:0;rePL[i]=x*(.42-.5*Math.cos(2*Math.PI*i/N)+.08*Math.cos(4*Math.PI*i/N));imPL[i]=0}
+ fft(rePL,imPL);for(let k=0;k<256;k++){smL[k]=.78*smL[k]+.22*Math.hypot(rePL[k],imPL[k])/N;raw[k]=Math.max(0,Math.min(255,255*(20*Math.log10(smL[k]+1e-9)+100)/70))}}   // igual que el analizador anterior, pero leído de la pista
+function play(off){ensureAU();tOv0=t;lastBI=null;off=Math.max(0,Math.min(off,buf.duration-.05));const my=++auGen;
+ try{navigator.audioSession.type='playback'}catch(e){}
+ try{AU.currentTime=off}catch(e){}
+ playing=true;auEst=off;auNow=performance.now()/1000;wakeOn();$('pl').textContent='⏸ Pausa';
+ const pr=AU.play();if(pr&&pr.catch)pr.catch(e=>{if(my!==auGen)return;playing=false;pausedAt=off;wakeOff();$('pl').textContent='▶ Reproducir';msg('El teléfono no dejó reproducir ('+((e&&e.name)||'error')+'). Toca Reproducir otra vez.')});
+ AU.addEventListener('playing',()=>{if(my===auGen&&Math.abs(AU.currentTime-off)>.35){try{AU.currentTime=off}catch(e){}auEst=off}},{once:true})}
 function pause(){if(!playing)return;pausedAt=pos();playing=false;stopSrc();wakeOff();$('pl').textContent='▶ Reproducir'}
 let LTGEN=0,DEC_TO=60000;
   async function loadTrack(i,auto){const f=tracks[i];if(!f)return;const my=++LTGEN;ti=i;$('tl').value=i;pause();pausedAt=0;buf=null;pk=null;fileObj=f;   // my: si eliges otra pista mientras ésta se decodifica, la vieja se ignora
    msg('Decodificando '+f.name+(f.size>40e6?' ('+Math.round(f.size/1e6)+' MB: puede tardar un poco)':'')+'…');
-   let nb;try{const a=ctx();let ab=await f.arrayBuffer();if(my!==LTGEN)return;
+   let nb;try{try{navigator.audioSession.type='playback'}catch(e){}const OA=window.OfflineAudioContext||window.webkitOfflineAudioContext,a=new OA(2,1,44100);let ab=await f.arrayBuffer();if(my!==LTGEN)return;
     nb=await Promise.race([new Promise((r,j)=>a.decodeAudioData(ab,r,j)),new Promise((_,j)=>setTimeout(()=>j(new Error('timeout')),DEC_TO))]);ab=null}
    catch(e){if(my!==LTGEN)return;buf=null;return msg('No pude leer "'+f.name+'" ('+(e&&e.message==='timeout'?'tardó demasiado: prueba con un archivo más corto o con un MP3/M4A':'formato no soportado por iOS o archivo en iCloud sin descargar')+').')}
-   if(my!==LTGEN)return;buf=nb;
+   if(my!==LTGEN)return;buf=nb;setAU(f);
    $('st').max=Math.max(0,Math.floor(buf.duration-1));mkPeaks();setStart(0,false);
    {const tx=$('txt');if(!tx.value||tx.dataset.auto==='1'){tx.value=f.name.replace(/\.[^.]+$/,'');tx.dataset.auto='1'}}
    msg('Pista lista: '+f.name+' ('+Math.round(buf.duration)+' s)');
    GRIDOK=false;BCONF=0;lastBI=null;detectBpm(true).catch(()=>{});
-   if(auto){try{await audioReady();play(0)}catch(e){}}}
+   if(auto){try{play(0)}catch(e){}}}
   const onTracks=e=>{const fs=[...e.target.files];e.target.value='';if(!fs.length)return;tracks=fs;
  $('tl').replaceChildren(...fs.map((f,i)=>new Option((i+1)+'. '+f.name,i)));loadTrack(0,false)};
 $('f_audio').onchange=onTracks;$('f_video').onchange=onTracks;
@@ -2129,8 +2145,8 @@ $('sm1').onclick=()=>setStart(+$('st').value-1);$('sp1').onclick=()=>setStart(+$
 let wfd=false;const wfSet=e=>{const r=wf.getBoundingClientRect();if(buf)setStart((e.clientX-r.left)/r.width*buf.duration,false)};
 wf.onpointerdown=e=>{wfd=true;try{wf.setPointerCapture(e.pointerId)}catch(_){}wfSet(e)};wf.onpointermove=e=>{if(wfd)wfSet(e)};
 wf.onpointerup=wf.onpointercancel=()=>{if(!wfd)return;wfd=false;if(buf)setStart(+$('st').value)};
-$('pl').onclick=async()=>{if(!buf)return msg('Primero elige una pista');
- try{if(playing&&ac&&ac.state!=='running')pause();await audioReady();if(playing)pause();else{play(pausedAt>0?pausedAt:+$('st').value);msg('Reproduciendo…')}}
+$('pl').onclick=()=>{if(!buf)return msg('Primero elige una pista');
+ try{if(playing)pause();else{play(pausedAt>0?pausedAt:+$('st').value);msg('Reproduciendo…')}}
  catch(e){msg('Error al reproducir: '+e.message)}};
 
 // ---- Galería de fotos y videos (carga perezosa: sin límite de cantidad) ----
@@ -2203,7 +2219,7 @@ function lev(){
     beat*=.9;avg=avg*.95+bass*.05;
 }
 const raw=new Uint8Array(256),hist=[];
-function ana(){if(an&&playing)an.getByteFrequencyData(raw);else for(let i=0;i<256;i++)raw[i]*=.9;
+function ana(){if(playing&&buf)specLive(getMono(),buf.sampleRate,pos());else for(let i=0;i<256;i++)raw[i]*=.9;
  hist.push({t,d:raw.slice()});while(hist.length>45)hist.shift();                       // compensa la latencia del audio (p. ej. Bluetooth)
  const want=t-DL/1000;let pk=hist[0];for(const e of hist){if(e.t<=want)pk=e;else break}fd.set(pk.d);lev()}
 
@@ -2555,7 +2571,7 @@ $('bnl').onclick=()=>{BOFF-=.02;lastBI=null;binfo()};$('bnr').onclick=()=>{BOFF+
 $('bmode').onchange=e=>{GRIDM=e.target.value==='1';lastBI=null};
 function clickSched(){   // metrónomo programado sobre el reloj del audio: suena exactamente en la rejilla, para comprobarla de oído
  if(!playing||!GRIDOK||!$('bclk').checked)return;const P=60/BPMV,pp=pos(),k=Math.ceil((pp-BOFF)/P-1e-6),bt=BOFF+k*P;
- if(bt-pp<.12&&k!==clkN){clkN=k;const when=t0+bt,o=ac.createOscillator(),gn=ac.createGain();o.frequency.value=((k%4)+4)%4===0?1500:1000;
+ if(bt-pp<.12&&k!==clkN){clkN=k;const A=ctx();if(A.state!=='running')A.resume().catch(()=>{});const when=A.currentTime+(bt-pp),o=A.createOscillator(),gn=A.createGain();o.frequency.value=((k%4)+4)%4===0?1500:1000;
   gn.gain.setValueAtTime(.0001,when);gn.gain.exponentialRampToValueAtTime(.35,when+.002);gn.gain.exponentialRampToValueAtTime(.0001,when+.05);o.connect(gn);gn.connect(ac.destination);o.start(when);o.stop(when+.06)}}
 binfo();
 
@@ -2890,7 +2906,7 @@ function eqStep(db,sr){eqMap(sr);let pkdb=-200,pw=0;
  EQ.m=sum/64;EQ.es+=(Edb-EQ.es)*(1-Math.exp(-dt/.18));EQ.el+=(Edb-EQ.el)*(1-Math.exp(-dt/5));if(++EQ.n<30){EQ.es=EQ.el=Edb}/* sin falsos drops mientras el análisis arranca */
  const tg=sil?0:Math.max(0,Math.min(1,(EQ.es-EQ.el-1.5)/5));EQ.drop+=(tg-EQ.drop)*(1-Math.exp(-dt/(tg>EQ.drop?.04:.8)));
  EQ.hist.push({t,b:EQ.b.slice(),d:EQ.drop});while(EQ.hist.length>45)EQ.hist.shift()}
-function eqPreview(){if(!layersActive()&&!ovOn())return;if(an2&&playing)an2.getFloatFrequencyData(EQ.db);else EQ.db.fill(-120);
+function eqPreview(){if(!layersActive()&&!ovOn())return;if(playing&&buf){eqFromPcm(getMono(),buf.sampleRate,pos());return}EQ.db.fill(-120);
  for(let i=0;i<2048;i++)if(!isFinite(EQ.db[i]))EQ.db[i]=-120;eqStep(EQ.db,ac?ac.sampleRate:48000)}
 const eqW=new Float32Array(4096),eqRe=new Float32Array(4096),eqIm=new Float32Array(4096);
 for(let i=0;i<4096;i++)eqW[i]=.42-.5*Math.cos(2*Math.PI*i/4096)+.08*Math.cos(4*Math.PI*i/4096);
@@ -3258,11 +3274,8 @@ document.addEventListener('visibilitychange',()=>{if(busy&&document.hidden)msg('
 let awl=null;
 async function wakeOn(){try{if(!awl&&navigator.wakeLock&&playing&&!document.hidden){awl=await navigator.wakeLock.request('screen');awl.addEventListener('release',()=>{awl=null})}}catch(e){awl=null}}
 function wakeOff(){try{if(awl)awl.release()}catch(e){}awl=null}
-async function audioReady(){let a=ctx();if(a.state!=='running'){try{await Promise.race([a.resume(),nap(400)])}catch(e){}}
- if(ac.state!=='running'){AUDIO_BAD=true;a=ctx();try{await Promise.race([a.resume(),nap(900)])}catch(e){}}   // si iOS dejó el audio colgado, se crea uno nuevo (la pista cargada se conserva)
- return ac}
-async function audioWake(){if(!ac||document.hidden||busy)return;if(ac.state!=='running'){try{await Promise.race([ac.resume(),nap(400)])}catch(e){}}
- if(ac.state!=='running'&&playing){pause();msg('El audio se pausó al bloquear la pantalla. Toca Reproducir para continuar.')}else if(playing)wakeOn()}
+async function audioReady(){try{navigator.audioSession.type='playback'}catch(e){}return null}
+async function audioWake(){if(document.hidden||busy||!playing)return;if(AU&&AU.paused){playing=false;pausedAt=Math.max(0,AU.currentTime||auEst);wakeOff();$('pl').textContent='▶ Reproducir';msg('El audio se pausó al bloquear la pantalla. Toca Reproducir para continuar.')}else wakeOn()}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)audioWake()});window.addEventListener('pageshow',audioWake);window.addEventListener('focus',audioWake);
 
 // ---- OVERLAYS: hasta 2 capas encima del video, cada una con su intensidad (salen igual al exportar) ----
